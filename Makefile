@@ -27,7 +27,8 @@ all: $(NAME)
 $(NAME): $(OBJS)
 	@$(AS) $(SRCDIR)/boot.s -o $(OBJDIR)/boot.o
 	@printf "[\e[32mAS\e[0m] %s\n" boot.o
-	@$(CC) -T linker.ld -o $(NAME).bin -ffreestanding -O2 -nostdlib $(OBJDIR)/boot.o $(OBJDIR)/kernel.o -lgcc
+	@make -C lib/string
+	@$(CC) -T linker.ld -o $(NAME).bin -ffreestanding -O2 -nostdlib $(OBJDIR)/boot.o $(OBJDIR)/kernel.o -lgcc lib/string/string.a -I include
 	@printf "[\e[34mOK\e[0m] %s\n" $(NAME).bin
 
 -include $(DPDCS)
@@ -49,10 +50,12 @@ boot: iso
 
 
 clean:
+	@make clean -C lib/string
 	rm -rf $(OBJDIR)
 	rm -rf $(ISODIR)
 
 fclean: clean
+	@make fclean -C lib/string
 	rm -f kfs.iso
 	rm -f kfs.bin
 
