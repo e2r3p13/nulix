@@ -35,6 +35,11 @@ $(LIBNAME): $(OBJS)
 
 -include $(DPDCS)
 
+test: $(LIBNAME)
+	@gcc test.c $(LIBNAME) -o test.out -I ../../include
+	@./test.out
+	@rm test.out
+
 $(OBJDIR)/%.o: %.c
 	@mkdir -p $(OBJDIR)
 	@$(CC) $(CFLAGS) $(FSAN) -MMD -I$(INCDIR) -c $< -o $@
