@@ -1,6 +1,10 @@
 
 cross-target:= i686-elf
 
+ifndef ${builddir}
+	.INCLUDE_DIRS= ../include
+endif
+
 # COMPILE VAR
 AS:= ${cross-target}-as
 ASFLAGS+=
@@ -15,46 +19,52 @@ LDFLAGS+=
 subdir:=
 
 builddir?= build
-local-builddir:= build
 
-libname:= string
-src-y:= str.c mem.c
+src-y:= kernel.c boot.s
 
-objs:= $(addprefix ${local-builddir}/, ${src-y})
+objs:= $(addprefix ${builddir}/, ${src-y})
 objs:= ${objs:.c=.o}
 objs:= ${objs:.s=.o}
 
-deps:= ${objs::o=.b}
--include ${defs}
+deps:= ${objs:.o=.d}
+-include ${deps}
 
 # RULES
 .PHONY: all
-all: build lib
+all: build-subdir build
 
 .PHONY: build
-build: ${objs}
+build: build-subdir ${objs}
 
-.PHONY: lib
-lib: build
-	@${AR} ${ARFLAGS} ${builddir}/lib${libname}.a ${objs}
-	@printf "[ \e[32mAR\e[0m ]  %s\n" lib${libname}.a
-
-${local-builddir}/%.o: %.c
-	@mkdir -p ${local-builddir}
+${builddir}/%.o: %.c
+	@mkdir -p ${builddir}
 	@${CC} ${CFLAGS} -o $@ -c $^
 	@printf "[ \e[32mCC\e[0m ]  %s\n" $^
 
-${local-builddir}/%.o: %.s
-	@mkdir -p ${local-builddir}
+${builddir}/%.o: %.s
+	@mkdir -p ${builddir}
 	@${AS} ${ASFLAGS} -o $@ -c $^
 	@printf "[ \e[32mAS\e[0m ]  %s\n" $^
 
 .PHONY: clean
-clean:
+clean: clean-subdir
 	@${RM} ${objs}
-	@${RM} ${builddir}/lib${libname}.a
-	@${RM} -r ${local-builddir}
+	@${RM} ${deps}
+	@rmdir --ignore-fail-on-non-empty ${builddir}
 	@for obj in $(foreach o,${objs},$(shell basename ${o})); do \
 		printf "[ \e[31mRM\e[0m ]  %s\n" $$obj; \
 	done
-	@printf "[ \e[31mRM\e[0m ]  %s\n" $(shell basename ${builddir}/lib${libname}.a)
+
+# SUBDIR
+.PHONY: build-subdir
+build-subdir:
+	@for subd in ${subdir}; do \
+		${MAKE} -C $$subd builddir=${builddir} all; \
+	done
+
+.PHONY: clean-subdir
+clean-subdir:
+	@for subd in ${subdir}; do \
+		${MAKE} -C $$subd builddir=${builddir} clean; \
+	done
+
