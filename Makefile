@@ -1,61 +1,76 @@
 
-# ****************
-#	Variables:
+cross-target:= i686-elf
+target:= i386
 
-SRCDIR	= kernel
-INCDIR	= include
-OBJDIR	= obj
-ISODIR	= isodir
-
-OBJS	=	$(addprefix $(OBJDIR)/,$(SRCS:.c=.o))
-DPDCS	=	$(OBJS:.o=.d)
-OBJCTT	=	$(shell ls $(OBJDIR)/*.o)
-DPDCTT	=	$(shell ls $(OBJDIR)/*.d)
-
-AS		= i686-elf-as
-CC		= i686-elf-gcc
-
-NAME	= kfs
-
-SRCS	= kernel.c \
-
-# ****************
-#	Rules:
-
-all: $(NAME)
-
-$(NAME): $(OBJS)
-	@$(AS) $(SRCDIR)/boot.s -o $(OBJDIR)/boot.o
-	@printf "[\e[32mAS\e[0m] %s\n" boot.o
-	@make -C lib/string
-	@$(CC) -T linker.ld -o $(NAME).bin -ffreestanding -O2 -nostdlib $(OBJDIR)/boot.o $(OBJDIR)/kernel.o -lgcc lib/string/string.a -I include
-	@printf "[\e[34mOK\e[0m] %s\n" $(NAME).bin
-
--include $(DPDCS)
-
-$(OBJDIR)/%.o: $(SRCDIR)/%.c
-	@mkdir -p $(OBJDIR)
-	@$(CC) -std=gnu99 -ffreestanding -O2 -Wall -Wextra -MMD -I $(INCDIR) -c $< -o $@
-	@printf "[\e[32mCC\e[0m] %s\n" $@
-
-iso: all
-	@mkdir -p $(ISODIR)/boot/grub
-	@cp $(NAME).bin $(ISODIR)/boot/$(NAME).bin
-	@cp grub.cfg $(ISODIR)/boot/grub/grub.cfg
-	@grub2-mkrescue --compress=xz -o $(NAME).iso $(ISODIR)
-	@printf "[\e[34mOK\e[0m] %s\n" $(NAME).iso
-	
-boot: iso
-	@qemu-system-i386 -cdrom $(NAME).iso -curses
+kernel-name:= kfs
+kernel-version:= 0.0.1
+kernel:= ${kernel-name}-${kernel-version}
 
 
-clean:
-	@make clean -C lib/string
-	rm -rf $(OBJDIR)
-	rm -rf $(ISODIR)
+#BUILD 
+subdir+= kernel lib
 
-fclean: clean
-	@make fclean -C lib/string
-	rm -f kfs.iso
-	rm -f kfs.bin
+archdir:= arch/${target}
 
+builddir?= $(shell pwd)/build
+isodir:= ${builddir}/iso
+
+.INCLUDE_DIRS:= $(shell pwd)/include
+
+objs= $(shell find ${builddir} -type f -name "*.o")
+libs= $(shell find ${builddir} -type f -name "*.a")
+
+LD:= ${cross-target}-ld
+LDFLAGS+= -T ${archdir}/linker.ld
+QEMU:= qemu-system-i386
+QEMUFLAGS+= -serial stdio
+GRUBMK:=grub2-mkrescue
+GRUBMKFLAGS+=--compress=xz
+#GRUBMOD:=--install-modules="normal multiboot2 part_gpt part_acorn part_apple\
+#		part_bsd part_amiga part_dfly part_dvh part_plan part_sun part_sunpc"
+
+.PHONY: all
+all: build link
+
+.PHONY: build
+build: build-subdir
+
+.PHONY: link
+link: build
+	@${LD} ${LDFLAGS} -o ${builddir}/${kernel} ${objs} ${libs}
+	@printf "[ \e[32mLD\e[0m ]  %s\n" ${kernel}
+
+.PHONY: iso
+iso: link
+	@mkdir -p ${isodir}/boot/grub
+	@cp ${builddir}/${kernel} ${isodir}/boot/${kernel}
+	@cp ${archdir}/grub.cfg ${isodir}/boot/grub/
+	@sed 's/__kfs__/${kernel}/' ${archdir}/grub.cfg > ${isodir}/boot/grub/grub.cfg
+	@${GRUBMK} ${GRUBMKFLAGS} -o ${builddir}/${kernel}.iso ${isodir} 2>/dev/null
+	@printf "[ \e[34mMK\e[0m ]  %s\n" ${kernel}.iso
+
+.PHONY: boot
+boot:
+	@${QEMU} ${QEMUFLAGS} -cdrom ${builddir}/${kernel}.iso
+
+.PHONY: clean
+clean: clean-subdir
+	@${RM} ${builddir}/${kernel}
+	@${RM} ${builddir}/${kernel}.iso
+	@${RM} -r ${isodir}
+	@rmdir --ignore-fail-on-non-empty ${builddir}
+	@printf "[ \e[31mRM\e[0m ]  %s\n" ${kernel}
+	@printf "[ \e[31mRM\e[0m ]  %s\n" ${kernel}.iso
+
+# SUBDIR
+.PHONY: build-subdir
+build-subdir:
+	@for subd in ${subdir}; do \
+		${MAKE} -C $$subd builddir=${builddir} .INCLUDE_DIRS=${.INCLUDE_DIRS} all; \
+	done
+
+.PHONY: clean-subdir
+clean-subdir:
+	@for subd in ${subdir}; do \
+		${MAKE} -C $$subd builddir=${builddir} .INCLUDE_DIRS=${.INCLUDE_DIRS} clean; \
+	done
