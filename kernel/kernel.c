@@ -3,15 +3,23 @@
  * Entrypoint of the KFS kernel
  *
  * created: 2022/10/11 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/10/17 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/10/18 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <kernel/string.h>
 #include <kernel/vga.h>
 #include <kernel/keyboard.h>
 #include <kernel/print.h>
+#include <kernel/gdt.h>
 
 extern struct vga vga;
+
+/* Initialize all descriptor tables (gdt, idt, ...)
+ *
+ */
+void init_descriptor_tables() {
+	gdt_init();
+}
 
 static void print_help() {
 	char *shortcuts[] = {
@@ -41,6 +49,7 @@ void kernel_main(void) {
 	char c = 0;
 	struct kbd_event evt;
 
+	init_descriptor_tables();
 	VGA_initialize();
 	print_help();
 

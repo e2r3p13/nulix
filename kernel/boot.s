@@ -10,6 +10,9 @@
 .long FLAGS
 .long CHECKSUM
 
+.global stack_bottom
+.global stack_top
+
 .section .bss
 .align 16
 stack_bottom:
@@ -20,6 +23,7 @@ stack_top:
 	.type _start, @function
 _start:
 	mov $stack_top, %esp
+	cli
 	call kernel_main
 	cli
 1:	hlt
