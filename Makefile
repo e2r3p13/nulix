@@ -6,7 +6,6 @@ kernel-name:= kfs
 kernel-version:= 0.0.1
 kernel:= ${kernel-name}-${kernel-version}
 
-
 #BUILD 
 subdir+= kernel lib
 
