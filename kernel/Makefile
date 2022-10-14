@@ -20,7 +20,7 @@ subdir:=
 
 builddir?= build
 
-src-y:= kernel.c boot.s
+src-y:= kernel.c boot.s port.c
 
 objs:= $(addprefix ${builddir}/, ${src-y})
 objs:= ${objs:.c=.o}
