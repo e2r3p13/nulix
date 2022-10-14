@@ -41,13 +41,13 @@ lib: build
 
 ${local-builddir}/%.o: %.c
 	@mkdir -p ${local-builddir}
-	@${CC} ${CFLAGS} -o $@ -c $^
-	@printf "[ \e[32mCC\e[0m ]  %s\n" $^
+	@${CC} ${CFLAGS} -o $@ -c $<
+	@printf "[ \e[32mCC\e[0m ]  %s\n" $<
 
 ${local-builddir}/%.o: %.s
 	@mkdir -p ${local-builddir}
-	@${AS} ${ASFLAGS} -o $@ -c $^
-	@printf "[ \e[32mAS\e[0m ]  %s\n" $^
+	@${AS} ${ASFLAGS} -o $@ -c $<
+	@printf "[ \e[32mAS\e[0m ]  %s\n" $<
 
 .PHONY: clean
 clean:
