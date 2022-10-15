@@ -29,7 +29,8 @@ git clone https://github.com/lfalkau/kfs.git
 ### Run KFS with qemu:
 ```
 cd kfs
+make iso
 make boot
 ```
 
-You can alternatively run `make iso` to get a disk image, or simply `make` to get the kernel binary image.
+You can alternatively run `make` if you just want to get the kernel binary image.
