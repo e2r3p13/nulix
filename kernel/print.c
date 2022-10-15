@@ -80,6 +80,7 @@ static int snprintnum(char *buf, size_t size, int n, int base, int issigned) {
  * - %u: unsigned integer
  * - %b: unsigned binary integer
  * - %x: unsigned hexadecimal integer
+ * - %p: pointer
  *
  * @ret: The number of written bytes
  */
@@ -108,6 +109,12 @@ static int vsnprintf(char *buf, size_t size, const char *fmt, va_list ap) {
 					count += snprintnum(buf + count, size - count, x, 16, 0);
 					break;
 				case 'p':
+					if (size - count > 2) {
+						const int p = va_arg(ap, int);
+						buf[count++] = '0';
+						buf[count++] = 'x';
+						count += snprintnum(buf + count, size - count, p, 16, 0);
+					}
 					break;
 				case 'b':
 					const int b = va_arg(ap, int);
