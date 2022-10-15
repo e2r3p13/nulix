@@ -25,6 +25,7 @@ src-y:= \
 	boot.s \
 	port.c \
 	vga.c \
+	print.c \
 
 objs:= $(addprefix ${builddir}/, ${src-y})
 objs:= ${objs:.c=.o}
