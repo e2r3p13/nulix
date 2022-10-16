@@ -103,7 +103,6 @@ void VGA_scrollby(size_t n) {
 		}
 	}
 	vga.y = n > vga.y ? 0 : vga.y - n;
-	VGA_update_cursor(vga.x, vga.y);
 }
 
 /*
@@ -140,15 +139,38 @@ void VGA_putentryat(char c, uint8_t color, size_t x, size_t y) {
  * @c: Character to be written
  */
 void VGA_putchar(char c) {
-	if (c == '\n' || vga.x == VGA_WIDTH) {
-		vga.y++;
-		vga.x = 0;
-	} else {
-		VGA_putentryat(c, vga.color, vga.x, vga.y);
-		vga.x++;
-	}
-	if (vga.y == VGA_HEIGHT) {
-		VGA_scrollby(1);
+	switch (c) {
+		case '\n':
+			vga.x = 0;
+			vga.y++;
+			if (vga.y == VGA_HEIGHT)
+				VGA_scrollby(1);
+			VGA_update_cursor(vga.x, vga.y);
+			break;
+		case '\b':
+			vga.x--;
+			if (vga.x < 0) {
+				vga.x = VGA_WIDTH - 1;
+				vga.y--;
+				if (vga.y < 0) {
+					vga.x = 0;
+					vga.y = 0;
+				}
+			}
+			VGA_update_cursor(vga.x, vga.y);
+			VGA_putentryat(' ', vga.color, vga.x, vga.y);
+			break;
+		default:
+			VGA_putentryat(c, vga.color, vga.x, vga.y);
+			vga.x++;
+			if (vga.x == VGA_WIDTH) {
+				vga.x = 0;
+				vga.y++;
+			}
+			if (vga.y == VGA_HEIGHT)
+				VGA_scrollby(1);
+			VGA_update_cursor(vga.x, vga.y);
+			break;
 	}
 }
 
@@ -161,7 +183,6 @@ void VGA_putchar(char c) {
 void VGA_write(const char *data, size_t size) {
 	while (size--)
 		VGA_putchar(*data++);
-	VGA_update_cursor(vga.x, vga.y);
 }
 
 /*
@@ -173,5 +194,4 @@ void VGA_write(const char *data, size_t size) {
 void VGA_writestring(const char *str) {
 	while (*str)
 		VGA_putchar(*str++);
-	VGA_update_cursor(vga.x, vga.y);
 }
