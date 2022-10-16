@@ -3,7 +3,7 @@
  * Interface to read and write to port.
  *
  * created: 2022/10/14 - xlmod <glafond-@student.42.fr>
- * updated: 2022/10/14 - xlmod <glafond-@student.42.fr>
+ * updated: 2022/10/17 - lfalkau <lfalkau@student.42.fr>
  */
 
 #ifndef PORT_H
@@ -13,5 +13,10 @@
 
 uint8_t		port_read(uint16_t port);
 void		port_write(uint16_t port, uint8_t val);
+
+/* Ports definition */
+
+#define PS2_DATA 0x60
+#define PS2_STATUS_REGISTER 0x64
 
 #endif

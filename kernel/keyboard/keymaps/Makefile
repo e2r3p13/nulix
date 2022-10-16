@@ -16,16 +16,12 @@ LD:= ${cross-target}-ld
 LDFLAGS+=
 
 # BUILD VAR
-subdir:= keyboard
+subdir:=
 
 builddir?= build
 
 src-y:= \
-	kernel.c \
-	boot.s \
-	port.c \
-	vga.c \
-	print.c \
+	US104.c \
 
 objs:= $(addprefix ${builddir}/, ${src-y})
 objs:= ${objs:.c=.o}
