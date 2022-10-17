@@ -6,19 +6,21 @@
  * updated: 2022/10/18 - mrxx0 <chcoutur@student.42.fr>
  */
 
-#include <kernel/string.h>
-#include <kernel/vga.h>
+#include <kernel/gdt.h>
+#include <kernel/idt.h>
 #include <kernel/keyboard.h>
 #include <kernel/print.h>
-#include <kernel/gdt.h>
+#include <kernel/string.h>
+#include <kernel/vga.h>
 
 extern struct vga vga;
 
 /* Initialize all descriptor tables (gdt, idt, ...)
  *
  */
-void init_descriptor_tables() {
+static void init_descriptor_tables() {
 	gdt_init();
+	idt_init();
 }
 
 static void print_help() {
@@ -50,10 +52,11 @@ void kernel_main(void) {
 	struct kbd_event evt;
 
 	init_descriptor_tables();
-	VGA_initialize();
-	print_help();
 
+	VGA_initialize();
 	KBD_initialize();
+
+	print_help();
 
 	while (1) {
 		while (!KBD_poll());

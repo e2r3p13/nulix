@@ -28,6 +28,8 @@ src-y:= \
 	print.c \
 	gdt.c \
 	gdt_flush.s \
+	idt.c \
+	isr.c \
 
 objs:= $(addprefix ${builddir}/, ${src-y})
 objs:= ${objs:.c=.o}
