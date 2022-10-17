@@ -112,6 +112,9 @@ void VGA_scrollby(size_t n) {
 void VGA_clear(void) {
 	for (size_t i = 0; i < VGA_HEIGHT * VGA_WIDTH; i++)
 		vga.buffer[i] = vga_entry(' ', VGA_DFL_COLOR);
+	vga.x = 0;
+	vga.y = 0;
+	VGA_update_cursor(0, 0);
 }
 
 /*
