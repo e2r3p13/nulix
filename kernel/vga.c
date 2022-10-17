@@ -3,7 +3,7 @@
  * Implements some basic function to interact with the VGA buffer
  *
  * created: 2022/10/13 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/10/14 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/10/18 - lfalkau <lfalkau@student.42.fr>
  */
 
 #include <kernel/vga.h>
@@ -18,6 +18,18 @@ struct vga vga = {
 
 static inline uint16_t vga_entry(unsigned char c, uint8_t color) {
 	return (uint16_t)c | (uint16_t)color << 8;
+}
+
+static void update_cursor() {
+	uint16_t pos;
+
+	if (vga.x >= 0 && vga.x < VGA_WIDTH && vga.y >= 0 && vga.y < VGA_HEIGHT) {
+		pos = vga.y * VGA_WIDTH + vga.x;
+		port_write(0x3D4, 0x0F);
+		port_write(0x3D5, (uint8_t) (pos & 0xFF));
+		port_write(0x3D4, 0x0E);
+		port_write(0x3D5, (uint8_t) ((pos >> 8) & 0xFF));
+	}
 }
 
 /*
@@ -35,16 +47,22 @@ void VGA_initialize(void) {
  * @x: The column index of the VGA buffer to move the cursor to
  * @y: The row index of the VGA buffer to move the cursor to
  */
-void VGA_update_cursor(int x, int y) {
-	uint16_t pos;
-
-	if (x < VGA_WIDTH && y < VGA_HEIGHT) {
-		pos = y * VGA_WIDTH + x;
-		port_write(0x3D4, 0x0F);
-		port_write(0x3D5, (uint8_t) (pos & 0xFF));
-		port_write(0x3D4, 0x0E);
-		port_write(0x3D5, (uint8_t) ((pos >> 8) & 0xFF));
+void VGA_move_cursor_to(int x, int y) {
+	if (x >= 0 && x < VGA_WIDTH && y >= 0 && y < VGA_HEIGHT) {
+		vga.x = x;
+		vga.y = y;
+		update_cursor();
 	}
+}
+
+/*
+ * Moves the cursor by x/y offsets
+ *
+ * @x: Moves the cursor up to @x cells to the right
+ * @y: Moves the cursor up to @yx cells to the bottom
+ */
+void VGA_move_cursor_by(int x, int y) {
+	//TODO
 }
 
 /*
@@ -114,7 +132,7 @@ void VGA_clear(void) {
 		vga.buffer[i] = vga_entry(' ', VGA_DFL_COLOR);
 	vga.x = 0;
 	vga.y = 0;
-	VGA_update_cursor(0, 0);
+	update_cursor();
 }
 
 /*
@@ -148,7 +166,7 @@ void VGA_putchar(char c) {
 			vga.y++;
 			if (vga.y == VGA_HEIGHT)
 				VGA_scrollby(1);
-			VGA_update_cursor(vga.x, vga.y);
+			update_cursor();
 			break;
 		case '\b':
 			vga.x--;
@@ -160,7 +178,7 @@ void VGA_putchar(char c) {
 					vga.y = 0;
 				}
 			}
-			VGA_update_cursor(vga.x, vga.y);
+			update_cursor();
 			VGA_putentryat(' ', vga.color, vga.x, vga.y);
 			break;
 		default:
@@ -172,7 +190,7 @@ void VGA_putchar(char c) {
 			}
 			if (vga.y == VGA_HEIGHT)
 				VGA_scrollby(1);
-			VGA_update_cursor(vga.x, vga.y);
+			update_cursor();
 			break;
 	}
 }
