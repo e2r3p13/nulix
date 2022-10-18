@@ -22,6 +22,7 @@ builddir?= build
 
 src-y:= \
 	US104.c \
+	FR.c \
 
 objs:= $(addprefix ${builddir}/, ${src-y})
 objs:= ${objs:.c=.o}

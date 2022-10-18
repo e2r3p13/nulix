@@ -221,6 +221,7 @@ void KBD_setkeymap(struct kbd_keymap_entry (*kmfn)(enum kbd_keycode));
  * Keymaps
  */
 
-struct kbd_keymap_entry US104_getkeymapentry(enum kbd_keycode kc); /* US */
+struct kbd_keymap_entry US104_getkeymapentry(enum kbd_keycode kc);	/* US */
+struct kbd_keymap_entry FR_getkeymapentry(enum kbd_keycode kc);		/* FR */
 
 #endif
