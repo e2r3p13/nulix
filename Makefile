@@ -45,7 +45,7 @@ iso: link
 	@cp ${builddir}/${kernel} ${isodir}/boot/${kernel}
 	@cp ${archdir}/grub.cfg ${isodir}/boot/grub/
 	@sed 's/__kfs__/${kernel}/' ${archdir}/grub.cfg > ${isodir}/boot/grub/grub.cfg
-	@${GRUBMK} ${GRUBMKFLAGS} -o ${builddir}/${kernel}.iso ${isodir} 2>/dev/null
+	@${GRUBMK} ${GRUBMKFLAGS} -o ${builddir}/${kernel}.iso ${isodir}
 	@printf "[ \e[34mMK\e[0m ]  %s\n" ${kernel}.iso
 
 .PHONY: boot
