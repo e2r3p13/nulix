@@ -54,12 +54,31 @@ boot:
 
 .PHONY: clean
 clean: clean-subdir
-	@${RM} ${builddir}/${kernel}
-	@${RM} ${builddir}/${kernel}.iso
-	@${RM} -r ${isodir}
-	@rmdir --ignore-fail-on-non-empty ${builddir}
-	@printf "[ \e[31mRM\e[0m ]  %s\n" ${kernel}
-	@printf "[ \e[31mRM\e[0m ]  %s\n" ${kernel}.iso
+	@if [ -d ${builddir} ]; then \
+		for obj in $$(find . -type f -name '*.o' | tr '\n' ' '); do \
+			if [ -f $$obj ]; then \
+				${RM} $$obj; \
+				printf "[ \e[31mRM\e[0m ]  %s\n" "$${obj#./build/}"; \
+			fi; \
+		done; \
+		for obj in $$(find . -type f -name '*.a' | tr '\n' ' '); do \
+			if [ -f $$obj ]; then \
+				${RM} $$obj; \
+				printf "[ \e[31mRM\e[0m ]  %s\n" "$${obj#./build/}"; \
+			fi; \
+		done; \
+		${RM} $$(find . -type f -name '*.d'); \
+		${RM} ${builddir}/${kernel}; \
+		${RM} ${builddir}/${kernel}.iso; \
+		${RM} -r ${isodir}; \
+		printf "[ \e[31mRM\e[0m ]  %s\n" ${kernel}; \
+		printf "[ \e[31mRM\e[0m ]  %s\n" ${kernel}.iso; \
+		rmdir --ignore-fail-on-non-empty ${builddir}; \
+	fi
+
+.PHONY: fclean
+fclean: clean
+	@${RM} -r ${builddir}
 
 # SUBDIR
 .PHONY: build-subdir
