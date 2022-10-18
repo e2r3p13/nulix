@@ -24,7 +24,7 @@ objs:= $(addprefix ${local-builddir}/, ${src-y})
 objs:= ${objs:.c=.o}
 objs:= ${objs:.s=.o}
 
-deps:= ${objs::o=.b}
+deps:= ${objs:.o=.d}
 -include ${defs}
 
 # RULES
@@ -51,10 +51,20 @@ ${local-builddir}/%.o: %.s
 
 .PHONY: clean
 clean:
-	@${RM} ${objs}
-	@${RM} ${builddir}/lib${libname}.a
-	@${RM} -r ${local-builddir}
-	@for obj in $(foreach o,${objs},$(shell basename ${o})); do \
-		printf "[ \e[31mRM\e[0m ]  %s\n" $$obj; \
-	done
-	@printf "[ \e[31mRM\e[0m ]  %s\n" $(shell basename ${builddir}/lib${libname}.a)
+	@${RM} ${deps}
+	@if [ -d ${local-builddir} ]; then \
+		for obj in ${objs}; do \
+			if [ -f $(shell pwd)/$$obj ]; then \
+				${RM} $$obj; \
+				printf "[ \e[31mRM\e[0m ]  %s\n" "$${obj#${local-builddir}/}"; \
+			fi; \
+		done; \
+		${RM} -r ${local-builddir}; \
+	fi
+	@if [ -d ${builddir} ]; then \
+		if [ -f ${builddir}/lib${libname}.a ]; then \
+			${RM} ${builddir}/lib${libname}.a; \
+			printf "[ \e[31mRM\e[0m ]  %s\n" $(shell basename ${builddir}/lib${libname}.a); \
+		fi; \
+		rmdir --ignore-fail-on-non-empty ${builddir}; \
+	fi
