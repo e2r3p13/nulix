@@ -28,17 +28,22 @@
 			"mov %ax, %ds\n"\
 			"mov %ax, %es\n"\
 			"mov %ax, %fs\n"\
-			"mov %ax, %gs\n")
+			"mov %ax, %gs\n"\
+			"mov %ax, %ss\n"\
+			"add $4, %esp\n"\
+			)
 
 /* Macro to reset the segment registers to their original values.
  */
 #define RESET_INTERRUPT_STACK \
 	__asm__ volatile (\
+			"sub $4, %esp\n"\
 			"pop %eax\n"\
 			"mov %ds, %ax\n"\
 			"mov %es, %ax\n"\
 			"mov %fs, %ax\n"\
 			"mov %gs, %ax\n"\
+			"mov %ss, %ax\n"\
 			"sti\n")
 
 
@@ -62,10 +67,11 @@ typedef struct {
 /* Store registers when interrupt happen
  */
 typedef struct {
-	uint32_t ds;
-	uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax;
-	uint32_t int_no, err_code;
-	uint32_t eip, cs, eflags, useresp, ss;
+	uint32_t	eip;
+	uint32_t	cs;
+	uint32_t	flags;
+	uint32_t	sp, ss;
+
 }__attribute__ ((packed)) 	t_int_frame;
 
 /* ISR
