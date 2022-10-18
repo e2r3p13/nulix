@@ -206,6 +206,14 @@ void VGA_write(const char *data, size_t size) {
 		VGA_putchar(*data++);
 }
 
+void VGA_setbuf(uint16_t *data) {
+	memcpy(vga.buffer, data, sizeof(uint16_t) * VGA_WIDTH * VGA_HEIGHT);
+}
+
+uint16_t *VGA_getbuf() {
+	return vga.buffer;
+}
+
 /*
  * Writes a null terminated string on the VGA buffer and updates the
  * cursor position
