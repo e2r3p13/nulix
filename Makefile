@@ -61,6 +61,9 @@ clean: clean-subdir
 	@printf "[ \e[31mRM\e[0m ]  %s\n" ${kernel}
 	@printf "[ \e[31mRM\e[0m ]  %s\n" ${kernel}.iso
 
+.PHONY: re
+re: clean all
+
 # SUBDIR
 .PHONY: build-subdir
 build-subdir:
