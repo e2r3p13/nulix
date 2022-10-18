@@ -80,6 +80,9 @@ clean: clean-subdir
 fclean: clean
 	@${RM} -r ${builddir}
 
+.PHONY: re
+re: clean all
+
 # SUBDIR
 .PHONY: build-subdir
 build-subdir:
