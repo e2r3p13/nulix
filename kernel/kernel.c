@@ -22,8 +22,8 @@ static void print_help() {
 		[5] = " Reboot",
 		[6] = " Go to erase mode",
 		[7] = " Go to normal mode",
-		[8] = " N/A",
-		[9] = " N/A",
+		[8] = " Switch to qwerty",
+		[9] = " Switch to azerty",
 		[10] = "N/A",
 		[11] = "N/A",
 		[12] = "Reset terminal",
@@ -71,6 +71,12 @@ void kernel_main(void) {
 						break;
 					case KEY_F7:
 						vga.color = VGA_DFL_COLOR;
+						break;
+					case KEY_F8:
+						KBD_setkeymap(US104_getkeymapentry);
+						break;
+					case KEY_F9:
+						KBD_setkeymap(FR_getkeymapentry);
 						break;
 					case KEY_F12:
 						vga.color = VGA_DFL_COLOR;
