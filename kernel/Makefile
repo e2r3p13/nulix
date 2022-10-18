@@ -30,6 +30,7 @@ src-y:= \
 	gdt_flush.s \
 	idt.c \
 	isr.c \
+	spinlock.c \
 
 objs:= $(addprefix ${builddir}/, ${src-y})
 objs:= ${objs:.c=.o}
