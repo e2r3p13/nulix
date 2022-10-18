@@ -1,3 +1,11 @@
+/* kernel/print.c
+ *
+ * Implements some functions to print format strings
+ *
+ * created: 2022/10/15 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/10/18 - lfalkau <lfalkau@student.42.fr>
+ */
+
 #include <stdarg.h>
 #include <kernel/string.h>
 #include <kernel/vga.h>
@@ -86,6 +94,8 @@ static int snprintnum(char *buf, size_t size, int n, int base, int issigned) {
  */
 static int vsnprintf(char *buf, size_t size, const char *fmt, va_list ap) {
 	size_t count = 0;
+	char *s;
+	int i;
 
 	while (*fmt && count < size) {
 		if (*fmt == '%') {
@@ -100,33 +110,33 @@ static int vsnprintf(char *buf, size_t size, const char *fmt, va_list ap) {
 					buf[count++] = (char)va_arg(ap, int);
 					break;
 				case 's':
-					const char *s = va_arg(ap, char *);
+					s = va_arg(ap, char *);
 					while (*s && count < size)
 						buf[count++] = *s++;
 					break;
 				case 'x':
-					const int x = va_arg(ap, int);
-					count += snprintnum(buf + count, size - count, x, 16, 0);
+					i = va_arg(ap, int);
+					count += snprintnum(buf + count, size - count, i, 16, 0);
 					break;
 				case 'p':
 					if (size - count > 2) {
-						const int p = va_arg(ap, int);
+						i = va_arg(ap, int);
 						buf[count++] = '0';
 						buf[count++] = 'x';
-						count += snprintnum(buf + count, size - count, p, 16, 0);
+						count += snprintnum(buf + count, size - count, i, 16, 0);
 					}
 					break;
 				case 'b':
-					const int b = va_arg(ap, int);
-					count += snprintnum(buf + count, size - count, b, 2, 0);
+					i = va_arg(ap, int);
+					count += snprintnum(buf + count, size - count, i, 2, 0);
 					break;
 				case 'd':
-					const int d = va_arg(ap, int);
-					count += snprintnum(buf + count, size - count, d, 10, 1);
+					i = va_arg(ap, int);
+					count += snprintnum(buf + count, size - count, i, 10, 1);
 					break;
 				case 'u':
-					const int u = va_arg(ap, int);
-					count += snprintnum(buf + count, size - count, u, 10, 0);
+					i = va_arg(ap, int);
+					count += snprintnum(buf + count, size - count, i, 10, 0);
 					break;
 			}
 			fmt++;
