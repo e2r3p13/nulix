@@ -11,23 +11,19 @@ ASFLAGS+=
 AR:= ${cross-target}-ar
 ARFLAGS:= rc
 CC:= ${cross-target}-gcc
-CFLAGS+= -ffreestanding -nostdlib -mgeneral-regs-only -MMD $(addprefix -I, ${.INCLUDE_DIRS})
+CFLAGS+= -ffreestanding -nostdlib -MMD $(addprefix -I, ${.INCLUDE_DIRS})
 LD:= ${cross-target}-ld
 LDFLAGS+=
 
 # BUILD VAR
-subdir:= keyboard
+subdir:= \
+	keymaps \
 
 builddir?= build
 
 src-y:= \
-	kernel.c \
-	boot.s \
-	port.c \
-	vga.c \
-	print.c \
-	gdt.c \
-	gdt_flush.s \
+	keyboard.c \
+	scancodes.c \
 
 objs:= $(addprefix ${builddir}/, ${src-y})
 objs:= ${objs:.c=.o}

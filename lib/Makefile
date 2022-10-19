@@ -44,10 +44,16 @@ ${builddir}/%.o: %.s
 
 .PHONY: clean
 clean: clean-subdir
-	@${RM} ${objs}
-	@for obj in $(foreach o,${objs},$(shell basename ${o})); do \
-		printf "[ \e[31mRM\e[0m ]  %s\n" $$obj; \
-	done
+	@${RM} ${deps}
+	@if [ -d ${builddir} ]; then \
+		for obj in ${objs}; do \
+			if [ -f $$obj ]; then \
+				${RM} $$obj; \
+				printf "[ \e[31mRM\e[0m ]  %s\n" "$${obj#${builddir}/}"; \
+			fi; \
+		done; \
+		rmdir --ignore-fail-on-non-empty ${builddir}; \
+	fi
 
 # SUBDIR
 .PHONY: build-subdir

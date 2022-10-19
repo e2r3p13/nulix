@@ -3,7 +3,7 @@
  * Implements some basic function to interact with the VGA buffer
  *
  * created: 2022/10/13 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/10/14 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/10/18 - lfalkau <lfalkau@student.42.fr>
  */
 
 #include <kernel/vga.h>
@@ -18,6 +18,18 @@ struct vga vga = {
 
 static inline uint16_t vga_entry(unsigned char c, uint8_t color) {
 	return (uint16_t)c | (uint16_t)color << 8;
+}
+
+static void update_cursor() {
+	uint16_t pos;
+
+	if (vga.x >= 0 && vga.x < VGA_WIDTH && vga.y >= 0 && vga.y < VGA_HEIGHT) {
+		pos = vga.y * VGA_WIDTH + vga.x;
+		port_write(0x3D4, 0x0F);
+		port_write(0x3D5, (uint8_t) (pos & 0xFF));
+		port_write(0x3D4, 0x0E);
+		port_write(0x3D5, (uint8_t) ((pos >> 8) & 0xFF));
+	}
 }
 
 /*
@@ -35,16 +47,22 @@ void VGA_initialize(void) {
  * @x: The column index of the VGA buffer to move the cursor to
  * @y: The row index of the VGA buffer to move the cursor to
  */
-void VGA_update_cursor(int x, int y) {
-	uint16_t pos;
-
-	if (x < VGA_WIDTH && y < VGA_HEIGHT) {
-		pos = y * VGA_WIDTH + x;
-		port_write(0x3D4, 0x0F);
-		port_write(0x3D5, (uint8_t) (pos & 0xFF));
-		port_write(0x3D4, 0x0E);
-		port_write(0x3D5, (uint8_t) ((pos >> 8) & 0xFF));
+void VGA_move_cursor_to(int x, int y) {
+	if (x >= 0 && x < VGA_WIDTH && y >= 0 && y < VGA_HEIGHT) {
+		vga.x = x;
+		vga.y = y;
+		update_cursor();
 	}
+}
+
+/*
+ * Moves the cursor by x/y offsets
+ *
+ * @x: Moves the cursor up to @x cells to the right
+ * @y: Moves the cursor up to @yx cells to the bottom
+ */
+void VGA_move_cursor_by(int x, int y) {
+	//TODO
 }
 
 /*
@@ -103,7 +121,6 @@ void VGA_scrollby(size_t n) {
 		}
 	}
 	vga.y = n > vga.y ? 0 : vga.y - n;
-	VGA_update_cursor(vga.x, vga.y);
 }
 
 /*
@@ -113,6 +130,9 @@ void VGA_scrollby(size_t n) {
 void VGA_clear(void) {
 	for (size_t i = 0; i < VGA_HEIGHT * VGA_WIDTH; i++)
 		vga.buffer[i] = vga_entry(' ', VGA_DFL_COLOR);
+	vga.x = 0;
+	vga.y = 0;
+	update_cursor();
 }
 
 /*
@@ -140,15 +160,38 @@ void VGA_putentryat(char c, uint8_t color, size_t x, size_t y) {
  * @c: Character to be written
  */
 void VGA_putchar(char c) {
-	if (c == '\n' || vga.x == VGA_WIDTH) {
-		vga.y++;
-		vga.x = 0;
-	} else {
-		VGA_putentryat(c, vga.color, vga.x, vga.y);
-		vga.x++;
-	}
-	if (vga.y == VGA_HEIGHT) {
-		VGA_scrollby(1);
+	switch (c) {
+		case '\n':
+			vga.x = 0;
+			vga.y++;
+			if (vga.y == VGA_HEIGHT)
+				VGA_scrollby(1);
+			update_cursor();
+			break;
+		case '\b':
+			vga.x--;
+			if (vga.x < 0) {
+				vga.x = VGA_WIDTH - 1;
+				vga.y--;
+				if (vga.y < 0) {
+					vga.x = 0;
+					vga.y = 0;
+				}
+			}
+			update_cursor();
+			VGA_putentryat(' ', vga.color, vga.x, vga.y);
+			break;
+		default:
+			VGA_putentryat(c, vga.color, vga.x, vga.y);
+			vga.x++;
+			if (vga.x == VGA_WIDTH) {
+				vga.x = 0;
+				vga.y++;
+			}
+			if (vga.y == VGA_HEIGHT)
+				VGA_scrollby(1);
+			update_cursor();
+			break;
 	}
 }
 
@@ -161,7 +204,14 @@ void VGA_putchar(char c) {
 void VGA_write(const char *data, size_t size) {
 	while (size--)
 		VGA_putchar(*data++);
-	VGA_update_cursor(vga.x, vga.y);
+}
+
+void VGA_setbuf(uint16_t *data) {
+	memcpy(vga.buffer, data, sizeof(uint16_t) * VGA_WIDTH * VGA_HEIGHT);
+}
+
+uint16_t *VGA_getbuf() {
+	return vga.buffer;
 }
 
 /*
@@ -173,5 +223,4 @@ void VGA_write(const char *data, size_t size) {
 void VGA_writestring(const char *str) {
 	while (*str)
 		VGA_putchar(*str++);
-	VGA_update_cursor(vga.x, vga.y);
 }

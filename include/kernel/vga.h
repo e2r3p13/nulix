@@ -47,5 +47,9 @@ void VGA_putentryat(char c, uint8_t color, size_t x, size_t y);
 void VGA_putchar(char c);
 void VGA_write(const char *data, size_t size);
 void VGA_writestring(const char *str);
+void VGA_move_cursor_by(int x, int y);
+void VGA_move_cursor_to(int x, int y);
+void VGA_setbuf(uint16_t *data);
+uint16_t *VGA_getbuf();
 
 #endif
