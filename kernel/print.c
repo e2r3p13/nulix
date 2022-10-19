@@ -12,8 +12,11 @@
 #include <stdarg.h>
 #include <kernel/string.h>
 #include <kernel/vga.h>
+#include <kernel/screenbuf.h>
 
 #define BUFSIZE 4096
+
+extern struct screenbuf screenbuf;
 
 /*
  * Computes the pow of a number in a specified base
@@ -188,6 +191,6 @@ int kprintf(const char *fmt, ...) {
 	ret = vsnprintf(buf, BUFSIZE - 1, fmt, ap);
 	va_end(ap);
 	
-	VGA_writestring(buf);
+	sb_write_str(&screenbuf, buf, VGA_DFL_COLOR);
 	return ret;
 }
