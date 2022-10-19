@@ -1,3 +1,14 @@
+// SPDX-FileCopyrightText: CGL-KFS
+// SPDX-License-Identifier: BSD-3-Clause
+
+/* test.c
+ *
+ * Unit tests of the string library
+ *
+ * created: 2022/10/12 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/10/19 - lfalkau <lfalkau@student.42.fr>
+ */
+
 #include <kernel/string.h>
 #include <stdio.h>
 #include <stdlib.h>

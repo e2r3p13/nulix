@@ -1,3 +1,14 @@
+// SPDX-FileCopyrightText: CGL-KFS
+// SPDX-License-Identifier: BSD-3-Clause
+
+/* boot.s
+ *
+ * Boot sector of our kernel
+ *
+ * created: 2022/10/11 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/10/19 - lfalkau <lfalkau@student.42.fr>
+ */
+
 .set ALIGN,    1<<0
 .set MEMINFO,  1<<1
 .set FLAGS,    ALIGN | MEMINFO

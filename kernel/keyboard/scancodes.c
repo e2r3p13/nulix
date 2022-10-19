@@ -1,3 +1,15 @@
+// SPDX-FileCopyrightText: CGL-KFS
+// SPDX-License-Identifier: BSD-3-Clause
+
+/* scancodes.c
+ *
+ * This file defines scancodes of the PS/2 controller
+ * for the first set
+ *
+ * created: 2022/10/16 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/10/19 - lfalkau <lfalkau@student.42.fr>
+ */
+
 #include <kernel/keyboard.h>
 
 char kbd_reg_keycodes[] = {

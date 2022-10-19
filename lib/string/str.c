@@ -1,3 +1,14 @@
+// SPDX-FileCopyrightText: CGL-KFS
+// SPDX-License-Identifier: BSD-3-Clause
+
+/* str.c
+ *
+ * string related functions for the string library
+ *
+ * created: 2022/10/12 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/10/19 - lfalkau <lfalkau@student.42.fr>
+ */
+
 #include <stddef.h>
 
 static int isof(int c, const char *charset) {

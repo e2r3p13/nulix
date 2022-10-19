@@ -1,9 +1,12 @@
-/* kernel/gdt_internal.h
+// SPDX-FileCopyrightText: CGL-KFS
+// SPDX-License-Identifier: BSD-3-Clause
+
+/* gdt_internal.h
  *
- * Define gdt structures.
+ * Internal header that defines GDT structures
  *
  * created: 2022/10/18 - mrxx0 <chcoutur@student.42.fr>
- * updated: 2022/10/18 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2022/10/19 - lfalkau <lfalkau@student.42.fr>
  */
 
 #ifndef GDT_INTERNAL_H

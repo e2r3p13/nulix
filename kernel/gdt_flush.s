@@ -1,9 +1,12 @@
-/* kernel/gdt_flush.s
+// SPDX-FileCopyrightText: CGL-KFS
+// SPDX-License-Identifier: BSD-3-Clause
+
+/* gdt_flush.s
  *
- * Flush the old gdt with a new one.
+ * Flush the old GDT with a new one
  *
  * created: 2022/10/18 - mrxx0 <chcoutur@student.42.fr>
- * updated: 2022/10/18 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2022/10/19 - lfalkau <lfalkau@student.42.fr>
  */
 
 .global gdt_flush

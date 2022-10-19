@@ -1,9 +1,12 @@
-/* kernel/driver/keyboard/keyboard.c
+// SPDX-FileCopyrightText: CGL-KFS
+// SPDX-License-Identifier: BSD-3-Clause
+
+/* keyboard.c
  *
  * Keyboard driver
  *
  * created: 2022/10/15 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/10/17 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/10/19 - lfalkau <lfalkau@student.42.fr>
  */
 
 #include <kernel/keyboard.h>
