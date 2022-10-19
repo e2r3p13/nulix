@@ -18,6 +18,11 @@
 #include <kernel/print.h>
 #include <kernel/multiboot.h>
 #include <kernel/kpm.h>
+#include <kernel/screenbuf.h>
+
+extern struct vga vga;
+struct screenbuf screenbuf;
+
 
 /* Initialize all descriptor tables (gdt, idt, ...)
  *
@@ -32,11 +37,13 @@ void kernel_main(unsigned long multiboot_info_addr) {
 	multiboot_info_t *mbi = (multiboot_info_t *)multiboot_info_addr;
 
 	init_descriptor_tables();
-	VGA_initialize();
 	KBD_initialize();
+
 	kpm_init((void *)mbi->mmap_addr,
 		mbi->mmap_length / sizeof(struct multiboot_mmap_entry),
 		mbi->mem_upper - mbi->mem_lower);
 
+	sb_init(&screenbuf);
+	sb_load(&screenbuf);
 	shell();
 }

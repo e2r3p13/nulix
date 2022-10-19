@@ -37,15 +37,17 @@ enum vga_color {
 	VGA_COLOR_WHITE = 15,
 };
 
+#define VGA_WIDTH	80
+#define VGA_HEIGHT	25
+#define VGA_PTR		(uint16_t *)0xB8000
+#define VGA_BYTES	VGA_WIDTH * VGA_HEIGHT
+
 struct vga {
 	int x;
 	int y;
 	uint8_t color;
 	uint16_t *buffer;
 };
-
-static const size_t VGA_WIDTH = 80;
-static const size_t VGA_HEIGHT = 25;
 
 void VGA_initialize(void);
 void VGA_clear(void);
@@ -55,6 +57,7 @@ void VGA_setbackgroundcolor(enum vga_color bg);
 void VGA_setforegroundcolor(enum vga_color fg);
 void VGA_scrollby(size_t n);
 void VGA_putentryat(char c, uint8_t color, size_t x, size_t y);
+void VGA_putentrydirect(char c, uint8_t color, size_t s);
 void VGA_putchar(char c);
 void VGA_write(const char *data, size_t size);
 void VGA_writestring(const char *str);
