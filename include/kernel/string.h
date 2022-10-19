@@ -1,3 +1,14 @@
+// SPDX-FileCopyrightText: CGL-KFS
+// SPDX-License-Identifier: BSD-3-Clause
+
+/* string.h
+ *
+ * Header file for the string library
+ *
+ * created: 2022/10/12 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/10/19 - lfalkau <lfalkau@student.42.fr>
+ */
+
 #ifndef STRING_H
 #define STRING_H
 

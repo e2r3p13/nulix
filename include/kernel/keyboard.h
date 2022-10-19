@@ -1,9 +1,12 @@
-/* include/kernel/keyboard.h
+// SPDX-FileCopyrightText: CGL-KFS
+// SPDX-License-Identifier: BSD-3-Clause
+
+/* keyboard.h
  *
  * Header file for the keyboard driver
  *
  * created: 2022/10/15 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/10/17 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/10/19 - lfalkau <lfalkau@student.42.fr>
  */
 
 #ifndef KEYBOARD_H

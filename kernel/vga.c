@@ -1,9 +1,12 @@
-/* kernel/vga.c
+// SPDX-FileCopyrightText: CGL-KFS
+// SPDX-License-Identifier: BSD-3-Clause
+
+/* vga.c
  *
  * Implements some basic function to interact with the VGA buffer
  *
  * created: 2022/10/13 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/10/18 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/10/19 - lfalkau <lfalkau@student.42.fr>
  */
 
 #include <kernel/vga.h>

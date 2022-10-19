@@ -1,9 +1,12 @@
-/* kernel/gdt.c
+// SPDX-FileCopyrightText: CGL-KFS
+// SPDX-License-Identifier: BSD-3-Clause
+
+/* gdt.c
  *
  * Fill the gdt entries and load it.
  *
  * created: 2022/10/18 - mrxx0 <chcoutur@student.42.fr>
- * updated: 2022/10/19 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2022/10/19 - lfalkau <lfalkau@student.42.fr>
  */
 
 #include <stdint.h>

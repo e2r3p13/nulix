@@ -1,9 +1,12 @@
-/* kernel/driver/keyboard/keymaps/US104.c
+// SPDX-FileCopyrightText: CGL-KFS
+// SPDX-License-Identifier: BSD-3-Clause
+
+/* keymaps/US104.c
  *
  * US104 keyboard layout
  *
  * created: 2022/10/17 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/10/17 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/10/19 - lfalkau <lfalkau@student.42.fr>
  */
 
 #include <kernel/keyboard.h>

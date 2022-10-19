@@ -1,9 +1,12 @@
-/* kernel/idt_internal.h
+// SPDX-FileCopyrightText: CGL-KFS
+// SPDX-License-Identifier: BSD-3-Clause
+
+/* idt_internal.h
  *
  * Declaration of idt internal structures and functions.
  *
  * created: 2022/10/18 - xlmod <glafond-@student.42.fr>
- * updated: 2022/10/18 - xlmod <glafond-@student.42.fr>
+ * updated: 2022/10/19 - lfalkau <lfalkau@student.42.fr>
  */
 
 #ifndef IDT_INTERNAL_H

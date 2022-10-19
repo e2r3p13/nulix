@@ -1,3 +1,14 @@
+// SPDX-FileCopyrightText: CGL-KFS
+// SPDX-License-Identifier: BSD-3-Clause
+
+/* vga.h
+ *
+ * VGA driver header file
+ *
+ * created: 2022/10/15 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/10/19 - lfalkau <lfalkau@student.42.fr>
+ */
+
 #ifndef VGA_H
 #define VGA_H
 
