@@ -36,6 +36,7 @@ src-y:= \
 	pic_8259.c \
 	shell.c \
 	builtins.c \
+	screenbuf.c \
 
 objs:= $(addprefix ${builddir}/, ${src-y})
 objs:= ${objs:.c=.o}

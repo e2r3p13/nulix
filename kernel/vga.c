@@ -158,6 +158,22 @@ void VGA_putentryat(char c, uint8_t color, size_t x, size_t y) {
 }
 
 /*
+ * Writes a character at buf + s with a specified color
+ *
+ * @c: Character to be written
+ * @color: Color of the character to be written
+ * @s: Offset of the character to be written at
+ */
+void VGA_putentrydirect(char c, uint8_t color, size_t s) {
+	size_t i;
+	
+	if (s < VGA_WIDTH * VGA_HEIGHT) {
+		vga.buffer[s] = vga_entry(c, color);
+	}
+}
+
+
+/*
  * Writes a character to the cursor position and updates it.
  *
  * @c: Character to be written
