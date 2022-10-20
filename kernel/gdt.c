@@ -6,7 +6,7 @@
  * Fill the gdt entries and load it.
  *
  * created: 2022/10/18 - mrxx0 <chcoutur@student.42.fr>
- * updated: 2022/10/19 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/10/20 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <stdint.h>
@@ -41,13 +41,15 @@ static void gdt_set_gate(int num, uint32_t base, uint32_t limit, uint8_t access,
  */
 void gdt_init()
 {
-	gdtp.limit = (sizeof(t_gdt_entry) * 5) - 1;
+	gdtp.limit = (sizeof(t_gdt_entry) * 7) - 1;
 	gdtp.base = (uint32_t)gdt;
 	gdt_set_gate(0,	0,	0,	0,	0);	// NULL descriptor
 	gdt_set_gate(1,	0,	0xFFFF,	0x9A,	0xCF);	// Kernel Mode Code Segment
 	gdt_set_gate(2,	0,	0xFFFF,	0x92,	0xCF);	// Kernel Mode Data Segment
-	gdt_set_gate(3,	0,	0xFFFF,	0xFA,	0xCF);	// User Mode Code Segment
-	gdt_set_gate(4,	0,	0xFFFF,	0xF2,	0xCF);	// User mode Data Segment
+	gdt_set_gate(3,	0,	0xFFFF,	0x96,	0xCF);	// Kernel Mode Stack Segment
+	gdt_set_gate(4,	0,	0xFFFF,	0xFA,	0xCF);	// User Mode Code Segment
+	gdt_set_gate(5,	0,	0xFFFF,	0xF2,	0xCF);	// User Mode Data Segment
+	gdt_set_gate(6,	0,	0xFFFF,	0x96,	0xCF);	// User Mode Stack Segment
 	gdt_flush(&gdtp);
 }
 
