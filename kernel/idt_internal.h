@@ -6,7 +6,7 @@
  * Declaration of idt internal structures and functions.
  *
  * created: 2022/10/18 - xlmod <glafond-@student.42.fr>
- * updated: 2022/10/19 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/10/20 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #ifndef IDT_INTERNAL_H
@@ -32,23 +32,19 @@
 			"mov %ax, %es\n"\
 			"mov %ax, %fs\n"\
 			"mov %ax, %gs\n"\
-			"mov %ax, %ss\n"\
-			"add $4, %esp\n"\
 			)
 
 /* Macro to reset the segment registers to their original values.
  */
 #define RESET_INTERRUPT_STACK \
 	__asm__ volatile (\
-			"sub $4, %esp\n"\
 			"pop %eax\n"\
-			"mov %ds, %ax\n"\
-			"mov %es, %ax\n"\
-			"mov %fs, %ax\n"\
-			"mov %gs, %ax\n"\
-			"mov %ss, %ax\n"\
-			"sti\n")
-
+			"mov %ax, %ds\n"\
+			"mov %ax, %es\n"\
+			"mov %ax, %fs\n"\
+			"mov %ax, %gs\n"\
+			"sti\n"\
+			)
 
 /* Entry in the IDT
  */
