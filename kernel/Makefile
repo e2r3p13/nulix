@@ -32,6 +32,7 @@ src-y:= \
 	isr.c \
 	spinlock.c \
 	pic_8259.c \
+	irq.c \
 
 objs:= $(addprefix ${builddir}/, ${src-y})
 objs:= ${objs:.c=.o}

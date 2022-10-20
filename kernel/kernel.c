@@ -12,10 +12,10 @@
 #include <kernel/gdt.h>
 #include <kernel/idt.h>
 #include <kernel/keyboard.h>
+#include <kernel/pic_8259.h>
 #include <kernel/print.h>
 #include <kernel/string.h>
 #include <kernel/vga.h>
-#include <kernel/pic_8259.h>
 
 extern struct vga vga;
 
@@ -62,7 +62,6 @@ void kernel_main(void) {
 	KBD_initialize();
 
 	print_help();
-
 	while (1) {
 		while (!KBD_poll());
 		if (KBD_getevent(&evt) == 0 && evt.type == KEY_PRESSED) {
