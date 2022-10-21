@@ -6,7 +6,7 @@
  * Entrypoint of the KFS kernel
  *
  * created: 2022/10/11 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/10/20 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2022/10/21 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <kernel/gdt.h>
@@ -23,7 +23,7 @@ extern struct vga vga;
  *
  */
 static void init_descriptor_tables() {
-	pic_8259_init(0x20, 0x28);
+	pic_8259_init(PIC1_OF, PIC2_OF);
 	gdt_init();
 	idt_init();
 }

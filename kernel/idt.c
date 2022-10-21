@@ -6,15 +6,14 @@
  * Definition of ISR (Interrupt Service Routines) to handle exceptions
  * and interrupts
  *
- * created: 2022/10/20 - mrxx0 <chcoutur@student.42.fr>
- * updated: 2022/10/20 - mrxx0 <chcoutur@student.42.fr>
+ * created: 2022/10/18 - xlmod <glafond-@student.42.fr>
+ * updated: 2022/10/21 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <stdint.h>
 #include <kernel/print.h>
 
 #include "idt_internal.h"
-#include "irq_internal.h"
 
 __attribute__((aligned(0x10)))
 static t_idt_entry idt[256];
@@ -35,10 +34,11 @@ void idt_init() {
 	idtp.limit = (uint16_t)sizeof(t_idt_entry) * (256 - 1);
 	idtp.base = (uintptr_t)idt;
 
-	idt_set_descriptor(0, divide_error_handler, TRAP_GATE_FLAGS);
-	idt_set_descriptor(4, overflow_handler, TRAP_GATE_FLAGS);
-	idt_set_descriptor(8, double_fault_handler, TRAP_GATE_FLAGS);
-	idt_set_descriptor(33, keyboard_handler, INT_GATE_FLAGS);
+	idt_set_descriptor(ISR0_DE, divide_error_handler, TRAP_GATE_FLAGS);
+	idt_set_descriptor(ISR4_OF, overflow_handler, TRAP_GATE_FLAGS);
+	idt_set_descriptor(ISR8_DF, double_fault_handler, TRAP_GATE_FLAGS);
+	idt_set_descriptor(ISR32_TM, timer_handler, INT_GATE_FLAGS);
+	idt_set_descriptor(ISR33_KB, keyboard_handler, INT_GATE_FLAGS);
 
 	__asm__ volatile ("lidt %0" :: "m"(idtp));
 	__asm__ volatile ("sti");

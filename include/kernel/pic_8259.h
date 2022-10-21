@@ -19,12 +19,17 @@
 /* IO base address for PIC1 and PIC2 */
 #define PIC1 0x20
 #define PIC2 0xA0
+/* Offset for PIC1 and PIC2 */
+#define PIC1_OF 0x20
+#define PIC2_OF 0x28
 /* Address to access data on PIC1 and PIC2 */
 #define PIC1_DATA (PIC1+1)
 #define PIC2_DATA (PIC2+1)
 /* Address to send command to PIC1 and PIC2 */
 #define PIC1_CMD PIC1
 #define PIC2_CMD PIC2
+/* Code to signal end of interrupt to the PIC */
+#define PIC_EOI PIC1
 /* Initialization Command Words to initialize PIC1 and PIC2 
  *
  * ICW1	: 	Parameters to control PIC's mode of operation.
