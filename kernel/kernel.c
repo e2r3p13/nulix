@@ -79,6 +79,8 @@ void kernel_main(void) {
 						VGA_setforegroundcolor(VGA_COLOR_RED);
 						break;
 					case KEY_F4:
+						asm volatile ("int $0x0");
+						break;
 					case KEY_F5:
 						VGA_writestring("Oops, not implemented yet...\n");
 						break;
