@@ -16,9 +16,10 @@
 
 struct screenbuf {
 	uint16_t	*top;
+	uint16_t	*end;
 	uint16_t	*current;
 	uint16_t	*cursor;
-	uint16_t	*end;
+	uint16_t	cursor_offset; 
 	int			loaded;
 	uint16_t	buf[SCREENBUF_WIDTH * SCREENBUF_HEIGHT];
 };
