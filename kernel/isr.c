@@ -7,10 +7,11 @@
  * and interrupts
  *
  * created: 2022/10/18 - xlmod <glafond-@student.42.fr>
- * updated: 2022/10/19 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/10/21 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <kernel/print.h>
+#include <kernel/pic_8259.h>
 
 #include "idt_internal.h"
 
@@ -58,8 +59,7 @@ __attribute__ ((interrupt)) void overflow_handler(t_int_frame *int_frame)
 	RESET_INTERRUPT_STACK;
 }
 
-
-/* DOUBLE FAULT(0)
+/* DOUBLE FAULT(8)
  * Occure when a fault happen in a interrupt/exception or when no handle functions
  * is in the idt.
  *
@@ -74,5 +74,29 @@ __attribute__ ((interrupt)) void double_fault_handler(t_int_frame *int_frame, ui
 	print_int_frame(int_frame, &error_code);
 	asm volatile ("hlt");
 
+	RESET_INTERRUPT_STACK;
+}
+
+/* TIMER HANDLER (32)
+ * Occurs when 8259 PIC receive an IRQ0 (timer hardware interrupt)
+ *
+ * @arg(int_frame): interrupt frame structure.
+ */
+__attribute__ ((interrupt)) void timer_handler(t_int_frame *int_frame)
+{
+	LOAD_INTERRUPT_STACK;
+	pic_8259_eoi(IRQ0_TM);
+	RESET_INTERRUPT_STACK;
+}
+
+/* KEYBOARD HANDLER (33)
+ * Occurs when 8259 PIC receive an IRQ1 (keyboard hardware interrupt)
+ *
+ * @arg(int_frame): interrupt frame structure.
+ */
+__attribute__ ((interrupt)) void keyboard_handler(t_int_frame *int_frame)
+{
+	LOAD_INTERRUPT_STACK;
+	pic_8259_eoi(IRQ1_KB);
 	RESET_INTERRUPT_STACK;
 }

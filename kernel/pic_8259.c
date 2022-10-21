@@ -6,11 +6,13 @@
  * Manage Programmable Interrupt Controler.
  *
  * created: 2022/10/19 - mrxx0 <chcoutur@student.42.fr>
- * updated: 2022/10/20 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2022/10/21 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <kernel/pic_8259.h>
 #include <kernel/port.h>
+
+#include "idt_internal.h"
 
 /* Set the mask of an IRQ to ignore its request and continue normal operation.
  *
@@ -68,7 +70,8 @@ void pic_8259_init(int pic1, int pic2)
 	/* disable IRQs */
 	port_write(PIC1_DATA, 0xFF);
 	port_write(PIC2_DATA, 0xFF);
-	irq_clear_mask(1);
+	irq_clear_mask(IRQ0_TM);
+	irq_clear_mask(IRQ1_KB);
 }
 
 /* Indicate the completion of the interrupt processing.
@@ -78,6 +81,6 @@ void pic_8259_init(int pic1, int pic2)
 void pic_8259_eoi(uint8_t irq_id)
 {
 	if (irq_id > 8)
-		port_write(PIC2, PIC1);
-	port_write(PIC1, PIC1);
+		port_write(PIC2_CMD, PIC_EOI);
+	port_write(PIC1_CMD, PIC_EOI);
 }

@@ -6,7 +6,7 @@
  * Declaration of idt internal structures and functions.
  *
  * created: 2022/10/18 - xlmod <glafond-@student.42.fr>
- * updated: 2022/10/19 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/10/21 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #ifndef IDT_INTERNAL_H
@@ -19,6 +19,20 @@
 #define TRAP_GATE_FLAGS 		0x8F
 #define INT_GATE_FLAGS 			0x8E
 #define INT_GATE_FLAGS_USER 	0xEE
+
+/* Macro to define ISR and IRQ
+ */
+/* ISRs are used in the IDT management. */
+#define ISR0_DE 0
+#define ISR4_OF 4
+#define ISR8_DF 8
+#define ISR32_TM 32
+#define ISR33_KB 33
+/* ISR_IRQ is the offset to get the id from ISR to IRQ.*/
+#define ISR_IRQ 32
+/* IRQs are used in the PICs management.*/
+#define IRQ0_TM ISR32_TM - ISR_IRQ
+#define IRQ1_KB ISR32_KB - ISR_IRQ
 
 /* Macro to load kernel data segment in segment registers.
  */
@@ -83,5 +97,11 @@ typedef struct {
 __attribute__ ((interrupt)) void divide_error_handler(t_int_frame *int_frame);
 __attribute__ ((interrupt)) void overflow_handler(t_int_frame *int_frame);
 __attribute__ ((interrupt)) void double_fault_handler(t_int_frame *int_frame, uint32_t error_code);
+
+/* IRQ
+ * Hardware Interrupt
+ */
+__attribute__ ((interrupt)) void timer_handler(t_int_frame *int_frame);
+__attribute__ ((interrupt)) void keyboard_handler(t_int_frame *int_frame);
 
 #endif
