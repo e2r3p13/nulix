@@ -70,8 +70,8 @@ void pic_8259_init(int pic1, int pic2)
 	/* disable IRQs */
 	port_write(PIC1_DATA, 0xFF);
 	port_write(PIC2_DATA, 0xFF);
-	irq_clear_mask(IRQ0_TM);
-	irq_clear_mask(IRQ1_KB);
+	irq_clear_mask(IRQ_TM);
+	irq_clear_mask(IRQ_KB);
 }
 
 /* Indicate the completion of the interrupt processing.

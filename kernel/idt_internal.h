@@ -21,18 +21,23 @@
 #define INT_GATE_FLAGS_USER 	0xEE
 
 /* Macro to define ISR and IRQ
+ * source : https://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-3a-part-1-manual.html
+* 'Table 6-1. Protected-Mode Exceptions and Interrupts'
+*  We are using the mnemonic from Intel.
  */
 /* ISRs are used in the IDT management. */
-#define ISR0_DE 0
-#define ISR4_OF 4
-#define ISR8_DF 8
-#define ISR32_TM 32
-#define ISR33_KB 33
+#define ISR_DE 0
+#define ISR_OF 4
+#define ISR_DF 8
+#define ISR_TM 32
+#define ISR_KB 33
+
 /* ISR_IRQ is the offset to get the id from ISR to IRQ.*/
 #define ISR_IRQ 32
+
 /* IRQs are used in the PICs management.*/
-#define IRQ0_TM ISR32_TM - ISR_IRQ
-#define IRQ1_KB ISR32_KB - ISR_IRQ
+#define IRQ_TM ISR_TM - ISR_IRQ
+#define IRQ_KB ISR_KB - ISR_IRQ
 
 /* Macro to load kernel data segment in segment registers.
  */

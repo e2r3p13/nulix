@@ -23,7 +23,7 @@ extern struct vga vga;
  *
  */
 static void init_descriptor_tables() {
-	pic_8259_init(PIC1_OF, PIC2_OF);
+	pic_8259_init(PIC1_OFFSET, PIC2_OFFSET);
 	gdt_init();
 	idt_init();
 }

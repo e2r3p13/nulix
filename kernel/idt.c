@@ -34,11 +34,11 @@ void idt_init() {
 	idtp.limit = (uint16_t)sizeof(t_idt_entry) * (256 - 1);
 	idtp.base = (uintptr_t)idt;
 
-	idt_set_descriptor(ISR0_DE, divide_error_handler, TRAP_GATE_FLAGS);
-	idt_set_descriptor(ISR4_OF, overflow_handler, TRAP_GATE_FLAGS);
-	idt_set_descriptor(ISR8_DF, double_fault_handler, TRAP_GATE_FLAGS);
-	idt_set_descriptor(ISR32_TM, timer_handler, INT_GATE_FLAGS);
-	idt_set_descriptor(ISR33_KB, keyboard_handler, INT_GATE_FLAGS);
+	idt_set_descriptor(ISR_DE, divide_error_handler, TRAP_GATE_FLAGS);
+	idt_set_descriptor(ISR_OF, overflow_handler, TRAP_GATE_FLAGS);
+	idt_set_descriptor(ISR_DF, double_fault_handler, TRAP_GATE_FLAGS);
+	idt_set_descriptor(ISR_TM, timer_handler, INT_GATE_FLAGS);
+	idt_set_descriptor(ISR_KB, keyboard_handler, INT_GATE_FLAGS);
 
 	__asm__ volatile ("lidt %0" :: "m"(idtp));
 	__asm__ volatile ("sti");
