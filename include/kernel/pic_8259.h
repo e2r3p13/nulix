@@ -20,8 +20,8 @@
 #define PIC1 0x20
 #define PIC2 0xA0
 /* Offset for PIC1 and PIC2 */
-#define PIC1_OF 0x20
-#define PIC2_OF 0x28
+#define PIC1_OFFSET 0x20
+#define PIC2_OFFSET 0x28
 /* Address to access data on PIC1 and PIC2 */
 #define PIC1_DATA (PIC1+1)
 #define PIC2_DATA (PIC2+1)

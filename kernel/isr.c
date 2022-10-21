@@ -85,7 +85,7 @@ __attribute__ ((interrupt)) void double_fault_handler(t_int_frame *int_frame, ui
 __attribute__ ((interrupt)) void timer_handler(t_int_frame *int_frame)
 {
 	LOAD_INTERRUPT_STACK;
-	pic_8259_eoi(IRQ0_TM);
+	pic_8259_eoi(IRQ_TM);
 	RESET_INTERRUPT_STACK;
 }
 
@@ -97,6 +97,6 @@ __attribute__ ((interrupt)) void timer_handler(t_int_frame *int_frame)
 __attribute__ ((interrupt)) void keyboard_handler(t_int_frame *int_frame)
 {
 	LOAD_INTERRUPT_STACK;
-	pic_8259_eoi(IRQ1_KB);
+	pic_8259_eoi(IRQ_KB);
 	RESET_INTERRUPT_STACK;
 }
