@@ -6,7 +6,7 @@
  * Entrypoint of the KFS kernel
  *
  * created: 2022/10/11 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/11/25 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/12/13 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/gdt.h>
@@ -20,8 +20,11 @@
 #include <kernel/kpm.h>
 #include <kernel/screenbuf.h>
 
+#define NBSCREENBUF 2
+
 extern struct vga vga;
-struct screenbuf screenbuf;
+struct screenbuf sb[NBSCREENBUF];
+int sb_index = 0;
 
 
 /* Initialize all descriptor tables (gdt, idt, ...)
@@ -43,7 +46,11 @@ void kernel_main(unsigned long multiboot_info_addr) {
 		mbi->mmap_length / sizeof(struct multiboot_mmap_entry),
 		mbi->mem_upper - mbi->mem_lower);
 
-	sb_init(&screenbuf);
-	sb_load(&screenbuf);
+	for (int i = 0; i < NBSCREENBUF; i++) {
+		sb_init(sb + i);
+		sb_write_str(sb + i, "Welcome on nulix-2.1.0!\n");
+	};
+	sb_load(sb + sb_index);
+
 	shell();
 }

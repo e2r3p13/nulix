@@ -16,7 +16,8 @@
 
 #define BUFSIZE 4096
 
-extern struct screenbuf screenbuf;
+extern struct screenbuf sb[];
+extern int sb_index;
 
 /*
  * Computes the pow of a number in a specified base
@@ -191,6 +192,6 @@ int kprintf(const char *fmt, ...) {
 	ret = vsnprintf(buf, BUFSIZE - 1, fmt, ap);
 	va_end(ap);
 	
-	sb_write_str(&screenbuf, buf, VGA_DFL_COLOR);
+	sb_write_str(sb + sb_index, buf);
 	return ret;
 }
