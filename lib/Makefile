@@ -7,7 +7,7 @@ ASFLAGS+=
 AR:= ${cross-target}-ar
 ARFLAGS:= rc
 CC:= ${cross-target}-gcc
-CFLAGS+= -ffreestanding -nostdlib -MMD
+CFLAGS+= -ffreestanding -nostdlib -nodefaultlibs -fno-builtin -MMD
 LD:= ${cross-target}-ld
 LDFLAGS+=
 

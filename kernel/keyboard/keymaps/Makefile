@@ -11,7 +11,7 @@ ASFLAGS+=
 AR:= ${cross-target}-ar
 ARFLAGS:= rc
 CC:= ${cross-target}-gcc
-CFLAGS+= -ffreestanding -nostdlib -MMD $(addprefix -I, ${.INCLUDE_DIRS})
+CFLAGS+= -ffreestanding -nostdlib -nodefaultlibs -fno-builtin -MMD $(addprefix -I, ${.INCLUDE_DIRS})
 LD:= ${cross-target}-ld
 LDFLAGS+=
 
