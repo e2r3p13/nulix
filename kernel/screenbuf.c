@@ -6,9 +6,48 @@
  * updated: 2022/10/19 - xlmod <glafond-@student.42.fr>
  */
 
+#include <kernel/port.h>
 #include <kernel/screenbuf.h>
 #include <kernel/string.h>
 #include <kernel/vga.h>
+
+/* Cursor internal functions
+ *
+ */
+static inline void	cursor_enable() {
+	port_write_u8(SB_CURSOR_PORT1, 0x0a);
+	uint8_t cstart = port_read_u8(SB_CURSOR_PORT2) & 0xc0;
+	port_write_u8(SB_CURSOR_PORT2, cstart | 0);
+
+	port_write_u8(SB_CURSOR_PORT1, 0x0b);
+	uint8_t cend = port_read_u8(SB_CURSOR_PORT2) & 0xe0;
+	port_write_u8(SB_CURSOR_PORT2, cend | 15);
+}
+
+static inline void cursor_disable() {
+	port_write_u8(SB_CURSOR_PORT1, 0x0a);
+	port_write_u8(SB_CURSOR_PORT2, 0x20);
+}
+
+static inline void cursor_update(uint32_t pos) {
+	if (pos < VGA_WIDTH * SB_HEIGHT) {
+		cursor_enable();
+		port_write_u8(SB_CURSOR_PORT1, 0x0f);
+		port_write_u8(SB_CURSOR_PORT2, (uint8_t)(pos & 0xff));
+		port_write_u8(SB_CURSOR_PORT1, 0x0e);
+		port_write_u8(SB_CURSOR_PORT2, (uint8_t)((pos >> 8) & 0xff));
+	} else {
+		cursor_disable();
+	}
+}
+
+/* Like memset but with word insteed of byte
+ *
+ */
+static inline ptrdiff_t sb_fill_word(uint16_t *ptr, uint16_t word, size_t n) {
+	while (n--)
+		*ptr++ = word;
+}
 
 /* Return difference between pointer on circular buffer
  *
@@ -51,19 +90,32 @@ static inline uint16_t *sb_get_ptrsubline(struct screenbuf *sb, uint16_t *a, int
 /* If the buffer is loaded, copy a part of the screen buffer to the vga buffer
  *
  */
-static inline void *sb_update(struct screenbuf *sb) {
+static inline void sb_update(struct screenbuf *sb) {
 	if (sb->loaded) {
 		for (uint16_t i = 0; i < VGA_HEIGHT; i++)
 			memcpy(VGA_PTR + (i * VGA_WIDTH), sb_get_ptraddline(sb, sb->current, i), VGA_WIDTH * 2);
 	}
+	uint32_t pos = sb_get_ptrdiff(sb, sb->current, sb->cursor) + sb->cursor_offset;
+	cursor_update(pos);
 }
 
-/* Put cursor on next line and scroll buffer by one and reset the cursor offset
+/* Write word on cursor.
  *
  */
-static inline void *sb_next_line(struct screenbuf *sb) {
+static inline void sb_write_word(struct screenbuf *sb, uint16_t word) {
+	*(sb->cursor + sb->cursor_offset) = word;
+	if (sb->loaded) {
+		ptrdiff_t diff = sb_get_ptrdiff(sb, sb->current, sb->cursor);
+		*(VGA_PTR + diff + sb->cursor_offset) = word;
+	}
+}
+
+/* Put cursor at start of the next line and scroll buffer by one and reset the cursor offset
+ *
+ */
+static inline void sb_next_line(struct screenbuf *sb) {
 	sb->cursor = sb_get_ptraddline(sb, sb->cursor, 1);
-	memset(sb->cursor, 0, VGA_WIDTH * 2);
+	sb_fill_word(sb->cursor, SB_WHITESPACE, VGA_WIDTH);
 	sb->cursor_offset = 0;
 	if (sb->cursor == sb->top) {
 		sb->top = sb_get_ptraddline(sb, sb->top, 1);
@@ -76,6 +128,21 @@ static inline void *sb_next_line(struct screenbuf *sb) {
 		sb_scrolldown(sb, 1);
 }
 
+/* Put cursor at last charactere of the previous line and scroll buffer by one
+ *
+ */
+static inline void sb_prev_line(struct screenbuf *sb) {
+	if (sb->cursor != sb->top) {
+		if (sb->current == sb->cursor)
+			sb_scrollup(sb, 1);
+		sb->cursor = sb_get_ptrsubline(sb, sb->cursor, 1);
+		sb->cursor_offset = 0;
+		while (*(sb->cursor + sb->cursor_offset) != SB_WHITESPACE && sb->cursor_offset != VGA_WIDTH - 1)
+			sb->cursor_offset++;
+		sb_write_word(sb, SB_WHITESPACE);
+	}
+}
+
 /* Initialize the screen buffer
  *
  */
@@ -85,9 +152,9 @@ void sb_init(struct screenbuf *sb) {
 	sb->cursor = sb->buf;
 	sb->cursor_offset = 0;
 	sb->color = VGA_DFL_COLOR;
-	sb->end = sb->buf + (VGA_WIDTH * SCREENBUF_HEIGHT);
+	sb->end = sb->buf + (VGA_WIDTH * SB_HEIGHT);
 	sb->loaded = 0;
-	memset(sb->buf, 0, VGA_WIDTH * SCREENBUF_HEIGHT * 2);
+	sb_fill_word(sb->buf, SB_WHITESPACE, VGA_WIDTH * SB_HEIGHT);
 }
 
 /* Load a part of the screen buffer to the vga buffer
@@ -141,7 +208,7 @@ void sb_clear(struct screenbuf *sb) {
 	sb->current = sb->top;
 	sb->cursor = sb->top;
 	sb->cursor_offset = 0;
-	memset(sb->buf, 0, VGA_WIDTH * SCREENBUF_HEIGHT * 2);
+	sb_fill_word(sb->buf, SB_WHITESPACE, VGA_WIDTH * SB_HEIGHT);
 	sb_update(sb);
 }
 
@@ -154,6 +221,24 @@ void sb_write_char(struct screenbuf *sb, char c) {
 	switch (c) {
 		case '\n':
 			sb_next_line(sb);
+			break;
+		case '\t':
+			sb_write_word(sb, (sb->color << 8) | 0);
+			sb->cursor_offset++;
+			while (sb->cursor_offset % 4) {
+				sb_write_word(sb, (sb->color << 8) | 0);
+				sb->cursor_offset++;
+			}
+			if (sb->cursor_offset == VGA_WIDTH)
+				sb_next_line(sb);
+			break;
+		case '\b':
+			if (sb->cursor_offset == 0)
+				sb_prev_line(sb);
+			else {
+				sb->cursor_offset--;
+				sb_write_word(sb, SB_WHITESPACE);
+			}
 			break;
 		default:
 			*(sb->cursor + sb->cursor_offset) = ((uint16_t)(c) | (uint16_t)(sb->color << 8));
@@ -168,6 +253,8 @@ void sb_write_char(struct screenbuf *sb, char c) {
 			}
 			break;
 	}
+	uint32_t pos = sb_get_ptrdiff(sb, sb->current, sb->cursor) + sb->cursor_offset;
+	cursor_update(pos);
 }
 
 /* Print a string to the buffer and in the vga buffer if is loaded
@@ -197,5 +284,5 @@ void sb_set_fg(struct screenbuf *sb, enum vga_color fg) {
  *
  */
 void sb_set_bg(struct screenbuf *sb, enum vga_color bg) {
-	sb->color = (bg & 0xf0) | (sb->color & 0x0f);
+	sb->color = ((bg << 4) & 0xf0) | (sb->color & 0x0f);
 }
