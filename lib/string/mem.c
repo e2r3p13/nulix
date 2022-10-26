@@ -6,10 +6,11 @@
  * memory related functions of the string library
  *
  * created: 2022/10/12 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/10/19 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/11/18 - lfalkau <lfalkau@student.42.fr>
  */
 
 #include <stddef.h>
+#include <stdint.h>
 
 void *memchr(const void *s, int c, size_t n) {
 	unsigned char *sc = (unsigned char *)s;
