@@ -6,7 +6,7 @@
  * Entrypoint of the KFS kernel
  *
  * created: 2022/10/11 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/10/21 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2022/10/26 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <kernel/gdt.h>
@@ -39,8 +39,8 @@ static void print_help() {
 		[7] = " Go to normal mode",
 		[8] = " Switch to qwerty",
 		[9] = " Switch to azerty",
-		[10] = "N/A",
-		[11] = "N/A",
+		[10] = "Print the stack",
+		[11] = "Print the GDT",
 		[12] = "Reset terminal",
 	};
 
@@ -55,7 +55,7 @@ static void print_help() {
 void kernel_main(void) {
 	char c = 0;
 	struct kbd_event evt;
-
+	uint32_t ebp = 0;
 	init_descriptor_tables();
 
 	VGA_initialize();
@@ -96,6 +96,11 @@ void kernel_main(void) {
 					case KEY_F9:
 						KBD_setkeymap(FR_getkeymapentry);
 						break;
+					case KEY_F10:
+						print_stack();
+						break;
+					case KEY_F11:
+						print_gdt();
 					case KEY_F12:
 						vga.color = VGA_DFL_COLOR;
 						VGA_clear();
