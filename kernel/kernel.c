@@ -16,7 +16,7 @@
 #include <kernel/port.h>
 #include <kernel/ps2.h>
 #include <kernel/print.h>
-#include <kernel/string.h>
+#include <kernel/memory.h>
 #include <kernel/vga.h>
 
 extern struct vga vga;
@@ -41,8 +41,8 @@ static void print_help() {
 		[7] = " Go to normal mode",
 		[8] = " Switch to qwerty",
 		[9] = " Switch to azerty",
-		[10] = "N/A",
-		[11] = "N/A",
+		[10] = "Print the stack",
+		[11] = "Print the GDT",
 		[12] = "Reset terminal",
 	};
 
@@ -68,7 +68,6 @@ static void reboot()
 void kernel_main(void) {
 	char c = 0;
 	struct kbd_event evt;
-
 	init_descriptor_tables();
 
 	VGA_initialize();
@@ -108,6 +107,14 @@ void kernel_main(void) {
 						break;
 					case KEY_F9:
 						KBD_setkeymap(FR_getkeymapentry);
+						break;
+					case KEY_F10:
+						uint32_t ebp;
+						asm inline volatile ("mov %%ebp, %0" :: "r"(ebp));
+						hexdump(&ebp + 1, 4096);
+						break;
+					case KEY_F11:
+						gdt_print();
 						break;
 					case KEY_F12:
 						vga.color = VGA_DFL_COLOR;
