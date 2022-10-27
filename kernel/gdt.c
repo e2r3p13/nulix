@@ -6,7 +6,7 @@
  * Fill the gdt entries and load it.
  *
  * created: 2022/10/18 - mrxx0 <chcoutur@student.42.fr>
- * updated: 2022/10/26 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2022/10/27 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <stdint.h>
@@ -44,9 +44,9 @@ static void gdt_set_gate(int num, uint32_t base, uint32_t limit, uint8_t access,
  */
 void gdt_init()
 {
-	gdtp.limit = (sizeof(t_gdt_entry) * 7) - 1;
+	gdtp.limit = (sizeof(t_gdt_entry) * 6);
 	gdtp.base = (uint32_t)gdt;
-	gdt_set_gate(0,	0,	0,	0,	0);	// NULL descriptor
+	gdt_set_gate(0,	0,	0x0000,	0,	0);	// NULL descriptor
 	gdt_set_gate(1,	0,	0xFFFF,	0x9A,	0xCF);	// Kernel Mode Code Segment
 	gdt_set_gate(2,	0,	0xFFFF,	0x92,	0xCF);	// Kernel Mode Data Segment
 	gdt_set_gate(3,	0,	0xFFFF,	0x96,	0xCF);	// Kernel Mode Stack Segment
@@ -61,20 +61,30 @@ void gdt_init()
  */
 void print_gdt()
 {
+	VGA_setforegroundcolor(VGA_COLOR_GREEN);
 	kprintf("GDT ADDRESS = 0x00000%x\n", gdt);
+	VGA_setforegroundcolor(VGA_COLOR_WHITE);
 	kprintf("GDT ENTRIES : \n");
-	kprintf("GDT Base = 0x00000%x\n", gdtp.base);
-	kprintf("GDT Limit = 0x00000%x\n", gdtp.limit);
-	int i = 0;
+	kprintf("GDT Base = 0x%x\n", gdtp.base);
+	kprintf("GDT Limit = 0x%x\n", gdtp.limit);
+	uint8_t i = 1;
+	VGA_setforegroundcolor(VGA_COLOR_LIGHT_BROWN);
 	kprintf("BASE LOW | BASE MID | BASE HIGH | LIMIT LOW | GRAN | ACC\n");
-	while (i <= 7)
+	VGA_setforegroundcolor(VGA_COLOR_WHITE);
+	kprintf("0x%x        ", gdt[0].base_low);
+	kprintf("0x%x        ", gdt[0].base_middle);
+	kprintf("0x%x        ", gdt[0].base_high);
+	kprintf("0x%x           ", gdt[0].limit_low);
+	kprintf("0x%x         ", gdt[0].granularity);
+	kprintf("0x%x\n", gdt[0].access);
+	while (i < 7)
 	{
-		kprintf("0x00000%x    ", gdt[i].base_low);
-		kprintf("0x00000%x    ", gdt[i].base_middle);
-		kprintf("0x00000%x    ", gdt[i].base_high);
-		kprintf("0x00000%x    ", gdt[i].limit_low);
-		kprintf("0x00000%x    ", gdt[i].granularity);
-		kprintf("0x00000%x\n", gdt[i].access);
+		kprintf("0x%x        ", gdt[i].base_low);
+		kprintf("0x%x        ", gdt[i].base_middle);
+		kprintf("0x%x        ", gdt[i].base_high);
+		kprintf("0x%x        ", gdt[i].limit_low);
+		kprintf("0x%x        ", gdt[i].granularity);
+		kprintf("0x%x\n", gdt[i].access);
 		i++;
 	}
 }
@@ -91,7 +101,7 @@ void print_stack()
 {
 	uint32_t ebp;
 	asm inline volatile ("mov %%ebp, %0" :: "r"(ebp));
-	uint32_t limit = 512;
+	uint32_t limit = 4096;
 	uint32_t i = 0;
 	uint8_t line = 0;
 	struct kbd_event evt;
@@ -106,6 +116,7 @@ void print_stack()
 				continue;
 			line = 0;
 		}
+		VGA_setforegroundcolor(VGA_COLOR_WHITE);
 		kprintf("0x%x : ", ebp);
 		uint32_t next = ebp + 16;
 		uint32_t tmp = ebp;
@@ -113,7 +124,11 @@ void print_stack()
 		while (tmp < next)
 		{
 			if (*(char*)tmp > 32)
+			{
+				VGA_setforegroundcolor(VGA_COLOR_BLUE);
 				kprintf("%x ", *(char*)tmp);
+				VGA_setforegroundcolor(VGA_COLOR_WHITE);
+			}
 			else
 				kprintf("00 ");
 			tmp++;
@@ -122,14 +137,17 @@ void print_stack()
 		tmp = ebp;
 		while (tmp < next)
 		{
-			VGA_setforegroundcolor(VGA_COLOR_BLUE);
 			if (*(char*)tmp > 32)
+			{
+				VGA_setforegroundcolor(VGA_COLOR_BLUE);
 				kprintf("%c", *(char *)tmp);
+				VGA_setforegroundcolor(VGA_DFL_COLOR);
+			}
 			else
 				kprintf(".");
 			tmp++;
 		}
-		VGA_setforegroundcolor(VGA_COLOR_WHITE);
+		VGA_setforegroundcolor(VGA_DFL_COLOR);
 		kprintf("\n");
 		i += 16;
 		ebp += 16;

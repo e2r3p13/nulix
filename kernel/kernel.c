@@ -6,7 +6,7 @@
  * Entrypoint of the KFS kernel
  *
  * created: 2022/10/11 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/10/26 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2022/10/27 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <kernel/gdt.h>
@@ -55,7 +55,6 @@ static void print_help() {
 void kernel_main(void) {
 	char c = 0;
 	struct kbd_event evt;
-	uint32_t ebp = 0;
 	init_descriptor_tables();
 
 	VGA_initialize();
@@ -101,6 +100,7 @@ void kernel_main(void) {
 						break;
 					case KEY_F11:
 						print_gdt();
+						break;
 					case KEY_F12:
 						vga.color = VGA_DFL_COLOR;
 						VGA_clear();
