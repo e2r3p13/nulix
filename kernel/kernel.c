@@ -6,7 +6,7 @@
  * Entrypoint of the KFS kernel
  *
  * created: 2022/10/11 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/10/29 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2022/11/04 - lfalkau <lfalkau@student.42.fr>
  */
 
 #include <kernel/gdt.h>
@@ -14,6 +14,7 @@
 #include <kernel/keyboard.h>
 #include <kernel/pic_8259.h>
 #include <kernel/port.h>
+#include <kernel/ps2.h>
 #include <kernel/print.h>
 #include <kernel/string.h>
 #include <kernel/vga.h>
@@ -53,21 +54,14 @@ static void print_help() {
 	}
 }
 
-/* Reboot kernel through the PS/2 controller
- * We wait for the keyboard buffer to be empty, then send
- * a reset signal to the CPU.
- * The CPU's RESET pin is 0x64.
- * The command 0xFx means "pulse the chose line down for 6 milliseconds"
- * with E choosing the reset line.
- * The bit will be zeroed and the CPU will start executing code according
- * to its boot sequence.
- * */
+/* Reboot kernel through the PS/2 controller by sending
+ * a reset signal to the CPU as soon as the ps/2 data
+ * buffer is empty.
+ */
 static void reboot()
 {
-	uint8_t reboot = 0x02;
-	while (reboot & 0x02)
-		reboot = port_read(0x64);
-	port_write(0x64, 0xFE);
+	while (port_read(PS2_STATUS_REGISTER_PORT) & PS2_INPUT_BUFFER_FULL);
+	port_write(PS2_STATUS_COMMAND_PORT, CPU_RESET);
 	asm volatile ("hlt");
 }
 

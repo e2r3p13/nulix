@@ -17,9 +17,4 @@
 uint8_t		port_read(uint16_t port);
 void		port_write(uint16_t port, uint8_t val);
 
-/* Ports definition */
-
-#define PS2_DATA 0x60
-#define PS2_STATUS_REGISTER 0x64
-
 #endif
