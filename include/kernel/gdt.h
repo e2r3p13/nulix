@@ -15,8 +15,6 @@
 /* Initialize the gdt and load it. */
 void gdt_init();
 
-/* Print the stack in a human friendly way. */
-void print_stack();
 /* Print the GDT info. */
 void print_gdt();
 

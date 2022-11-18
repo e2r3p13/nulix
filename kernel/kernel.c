@@ -109,7 +109,9 @@ void kernel_main(void) {
 						KBD_setkeymap(FR_getkeymapentry);
 						break;
 					case KEY_F10:
-						print_stack();
+						uint32_t ebp;
+						asm inline volatile ("mov %%ebp, %0" :: "r"(ebp));
+						hexdump(&ebp + 1, 4096);
 						break;
 					case KEY_F11:
 						print_gdt();
