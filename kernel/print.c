@@ -6,7 +6,7 @@
  * Implements some functions to print format strings
  *
  * created: 2022/10/15 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/10/19 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/11/18 - lfalkau <lfalkau@student.42.fr>
  */
 
 #include <stdarg.h>
@@ -46,7 +46,7 @@ static int basepow(unsigned int n, int base) {
  *
  * @ret: Number of written bytes
  */
-static int snprintnum(char *buf, size_t size, int n, int base, int issigned) {
+static int snprintnum(char *buf, size_t size, int n, int base, int issigned, int padding) {
 	const char digits[] = "0123456789abcdef";
 	unsigned int un;
 	size_t count = 0;
@@ -54,10 +54,6 @@ static int snprintnum(char *buf, size_t size, int n, int base, int issigned) {
 
 	if (base > 16 || size == 0)
 		return 0;
-	if (n == 0) {
-		buf[count++] = '0';
-		return count;
-	}
 
 	if (issigned && n < 0) {
 		buf++[count++] = '-';
@@ -67,14 +63,23 @@ static int snprintnum(char *buf, size_t size, int n, int base, int issigned) {
 	}
 
 	nl = basepow(un, base);
-	while (un != 0) {
+	padding -= nl;
+
+	for (int i = 0; i < padding; i++) {
+		*buf++ = '0';
+		count++;
+		if (count == size)
+			break;
+	}
+
+	do {
 		nl--;
 		if (count + nl < size) {
 			buf[nl] = digits[un % base];
 			count++;
 		}
 		un /= base;
-	}
+	} while (un != 0);
 	return count;
 }
 
@@ -99,13 +104,14 @@ static int vsnprintf(char *buf, size_t size, const char *fmt, va_list ap) {
 	size_t count = 0;
 	char *s;
 	int i;
+	int padding = 0;
 
 	while (*fmt && count < size) {
 		if (*fmt == '%') {
 			fmt++;
+			if (*fmt >= '0' && *fmt <= '9')
+				padding = *fmt++ - '0';
 			switch (*fmt) {
-				case '\0':
-					return count;
 				case '%':
 					buf[count++] = '%';
 					break;
@@ -119,28 +125,30 @@ static int vsnprintf(char *buf, size_t size, const char *fmt, va_list ap) {
 					break;
 				case 'x':
 					i = va_arg(ap, int);
-					count += snprintnum(buf + count, size - count, i, 16, 0);
+					count += snprintnum(buf + count, size - count, i, 16, 0, padding);
 					break;
 				case 'p':
 					if (size - count > 2) {
 						i = va_arg(ap, int);
 						buf[count++] = '0';
 						buf[count++] = 'x';
-						count += snprintnum(buf + count, size - count, i, 16, 0);
+						count += snprintnum(buf + count, size - count, i, 16, 0, padding);
 					}
 					break;
 				case 'b':
 					i = va_arg(ap, int);
-					count += snprintnum(buf + count, size - count, i, 2, 0);
+					count += snprintnum(buf + count, size - count, i, 2, 0, padding);
 					break;
 				case 'd':
 					i = va_arg(ap, int);
-					count += snprintnum(buf + count, size - count, i, 10, 1);
+					count += snprintnum(buf + count, size - count, i, 10, 1, padding);
 					break;
 				case 'u':
 					i = va_arg(ap, int);
-					count += snprintnum(buf + count, size - count, i, 10, 0);
+					count += snprintnum(buf + count, size - count, i, 10, 0, padding);
 					break;
+				default:
+					return count;
 			}
 			fmt++;
 		} else {
