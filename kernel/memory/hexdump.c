@@ -6,12 +6,14 @@
  * Exports a hexdump function to print memory
  *
  * created: 2022/11/19 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/11/19 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/11/21 - lfalkau <lfalkau@student.42.fr>
  */
 
 #include <kernel/vga.h>
 #include <kernel/print.h>
 #include <kernel/keyboard.h>
+
+extern struct vga vga;
 
 static void wait_for_char_input(int c) {
 	struct kbd_event evt;
@@ -48,7 +50,9 @@ static int hexdump_diaplay_char(int c) {
 void hexdump(uint8_t *base, uint32_t limit) {
 	struct kbd_event evt;
 	uint32_t l = 0, i = 0;
+	uint8_t oldcolor = vga.color;
 
+	VGA_setforegroundcolor(VGA_COLOR_WHITE);
 	while (i < limit) {
 		kprintf("%8p:  ", base + i);
 		for (uint32_t j = i; j < limit && j < i + 16; j++) {
@@ -70,4 +74,5 @@ void hexdump(uint8_t *base, uint32_t limit) {
 		VGA_setforegroundcolor(VGA_COLOR_WHITE);
 		i += 16;
 	}
+	vga.color = oldcolor;
 }
