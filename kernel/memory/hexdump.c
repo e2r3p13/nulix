@@ -47,21 +47,22 @@ static int hexdump_diaplay_char(int c) {
  * @limit is number of bytes we want to print
  *
  */
-void hexdump(uint8_t *base, uint32_t limit) {
+void hexdump(void *base, uint32_t limit) {
 	struct kbd_event evt;
 	uint32_t l = 0, i = 0;
 	uint8_t oldcolor = vga.color;
+	uint8_t *p = (uint8_t *)base;
 
 	VGA_setforegroundcolor(VGA_COLOR_WHITE);
 	while (i < limit) {
-		kprintf("%8p:  ", base + i);
+		kprintf("%8p:  ", p + i);
 		for (uint32_t j = i; j < limit && j < i + 16; j++) {
-			VGA_setforegroundcolor(base[j] ? VGA_COLOR_LIGHT_GREEN : VGA_COLOR_WHITE);
-			kprintf("%2x ", base[j]);
+			VGA_setforegroundcolor(p[j] ? VGA_COLOR_LIGHT_GREEN : VGA_COLOR_WHITE);
+			kprintf("%2x ", p[j]);
 		}
 		kprintf(" ");
 		for (uint32_t j = i; j < limit && j < i + 16; j++) {
-			kprintf("%c", hexdump_diaplay_char(base[j]));
+			kprintf("%c", hexdump_diaplay_char(p[j]));
 		}
 		l += 1;
 		if (l == VGA_HEIGHT) {
@@ -76,3 +77,4 @@ void hexdump(uint8_t *base, uint32_t limit) {
 	}
 	vga.color = oldcolor;
 }
+

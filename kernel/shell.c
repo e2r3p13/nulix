@@ -86,7 +86,7 @@ static void handle_command()
  */
 static void fill_buffer(char c, uint8_t i)
 {
-	if (i < 20)
+	if (i < BUFSIZE - 1)
 		buffer[i] = c;
 }
 

@@ -14,7 +14,7 @@
 
 #include <stdint.h>
 
-void hexdump(uint32_t *base, uint32_t limit);
+void hexdump(void *base, uint32_t limit);
 void print_stack();
 
 #endif
