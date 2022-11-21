@@ -6,14 +6,14 @@
  * Helper function to print the kernel stack
  *
  * created: 2022/11/19 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/11/19 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/11/21 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <kernel/memory.h>
 
-extern uint32_t *stack_bottom;
+extern void *stack_bottom;
+extern void *stack_top;
 
 void print_stack() {
-	uint32_t stack_size = 16384;
-	hexdump(stack_bottom, stack_size);	
+	hexdump(&stack_bottom, (void *)&stack_top - (void *)&stack_bottom);
 }
