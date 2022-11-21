@@ -26,6 +26,14 @@ void reboot()
 	asm volatile ("hlt");
 }
 
+/* Poweroff the kernel through the qemu debug port
+ */
+void poweroff()
+{
+	port_write_u16(0x604, 0x2000);
+	asm volatile ("hlt");
+}
+
 /* Switch to keyboard to US104 layout.
  */
 void key_us()
@@ -81,6 +89,7 @@ void help()
     color-reset - set default color to foreground\n\
     int-divide - generate a divide error interrupt\n\
     reboot - reboot system\n\
+    poweroff - poweroff system\n\
     clear - clear the screen\n\
     help - print this help menu\n");
 }

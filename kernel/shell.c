@@ -6,7 +6,7 @@
  * Managing shell.
  *
  * created: 2022/11/17 - mrxx0 <chcoutur@student.42.fr>
- * updated: 2022/11/17 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2022/11/21 - lfalkau <lfalkau@student.42.fr>
  */
 
 #include <kernel/builtins.h>
@@ -36,6 +36,7 @@ static void (*f_ptr[HASH_MOD])() = {
 	[37] = int_divide,
 	[52] = clear,	
 	[60] = help,
+	[62] = poweroff,
 	[90] = key_fr,
 	[98] = color_reset,
 };
