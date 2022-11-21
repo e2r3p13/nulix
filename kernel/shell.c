@@ -10,7 +10,9 @@
  */
 
 #include <kernel/builtins.h>
+#include <kernel/gdt.h>
 #include <kernel/keyboard.h>
+#include <kernel/memory.h>
 #include <kernel/print.h>
 #include <kernel/string.h>
 #include <kernel/vga.h>
@@ -27,7 +29,9 @@ static char buffer[BUFSIZE];
  */
 static void (*f_ptr[HASH_MOD])() = {
 	[14] = reboot,
+	[20] = gdt_print,
 	[21] = key_us,
+	[29] = print_stack,
 	[30] = color_red,
 	[37] = int_divide,
 	[52] = clear,	
@@ -70,7 +74,7 @@ static uint32_t dj2b_hash(char *to_hash)
 static void handle_command()
 {
 	uint32_t hash = dj2b_hash(buffer);
-
+	
 	if (hash > HASH_MOD || f_ptr[hash] == 0)
 		error_cmd();
 	else

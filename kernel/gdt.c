@@ -150,4 +150,5 @@ void gdt_print() {
 		kprintf("%4p      ", gdt[i].access);
 		kprintf("\n");
 	}
+	VGA_setforegroundcolor(VGA_DFL_COLOR);
 }
