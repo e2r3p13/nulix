@@ -17,6 +17,8 @@
 
 #include "gdt_internal.h"
 
+extern struct vga vga;
+
 /* GDT entries information
  */
 #define GDT_BASE_ADDRESS 0x800
@@ -132,6 +134,8 @@ void gdt_init()
  *
  */
 void gdt_print() {
+	uint8_t oldcolor = vga.color;
+
 	VGA_setforegroundcolor(VGA_COLOR_LIGHT_BROWN);
 	kprintf("-- GDT --\n");
 	VGA_setforegroundcolor(VGA_COLOR_WHITE);
@@ -150,5 +154,5 @@ void gdt_print() {
 		kprintf("%4p      ", gdt[i].access);
 		kprintf("\n");
 	}
-	VGA_setforegroundcolor(VGA_DFL_COLOR);
+	vga.color = oldcolor;
 }
