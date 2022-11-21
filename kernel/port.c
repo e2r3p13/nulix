@@ -11,22 +11,42 @@
 
 #include <stdint.h>
 
-/* Wrapper to asm instruction 'in'
+/* Wrapper to asm instruction 'in' - 1 byte
  *
  * @arg(port): port number to read on.
  * @ret: value read.
  */
-uint8_t	port_read(uint16_t port) {
+uint8_t port_read_u8(uint16_t port) {
 	uint8_t val;
 	asm inline volatile ("inb %1, %0" : "=a"(val) : "Nd"(port));
 	return val;
 }
 
-/* Wrapper to asm instruction 'out'
+/* Wrapper to asm instruction 'in' - 2 bytes
+ *
+ * @arg(port): port number to read on.
+ * @ret: value read.
+ */
+uint16_t port_read_u16(uint16_t port) {
+	uint16_t val;
+	asm inline volatile ("inw %1, %0" : "=a"(val) : "Nd"(port));
+	return val;
+}
+
+/* Wrapper to asm instruction 'out' - 1 byte
  *
  * @arg(port): port number to write on.
  * @arg(val): value to write.
  */
-void port_write(uint16_t port, uint8_t val) {
+void port_write_u8(uint16_t port, uint8_t val) {
 	asm inline volatile ("outb %0, %1" : : "a"(val), "Nd"(port));
+}
+
+/* Wrapper to asm instruction 'out' - 2 bytes
+ *
+ * @arg(port): port number to write on.
+ * @arg(val): value to write.
+ */
+void port_write_u16(uint16_t port, uint16_t val) {
+	asm inline volatile ("outw %0, %1" : : "a"(val), "Nd"(port));
 }

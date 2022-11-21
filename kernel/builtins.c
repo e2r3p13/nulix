@@ -6,7 +6,7 @@
  * Handlers for each shell commands.
  *
  * created: 2022/11/17 - mrxx0 <chcoutur@student.42.fr>
- * updated: 2022/11/17 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2022/11/21 - lfalkau <lfalkau@student.42.fr>
  */
 
 #include <kernel/keyboard.h>
@@ -21,8 +21,8 @@
  */
 void reboot()
 {
-	while (port_read(PS2_STATUS_REGISTER_PORT) & PS2_INPUT_BUFFER_FULL);
-	port_write(PS2_STATUS_COMMAND_PORT, CPU_RESET);
+	while (port_read_u8(PS2_STATUS_REGISTER_PORT) & PS2_INPUT_BUFFER_FULL);
+	port_write_u8(PS2_STATUS_COMMAND_PORT, CPU_RESET);
 	asm volatile ("hlt");
 }
 

@@ -6,7 +6,7 @@
  * Manage Programmable Interrupt Controler.
  *
  * created: 2022/10/19 - mrxx0 <chcoutur@student.42.fr>
- * updated: 2022/10/21 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2022/11/21 - lfalkau <lfalkau@student.42.fr>
  */
 
 #include <kernel/pic_8259.h>
@@ -27,8 +27,8 @@ static void irq_set_mask(uint8_t irq_id) {
         port = PIC2 + 1;
         irq_id -= 8;
     }
-    value = port_read(port) | (1 << irq_id);
-    port_write(port, value);        
+    value = port_read_u8(port) | (1 << irq_id);
+    port_write_u8(port, value);        
 }
 
 /* Clear the mask of an IRQ to be able to handle the interrupt multiple time 
@@ -44,8 +44,8 @@ static void irq_clear_mask(uint8_t irq_id) {
         port = PIC2 + 1;
         irq_id -= 8;
     }
-    value = port_read(port) & ~(1 << irq_id);
-    port_write(port, value);        
+    value = port_read_u8(port) & ~(1 << irq_id);
+    port_write_u8(port, value);        
 } 
 
 /* Init 8259 PIC by remapping the IRQ id to avoid conflict with CPU interrupts 
@@ -56,20 +56,20 @@ static void irq_clear_mask(uint8_t irq_id) {
 void pic_8259_init(int pic1, int pic2)
 {
 	/* send ICW1 */
-	port_write(PIC1_CMD, ICW1);
-	port_write(PIC2_CMD, ICW1);
+	port_write_u8(PIC1_CMD, ICW1);
+	port_write_u8(PIC2_CMD, ICW1);
 	/* send ICW2 */
-	port_write(PIC1_DATA, pic1);
-	port_write(PIC2_DATA, pic2);
+	port_write_u8(PIC1_DATA, pic1);
+	port_write_u8(PIC2_DATA, pic2);
 	/* send ICW3 */
-	port_write(PIC1_DATA, 4);
-	port_write(PIC2_DATA, 2);
+	port_write_u8(PIC1_DATA, 4);
+	port_write_u8(PIC2_DATA, 2);
 	/* send ICW4 */
-	port_write(PIC1_DATA, ICW4);
-	port_write(PIC2_DATA, ICW4);
+	port_write_u8(PIC1_DATA, ICW4);
+	port_write_u8(PIC2_DATA, ICW4);
 	/* disable IRQs */
-	port_write(PIC1_DATA, 0xFF);
-	port_write(PIC2_DATA, 0xFF);
+	port_write_u8(PIC1_DATA, 0xFF);
+	port_write_u8(PIC2_DATA, 0xFF);
 	irq_clear_mask(IRQ_TM);
 	irq_clear_mask(IRQ_KB);
 }
@@ -81,6 +81,6 @@ void pic_8259_init(int pic1, int pic2)
 void pic_8259_eoi(uint8_t irq_id)
 {
 	if (irq_id > 8)
-		port_write(PIC2_CMD, PIC_EOI);
-	port_write(PIC1_CMD, PIC_EOI);
+		port_write_u8(PIC2_CMD, PIC_EOI);
+	port_write_u8(PIC1_CMD, PIC_EOI);
 }

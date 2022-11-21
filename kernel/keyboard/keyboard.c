@@ -6,7 +6,7 @@
  * Keyboard driver
  *
  * created: 2022/10/15 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/11/04 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/11/21 - lfalkau <lfalkau@student.42.fr>
  */
 
 #include <kernel/keyboard.h>
@@ -58,7 +58,7 @@ void KBD_initialize() {
  * Returns 1 if some keyboard data is available, 0 otherwise
  */
 int KBD_poll() {
-	uint8_t status = port_read(PS2_STATUS_REGISTER_PORT);
+	uint8_t status = port_read_u8(PS2_STATUS_REGISTER_PORT);
 
 	return status & 1;
 }
@@ -117,7 +117,7 @@ static void set_modifiers(struct kbd_event *evt) {
  *
  */
 int KBD_getevent(struct kbd_event *evt) {
-	uint8_t sc = port_read(PS2_DATA_PORT);
+	uint8_t sc = port_read_u8(PS2_DATA_PORT);
 
 	if (sc == 0xE0) {
 		if (kbd_st.ext)
@@ -188,6 +188,6 @@ void KBD_setkeymap(struct kbd_keymap_entry (*kmfn)(enum kbd_keycode)) {
  *
  */
 void KBD_flush() {
-	uint8_t status = port_read(PS2_STATUS_REGISTER_PORT);
-	port_write(PS2_STATUS_COMMAND_PORT, status & (0xff << 2));
+	uint8_t status = port_read_u8(PS2_STATUS_REGISTER_PORT);
+	port_write_u8(PS2_STATUS_COMMAND_PORT, status & (0xff << 2));
 }
