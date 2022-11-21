@@ -75,6 +75,8 @@ void help()
 	kprintf("KFS - available commands :\n\
     key-us - switch to US104 layout\n\
     key-fr - switch to FR layout\n\
+    print-gdt - print all GDT informaton\n\
+    print-stack - print all the stack memory\n\
     color-red - set color red to foreground\n\
     color-reset - set default color to foreground\n\
     int-divide - generate a divide error interrupt\n\
