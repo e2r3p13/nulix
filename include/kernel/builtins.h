@@ -13,6 +13,7 @@
 #define BUILTINS_H
 
 void reboot();
+void poweroff();
 void shell();
 void key_us();
 void key_fr();
