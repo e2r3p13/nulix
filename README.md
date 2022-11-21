@@ -6,9 +6,9 @@ It's cut in 10 submodules.
 **Current state:**
 
 - [x] **KFS1:** Hello world kernel (multiboot + print screen)
-- [ ] **KFS2:** GDT and stack
+- [x] **KFS2:** GDT and stack + basic shell
 - [ ] **KFS3:** Memory and pagination
-- [ ] **KFS4:** Interrupts
+- [x] **KFS4:** Interrupts
 - [ ] **KFS5:** Task switching and scheduling
 - [ ] And 5 more...
 
