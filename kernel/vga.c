@@ -28,10 +28,10 @@ static void update_cursor() {
 
 	if (vga.x >= 0 && vga.x < VGA_WIDTH && vga.y >= 0 && vga.y < VGA_HEIGHT) {
 		pos = vga.y * VGA_WIDTH + vga.x;
-		port_write(0x3D4, 0x0F);
-		port_write(0x3D5, (uint8_t) (pos & 0xFF));
-		port_write(0x3D4, 0x0E);
-		port_write(0x3D5, (uint8_t) ((pos >> 8) & 0xFF));
+		port_write_u8(0x3D4, 0x0F);
+		port_write_u8(0x3D5, (uint8_t) (pos & 0xFF));
+		port_write_u8(0x3D4, 0x0E);
+		port_write_u8(0x3D5, (uint8_t) ((pos >> 8) & 0xFF));
 	}
 }
 

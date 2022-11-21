@@ -14,7 +14,9 @@
 
 #include <stdint.h>
 
-uint8_t		port_read(uint16_t port);
-void		port_write(uint16_t port, uint8_t val);
+uint8_t		port_read_u8(uint16_t port);
+uint16_t	port_read_u16(uint16_t port);
+void		port_write_u8(uint16_t port, uint8_t val);
+void		port_write_u16(uint16_t port, uint16_t val);
 
 #endif
