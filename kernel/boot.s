@@ -6,7 +6,7 @@
  * Boot sector of our kernel
  *
  * created: 2022/10/11 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/10/19 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/11/22 - mrxx0 <chcoutur@student.42.fr>
  */
 
 .set ALIGN,    1<<0
@@ -34,6 +34,11 @@ stack_top:
 	.type _start, @function
 _start:
 	mov $stack_top, %esp
+	# Reset EFLAGS
+	pushl $0
+	popf
+	# Push pointer to multiboot info struct
+	pushl %ebx
 	cli
 	call kernel_main
 	cli
