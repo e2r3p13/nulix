@@ -6,7 +6,7 @@
  * Managing shell.
  *
  * created: 2022/11/17 - mrxx0 <chcoutur@student.42.fr>
- * updated: 2022/11/21 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/11/23 - lfalkau <lfalkau@student.42.fr>
  */
 
 #include <kernel/builtins.h>
@@ -16,6 +16,7 @@
 #include <kernel/print.h>
 #include <kernel/string.h>
 #include <kernel/vga.h>
+#include <kernel/kpm.h>
 
 #define HASH_VALUE 5381
 #define HASH_MOD 100
@@ -37,6 +38,7 @@ static void (*f_ptr[HASH_MOD])() = {
 	[52] = clear,	
 	[60] = help,
 	[62] = poweroff,
+	[88] = buddy_print,
 	[90] = key_fr,
 	[98] = color_reset,
 };
