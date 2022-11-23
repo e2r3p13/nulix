@@ -29,6 +29,7 @@ void buddy_print() {
 	kprintf("orders address:       %p\n", buddy->orders);
 	kprintf("block number:         %x\n", buddy->nframes);
 	kprintf("total blocks size:    %u KB\n\n", (buddy->nframes << 2));
+	VGA_setforegroundcolor(VGA_DFL_COLOR);
 }
 
 static inline size_t compute_orders_size() {
