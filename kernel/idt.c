@@ -7,7 +7,7 @@
  * and interrupts
  *
  * created: 2022/10/18 - xlmod <glafond-@student.42.fr>
- * updated: 2022/10/21 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2022/11/25 - lfalkau <lfalkau@student.42.fr>
  */
 
 #include <stdint.h>
@@ -15,8 +15,7 @@
 
 #include "idt_internal.h"
 
-__attribute__((aligned(0x10)))
-static t_idt_entry idt[256];
+static t_idt_entry *idt = (t_idt_entry *)0x0;
 static t_idt_ptr idtp;
 
 // Set up a descriptor
@@ -31,8 +30,8 @@ void idt_set_descriptor(uint8_t idt_index, void *isr_addr, uint8_t flags) {
 }
 
 void idt_init() {
-	idtp.limit = (uint16_t)sizeof(t_idt_entry) * (256 - 1);
-	idtp.base = (uintptr_t)idt;
+	idtp.limit = sizeof(t_idt_entry) * 256;
+	idtp.base = (uint32_t)idt;
 
 	idt_set_descriptor(ISR_DE, divide_error_handler, TRAP_GATE_FLAGS);
 	idt_set_descriptor(ISR_OF, overflow_handler, TRAP_GATE_FLAGS);
