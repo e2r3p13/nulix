@@ -6,7 +6,7 @@
  * Kernel Physical Memory management header file
  *
  * created: 2022/11/23 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/12/02 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/12/07 - lfalkau <lfalkau@student.42.fr>
  */
 
 #ifndef KPM_H
@@ -33,14 +33,19 @@ typedef uint8_t bitmap_t;
 
 #define KPM_NBYTES_FROM_NBITS(n)		(ALIGNNEXT(n, 8) / 8)
 
-#define KPM_ALLOC(order, index)			(buddy->orders[order][(index)/8] |= (1 << ((index) % 8)))
-#define KPM_FREE(order, index)			(buddy->orders[order][(index)/8] &= ~(1 << ((index) % 8)))
-#define KPM_GET(order, index)			(buddy->orders[order][(index)/8] & (1 << ((index) % 8)))
+#define KPM_ALLOC(order, index)			(buddy->orders[order].bitmap[(index)/8] |= (1 << ((index) % 8)))
+#define KPM_FREE(order, index)			(buddy->orders[order].bitmap[(index)/8] &= ~(1 << ((index) % 8)))
+#define KPM_GET(order, index)			(buddy->orders[order].bitmap[(index)/8] & (1 << ((index) % 8)))
 #define KPM_IS_ALLOCATED(order, index)	(KPM_GET(order, index) != 0)
 
 #define KPM_ENABLE(index)				(buddy->enabled_frames[(index)/8] |= (1 << ((index) % 8)))
 #define KPM_DISABLE(index)				(buddy->enabled_frames[(index)/8] &= ~(1 << ((index) % 8)))
 #define KPM_IS_ENABLED(index)			((buddy->enabled_frames[(index)/8] & (1 << ((index) % 8))) != 0)
+
+struct order {
+	bitmap_t *bitmap;
+	size_t size;
+};
 
 /*
  * The buddy allocator structure, that contains 11 orders.
@@ -55,9 +60,20 @@ typedef struct buddy {
 	size_t nframes;
 	size_t size;
 	bitmap_t *enabled_frames;
-	bitmap_t *orders[11];
-	uint8_t pad[8];
+	struct order orders[KPM_NORDERS];
 } buddy_t;
+
+/*
+ * This function describes a memory region allocated by
+ * kpm_alloc.
+ *
+ * @addr is the base address of the allocated chunk
+ * @size is the size in bytes of the allocated chunk
+ */
+typedef struct kpm_chunk {
+	void *addr;
+	size_t size;
+} kpm_chunk_t;
 
 /*
  * Creates and itinialize the buddy allocator with memory maps information.
@@ -86,12 +102,12 @@ int kpm_isalloc(void *addr);
  * Allocate @size bytes of memory
  * Returns the address of the newly allocated region, or NULL on error
  */
-void *kpm_alloc(size_t size);
+int kpm_alloc(kpm_chunk_t *chunk, size_t size);
 
 /*
  * Release the buddy node starting at addr @addr
  */
-void kpm_free(void *addr);
+void kpm_free(kpm_chunk_t *chunk);
 
 /*
  * Prints the buddy allocator
