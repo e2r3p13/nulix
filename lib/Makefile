@@ -12,7 +12,8 @@ LD:= ${cross-target}-ld
 LDFLAGS+=
 
 # BUILD VAR
-subdir:= string
+subdir:= string \
+	 math
 
 builddir?= build
 
