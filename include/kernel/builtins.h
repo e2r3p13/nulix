@@ -12,6 +12,8 @@
 #ifndef BUILTINS_H
 #define BUILTINS_H
 
+void alloc();
+void free();
 void reboot();
 void poweroff();
 void shell();
