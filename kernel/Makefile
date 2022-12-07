@@ -34,9 +34,9 @@ src-y:= \
 	isr.c \
 	spinlock.c \
 	pic_8259.c \
-	shell.c \
 	builtins.c \
 	screenbuf.c \
+	ksh.c \
 
 objs:= $(addprefix ${builddir}/, ${src-y})
 objs:= ${objs:.c=.o}
