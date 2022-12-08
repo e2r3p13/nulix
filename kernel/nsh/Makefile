@@ -11,31 +11,18 @@ ASFLAGS+=
 AR:= ${cross-target}-ar
 ARFLAGS:= rc
 CC:= ${cross-target}-gcc
-CFLAGS+= -Wall -Wextra -ffreestanding -nostdlib -nodefaultlibs -fno-builtin -mgeneral-regs-only -MMD $(addprefix -I, ${.INCLUDE_DIRS})
+CFLAGS+= -Wall -Wextra -ffreestanding -nostdlib -nodefaultlibs -fno-builtin -MMD $(addprefix -I, ${.INCLUDE_DIRS})
 LD:= ${cross-target}-ld
 LDFLAGS+=
 
 # BUILD VAR
 subdir:= \
-		 keyboard \
-		 memory \
-		 nsh \
+	builtins \
 
 builddir?= build
 
 src-y:= \
-	kernel.c \
-	boot.s \
-	port.c \
-	vga.c \
-	print.c \
-	gdt.c \
-	gdt_flush.s \
-	idt.c \
-	isr.c \
-	spinlock.c \
-	pic_8259.c \
-	screenbuf.c \
+	nsh.c \
 
 objs:= $(addprefix ${builddir}/, ${src-y})
 objs:= ${objs:.c=.o}
