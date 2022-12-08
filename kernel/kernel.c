@@ -19,14 +19,12 @@
 #include <kernel/multiboot.h>
 #include <kernel/kpm.h>
 #include <kernel/screenbuf.h>
-#include <kernel/ksh.h>
+#include <kernel/nsh.h>
 
 #define NBSCREENBUF 2
 
-extern struct vga vga;
 struct screenbuf sb[NBSCREENBUF];
 int sb_index = 0;
-
 
 /* Initialize all descriptor tables (gdt, idt, ...)
  *
@@ -53,5 +51,5 @@ void kernel_main(unsigned long multiboot_info_addr) {
 	};
 	sb_load(sb + sb_index);
 
-	ksh();
+	nsh();
 }
