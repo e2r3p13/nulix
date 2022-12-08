@@ -27,13 +27,17 @@ int nsh_bufindex;
 struct builtin builtin[] = {
 	{"reboot", reboot},
 	{"poweroff", poweroff},
+	{"exit", poweroff},
 	{"keymap", keymap},
 	{"color", color},
 	{"alloc", alloc},
 	{"free", free},
-//	{"clear", clear},
-//	{"help", help},
-//	{"int", int_divide},
+	{"clear", clear},
+	{"next", next},
+	{"prev", prev},
+	{"help", help},
+	{"interrupt", interrupt},
+	{NULL, NULL},
 };
 
 

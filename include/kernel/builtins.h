@@ -23,8 +23,11 @@ int keymap(int argc, char **argv);
 int alloc(int argc, char **argv);
 int free(int argc, char **argv);
 
-//int clear(int argc, char **argv);
-//int help(int argc, char **argv);
-//int int_divide(int argc, char **argv);
+int clear(int argc, char **argv);
+int next(int argc, char **argv);
+int prev(int argc, char **argv);
+int help(int argc, char **argv);
+
+int interrupt(int argc, char **argv);
 
 #endif

@@ -25,6 +25,7 @@
 
 struct screenbuf sb[NBSCREENBUF];
 int sb_index = 0;
+int sb_nbscreen = NBSCREENBUF;
 
 /* Initialize all descriptor tables (gdt, idt, ...)
  *
