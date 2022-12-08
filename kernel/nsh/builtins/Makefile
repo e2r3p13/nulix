@@ -25,6 +25,8 @@ src-y:= \
 	power.c \
 	keymap.c \
 	alloc.c \
+	utils.c \
+	interrupt.c \
 
 objs:= $(addprefix ${builddir}/, ${src-y})
 objs:= ${objs:.c=.o}
