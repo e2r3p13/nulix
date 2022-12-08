@@ -29,6 +29,8 @@ struct builtin builtin[] = {
 	{"poweroff", poweroff},
 	{"keymap", keymap},
 	{"color", color},
+	{"alloc", alloc},
+	{"free", free},
 //	{"clear", clear},
 //	{"help", help},
 //	{"int", int_divide},
@@ -90,10 +92,10 @@ static void nsh_getkeyevent(struct kbd_event *evt) {
 static void nsh_shortcut(struct kbd_event *evt) {
 	switch (evt->key) {
 		case KEY_CURSOR_UP:
-			sb_scrollup(sb + sb_index, 1);
+			sb_scroll(sb + sb_index, -1);
 			break;
 		case KEY_CURSOR_DOWN:
-			sb_scrolldown(sb + sb_index, 1);
+			sb_scroll(sb + sb_index, 1);
 			break;
 		default:
 			break;

@@ -192,6 +192,6 @@ int kprintf(const char *fmt, ...) {
 	ret = vsnprintf(buf, BUFSIZE - 1, fmt, ap);
 	va_end(ap);
 	
-	sb_write_str(sb + sb_index, buf);
+	sb_putstr(sb + sb_index, buf);
 	return ret;
 }
