@@ -110,6 +110,7 @@ void sb_init(struct screenbuf *sb) {
 	sb->color = VGA_DFL_COLOR;
 	sb->endbuf = sb->buf + (VGA_WIDTH * SB_HEIGHT);
 	sb->loaded = 0;
+	sb_memset(sb->buf, SB_WHITESPACE, VGA_WIDTH * SB_HEIGHT);
 }
 
 /*
