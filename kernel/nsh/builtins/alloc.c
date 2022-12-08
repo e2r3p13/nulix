@@ -13,6 +13,9 @@
 #include <kernel/screenbuf.h>
 #include <kernel/print.h>
 
+extern struct screenbuf sb[];
+extern int sb_index;
+
 kpm_chunk_t g_chunk;
 
 uint32_t pseudorand(uint32_t min, uint32_t max) {

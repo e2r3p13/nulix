@@ -47,7 +47,7 @@ void kernel_main(unsigned long multiboot_info_addr) {
 
 	for (int i = 0; i < NBSCREENBUF; i++) {
 		sb_init(sb + i);
-		sb_write_str(sb + i, "Welcome on nulix-2.1.0!\n");
+		sb_putstr(sb + i, "Welcome to nulix-2.0.1\n");
 	};
 	sb_load(sb + sb_index);
 
