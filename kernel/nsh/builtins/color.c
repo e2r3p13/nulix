@@ -47,7 +47,7 @@ int color(int argc, char **argv)
 		return -1;
 	}
 	if (!strcmp(argv[1], "reset")) {
-		sb_set_color(sb + sb_index, VGA_DFL_COLOR);
+		sb_set_color(sb + sb_index, SB_DFL_COLOR);
 	} else {
 		if (argc < 3) {
 			kprintf("color_change" ": Not enough arguments.\n");

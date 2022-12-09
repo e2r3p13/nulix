@@ -9,7 +9,6 @@
 #include <kernel/port.h>
 #include <kernel/screenbuf.h>
 #include <kernel/string.h>
-#include <kernel/vga.h>
 
 /*
  * TODO: Move this function to stdlib 
@@ -107,7 +106,7 @@ void sb_init(struct screenbuf *sb) {
 	sb->cursor = sb->buf;
 	sb->cursor_offset = 0;
 	sb_memset(sb->buf, SB_WHITESPACE, VGA_WIDTH * SB_HEIGHT);
-	sb->color = VGA_DFL_COLOR;
+	sb->color = SB_DFL_COLOR;
 	sb->endbuf = sb->buf + (VGA_WIDTH * SB_HEIGHT);
 	sb->loaded = 0;
 	sb_memset(sb->buf, SB_WHITESPACE, VGA_WIDTH * SB_HEIGHT);
@@ -153,14 +152,14 @@ void sb_set_color(struct screenbuf *sb, uint8_t color) {
 /*
  * Sets the given screenbuf's foreground color
  */
-void sb_set_fg(struct screenbuf *sb, enum vga_color fg) {
+void sb_set_fg(struct screenbuf *sb, enum sb_color fg) {
 	sb->color = (sb->color & 0xf0) | (fg & 0x0f);
 }
 
 /*
  * Sets the given screenbuf's background color
  */
-void sb_set_bg(struct screenbuf *sb, enum vga_color bg) {
+void sb_set_bg(struct screenbuf *sb, enum sb_color bg) {
 	sb->color = ((bg << 4) & 0xf0) | (sb->color & 0x0f);
 }
 

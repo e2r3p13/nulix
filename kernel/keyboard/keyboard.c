@@ -12,7 +12,6 @@
 #include <kernel/keyboard.h>
 #include <kernel/port.h>
 #include <kernel/ps2.h>
-#include <kernel/vga.h>
 #include <stdint.h>
 
 /* Used to translate scancodes to keycodes. Defined in scancodes.c */

@@ -6,18 +6,14 @@
  * Fill the gdt entries and load it.
  *
  * created: 2022/10/18 - mrxx0 <chcoutur@student.42.fr>
- * updated: 2022/12/09 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2022/12/09 - xlmod <glafond-@student.42.fr>
  */
 
 #include <stdint.h>
 #include <kernel/gdt.h>
-#include <kernel/keyboard.h>
-#include <kernel/vga.h>
-#include <kernel/print.h>
 
 #include "gdt_internal.h"
 
-extern struct vga vga;
 extern void gdt_flush();
 
 /* Pointer to the gdt. */
