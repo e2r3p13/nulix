@@ -27,7 +27,6 @@ src-y:= \
 	kernel.c \
 	boot.s \
 	port.c \
-	vga.c \
 	print.c \
 	gdt.c \
 	gdt_flush.s \

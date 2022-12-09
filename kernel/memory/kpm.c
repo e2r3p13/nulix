@@ -11,26 +11,12 @@
 
 #include <kernel/kpm.h>
 #include <kernel/print.h>
-#include <kernel/vga.h>
 #include <kernel/string.h>
 
 buddy_t *buddy;
 
 extern uint32_t sk;
 extern uint32_t ek;
-
-void buddy_print() {
-	VGA_setforegroundcolor(VGA_COLOR_MAGENTA);
-	kprintf("-- Buddy allocator --\n");
-	VGA_setforegroundcolor(VGA_COLOR_WHITE);
-
-	kprintf("buddy address:        %p\n", buddy);
-	kprintf("buddy size:           %u KB\n", buddy->size * 1024);
-	kprintf("orders address:       %p\n", buddy->orders);
-	kprintf("block number:         %x\n", buddy->nframes);
-	kprintf("total blocks size:    %u KB\n\n", (buddy->nframes << 2));
-	VGA_setforegroundcolor(VGA_DFL_COLOR);
-}
 
 /*
  * kpm_init must be called before any call to other kpm functions.

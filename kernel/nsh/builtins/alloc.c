@@ -42,11 +42,11 @@ void alloc() {
 	int res;
 
 	size = pseudorand(1, 1 << 16);
-	sb_set_fg(sb + sb_index, VGA_COLOR_GREEN);
+	sb_set_fg(sb + sb_index, SB_COLOR_GREEN);
 	kprintf("Asked for allocation of %u bytes\n", size);
 	res = kpm_alloc(&g_chunk, size);
 	kprintf("status code: %d\n", res);
-	sb_set_fg(sb + sb_index, VGA_DFL_COLOR);
+	sb_set_fg(sb + sb_index, SB_DFL_COLOR);
 	kprintf("chunk: {\n    addr = %p\n    size = %u\n}\n", g_chunk.addr, g_chunk.size);
 }
 
