@@ -13,9 +13,6 @@
 #include <kernel/idt.h>
 #include <kernel/keyboard.h>
 #include <kernel/pic_8259.h>
-#include <kernel/vga.h>
-#include <kernel/builtins.h>
-#include <kernel/print.h>
 #include <kernel/multiboot.h>
 #include <kernel/kpm.h>
 #include <kernel/screenbuf.h>

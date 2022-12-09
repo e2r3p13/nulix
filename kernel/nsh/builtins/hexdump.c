@@ -12,16 +12,15 @@
 #include <stdint.h>
 
 #include <kernel/stdlib.h>
-#include <kernel/vga.h>
 #include <kernel/screenbuf.h>
 #include <kernel/print.h>
 
 #define BLTNAME "hexdump"
 
 #define NBYTES_LINE	16
-#define C_ACTIVE	VGA_COLOR_LIGHT_GREEN
-#define C_INACTIVE	VGA_COLOR_WHITE
-#define C_NONPRINT	VGA_COLOR_LIGHT_BLUE
+#define C_ACTIVE	SB_COLOR_LIGHT_RED
+#define C_INACTIVE	SB_DFL_FG_COLOR
+#define C_NONPRINT	SB_DFL_FG_COLOR
 
 extern struct screenbuf sb[];
 extern int sb_index;
@@ -45,7 +44,7 @@ static void hx_printline(void *base, size_t nbytes) {
 			kprintf("  ");
 		}
 	}
-	sb_set_fg(sb + sb_index, VGA_COLOR_WHITE);
+	sb_set_fg(sb + sb_index, C_INACTIVE);
 	kprintf("  |");
 	for (int i = 0, nb = (int)nbytes; i < NBYTES_LINE; i++, nb--) {
 		if (nb > 0) {
@@ -69,14 +68,16 @@ static void hx_printline(void *base, size_t nbytes) {
 }
 
 void hx_print(void *base, size_t size) {
-	sb_set_fg(sb + sb_index, VGA_COLOR_WHITE);
+	enum sb_color color = sb_get_color(sb + sb_index);
+	sb_set_color(sb + sb_index, SB_DFL_COLOR);
+	sb_set_fg(sb + sb_index, C_INACTIVE);
 	for (;size >= NBYTES_LINE; size -= NBYTES_LINE) {
 		hx_printline(base, NBYTES_LINE);
 		base += NBYTES_LINE;
 	}
 	if (size)
 		hx_printline(base, size);
-	sb_set_fg(sb + sb_index, VGA_COLOR_LIGHT_GREY);
+	sb_set_color(sb + sb_index, color);
 }
 
 int hexdump(int argc, char **argv) {

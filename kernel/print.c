@@ -6,12 +6,11 @@
  * Implements some functions to print format strings
  *
  * created: 2022/10/15 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/11/18 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/12/09 - xlmod <glafond-@student.42.fr>
  */
 
 #include <stdarg.h>
 #include <kernel/string.h>
-#include <kernel/vga.h>
 #include <kernel/screenbuf.h>
 
 #define BUFSIZE 4096
