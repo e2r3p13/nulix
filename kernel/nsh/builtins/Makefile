@@ -27,6 +27,7 @@ src-y:= \
 	alloc.c \
 	utils.c \
 	interrupt.c \
+	info.c \
 
 objs:= $(addprefix ${builddir}/, ${src-y})
 objs:= ${objs:.c=.o}

@@ -6,7 +6,7 @@
  * Nulix shell
  *
  * created: 2022/12/07 - xlmod <glafond-@student.42.fr>
- * updated: 2022/12/08 - xlmod <glafond-@student.42.fr>
+ * updated: 2022/12/09 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <kernel/string.h>
@@ -32,6 +32,7 @@ struct builtin builtin[] = {
 	{"color", color},
 	{"alloc", alloc},
 	{"free", free},
+	{"info", info},
 	{"clear", clear},
 	{"next", next},
 	{"prev", prev},
