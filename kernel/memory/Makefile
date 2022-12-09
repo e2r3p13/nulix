@@ -21,7 +21,6 @@ builddir?= build
 
 src-y:= \
 	hexdump.c \
-	print_stack.c \
 	kpm.c \
 
 objs:= $(addprefix ${builddir}/, ${src-y})

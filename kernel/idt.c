@@ -15,8 +15,8 @@
 
 #include "idt_internal.h"
 
-static t_idt_entry *idt = (t_idt_entry *)0x0;
-static t_idt_ptr idtp;
+t_idt_entry *idt = (t_idt_entry *)0x0;
+t_idt_ptr idtp;
 
 // Set up a descriptor
 void idt_set_descriptor(uint8_t idt_index, void *isr_addr, uint8_t flags) {
