@@ -28,6 +28,7 @@ src-y:= \
 	utils.c \
 	interrupt.c \
 	info.c \
+	hexdump.c \
 
 objs:= $(addprefix ${builddir}/, ${src-y})
 objs:= ${objs:.c=.o}
