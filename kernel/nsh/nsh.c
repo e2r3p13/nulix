@@ -34,6 +34,7 @@ struct builtin builtin[] = {
 	{"free", free},
 	{"info", info},
 	{"clear", clear},
+	{"hexdump", hexdump},
 	{"next", next},
 	{"prev", prev},
 	{"help", help},
