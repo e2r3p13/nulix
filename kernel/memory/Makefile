@@ -20,7 +20,6 @@ LDFLAGS+=
 builddir?= build
 
 src-y:= \
-	hexdump.c \
 	kpm.c \
 
 objs:= $(addprefix ${builddir}/, ${src-y})

@@ -6,7 +6,7 @@
  * Builtins functions for shell.
  *
  * created: 2022/11/17 - mrxx0 <chcoutur@student.42.fr>
- * updated: 2022/12/09 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2022/12/09 - xlmod <glafond-@student.42.fr>
  */
 
 #ifndef BUILTINS_H
@@ -27,5 +27,7 @@ int prev(int argc, char **argv);
 int help(int argc, char **argv);
 
 int interrupt(int argc, char **argv);
+
+int hexdump(int argc, char **argv);
 
 #endif
