@@ -33,7 +33,7 @@ void kpm_init(struct multiboot_mmap_entry *entries, size_t count, size_t memkb) 
 	size_t enabled_frames_size;
 	size_t total_orders_size;
 
-	buddy = (buddy_t *)ALIGNNEXT((uint32_t)&ek, PAGE_SIZE);
+	buddy = (buddy_t *)ALIGNNEXT((uint32_t)(&ek - 0xc0000000), PAGE_SIZE);
 	buddy->nframes = ALIGN(memkb * 1024 / PAGE_SIZE, 1024);
 	enabled_frames_size = KPM_NBYTES_FROM_NBITS(buddy->nframes);
 	total_orders_size = 0;
@@ -57,7 +57,7 @@ void kpm_init(struct multiboot_mmap_entry *entries, size_t count, size_t memkb) 
 			kpm_enable((void *)(uintptr_t)entry->addr, (uint32_t)(entry->len));
 	}
 	kpm_disable((void *)0, PAGE_SIZE); // Also disables IDT + GDT by design
-	kpm_disable(&sk, (void *)&ek - (void *)&sk);
+	kpm_disable(&sk, (void *)(&ek - 0xc0000000) - (void *)&sk);
 	kpm_disable(buddy, buddy->size);
 }
 
