@@ -6,7 +6,7 @@
  * Insert file description here
  *
  * created: 2022/12/08 - xlmod <glafond-@student.42.fr>
- * updated: 2022/12/08 - xlmod <glafond-@student.42.fr>
+ * updated: 2022/12/12 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/screenbuf.h>
@@ -22,7 +22,7 @@ extern int sb_index;
  * Usage: color fg/bg COLOR 
  *        color reset
  */
-int color(int argc, char **argv)
+int color(int argc, char **argv) 
 {
 	char *colors[16] = {
 		"black",
