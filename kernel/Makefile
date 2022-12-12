@@ -25,7 +25,8 @@ builddir?= build
 
 src-y:= \
 	kernel.c \
-	boot_hhk.s \
+	boot.s \
+	boot_init.c \
 	port.c \
 	print.c \
 	gdt.c \

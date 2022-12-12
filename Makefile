@@ -20,7 +20,7 @@ objs= $(shell find ${builddir} -type f -name "*.o")
 libs= $(shell find ${builddir} -type f -name "*.a")
 
 LD:= ${cross-target}-ld
-LDFLAGS+= -T ${archdir}/linker_hhk.ld
+LDFLAGS+= -T ${archdir}/linker.ld
 QEMU:= qemu-system-i386
 QEMUFLAGS+= -serial stdio
 GRUBMK:=grub2-mkrescue
