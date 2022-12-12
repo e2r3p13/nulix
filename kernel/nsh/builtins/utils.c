@@ -6,7 +6,7 @@
  * Insert file description here
  *
  * created: 2022/12/08 - xlmod <glafond-@student.42.fr>
- * updated: 2022/12/08 - xlmod <glafond-@student.42.fr>
+ * updated: 2022/12/12 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/print.h>
@@ -22,8 +22,7 @@ extern struct builtin builtin[];
 /*
  * Clear screen.
  */
-int clear(int argc, char **argv)
-{
+int clear(__attribute__ ((unused)) int argc, __attribute__ ((unused)) char **argv) {
 	sb_clear(sb + sb_index);
 	return 0;
 }
@@ -31,8 +30,7 @@ int clear(int argc, char **argv)
 /*
  * Next screen.
  */
-int next(int argc, char **argv)
-{
+int next(__attribute__ ((unused)) int argc, __attribute__ ((unused)) char **argv) {
 	if (sb_index + 1 < sb_nbscreen) {
 		sb_unload(sb + sb_index);
 		sb_index++;
@@ -45,8 +43,7 @@ int next(int argc, char **argv)
 /*
  * Next screen.
  */
-int prev(int argc, char **argv)
-{
+int prev(__attribute__ ((unused)) int argc, __attribute__ ((unused)) char **argv) {
 	if (sb_index > 0) {
 		sb_unload(sb + sb_index);
 		sb_index--;
@@ -59,8 +56,7 @@ int prev(int argc, char **argv)
 /*
  * Prints usage and help message.
  */
-int help(int argc, char **argv)
-{
+int help(__attribute__ ((unused)) int argc, __attribute__ ((unused)) char **argv) {
 	kprintf("KFS - available commands :\n");
 	for (int i = 0; builtin[i].name != NULL ; i++)
 		kprintf("-> %s\n", builtin[i].name);
