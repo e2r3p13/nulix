@@ -6,7 +6,7 @@
  * string related functions for the string library
  *
  * created: 2022/10/12 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/10/19 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/12/12 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <stddef.h>
@@ -48,7 +48,7 @@ int strcmp(const char *s1, const char *s2) {
 	while (*s1 && *s2 && *s1 == *s2) {
 		s1++, s2++;
 	}
-	return s1 - s2;
+	return *s1 - *s2;
 }
 
 int strncmp(const char *s1, const char *s2, size_t n) {
