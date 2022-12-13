@@ -6,7 +6,7 @@
  * Kernel Physical Memory management
  *
  * created: 2022/11/23 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/12/08 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/12/14 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/kpm.h>
@@ -45,18 +45,18 @@ void buddy_print() {
 void kpm_init(struct multiboot_mmap_entry *entries, size_t count, size_t memkb) {
 	size_t buddy_size;
 	size_t enabled_frames_size;
-	size_t orders_size;
+	size_t total_orders_size;
 
 	buddy = (buddy_t *)ALIGNNEXT((uint32_t)&ek, PAGE_SIZE);
 	buddy->nframes = ALIGN(memkb * 1024 / PAGE_SIZE, 1024);
-	enabled_frames_size = KPM_NBYTES_FROM_NBITS(buddy->nframes / 8);
-	orders_size = 0;
+	enabled_frames_size = KPM_NBYTES_FROM_NBITS(buddy->nframes);
+	total_orders_size = 0;
 	for (size_t i = 0, nblocks = buddy->nframes; i < KPM_NORDERS; i++, nblocks /= 2) {
 		size_t order_size = KPM_NBYTES_FROM_NBITS(nblocks);
-		buddy->orders[i].size = orders_size;
-		orders_size += order_size;
+		buddy->orders[i].size = order_size;
+		total_orders_size += order_size;
 	}
-	buddy->size = sizeof(buddy_t) + enabled_frames_size + orders_size;
+	buddy->size = sizeof(buddy_t) + enabled_frames_size + total_orders_size;
 	buddy->enabled_frames = (void *)buddy + sizeof(buddy_t);
 
 	buddy->orders[0].bitmap = (void *)buddy->enabled_frames + enabled_frames_size;
@@ -64,7 +64,7 @@ void kpm_init(struct multiboot_mmap_entry *entries, size_t count, size_t memkb) 
 		buddy->orders[i].bitmap = (void *)buddy->orders[i - 1].bitmap + KPM_NBYTES_FROM_NBITS(prev_nblocks);
 
 	memset(buddy->enabled_frames, 0, enabled_frames_size);
-	memset(buddy->orders[0].bitmap, 0xff, orders_size);
+	memset(buddy->orders[0].bitmap, 0xff, total_orders_size);
 
 	for (struct multiboot_mmap_entry *entry = entries; entry->size != 0; entry++) {
 		if (entry->type == MULTIBOOT_MEMORY_AVAILABLE)
@@ -114,6 +114,9 @@ void kpm_enable(void *base, size_t limit) {
 	limit = ALIGN(limit, PAGE_SIZE);
 
 	size_t base_index = (uintptr_t)base / PAGE_SIZE;
+	if ((uintptr_t)(base + limit) / PAGE_SIZE > buddy->nframes)
+		limit = (buddy->nframes * PAGE_SIZE) - (uintptr_t)base;
+
 	for (int i = 0; i < limit / PAGE_SIZE; i++) {
 		KPM_ENABLE(base_index + i);
 		KPM_FREE(0, base_index + i);
@@ -137,6 +140,9 @@ void kpm_disable(void *base, size_t limit) {
 		limit = ALIGNNEXT(limit, PAGE_SIZE);
 
 	size_t base_index = (uintptr_t)base / PAGE_SIZE;
+	if ((uintptr_t)(base + limit) / PAGE_SIZE > buddy->nframes)
+		limit = (buddy->nframes * PAGE_SIZE) - (uintptr_t)base;
+
 	for (int i = 0; i < limit / PAGE_SIZE; i++) {
 		KPM_DISABLE(base_index + i);
 		KPM_ALLOC(0, base_index + i);
