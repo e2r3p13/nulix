@@ -3,18 +3,14 @@
 
 /* include/kernel/kvm.h
  *
- * 
+ * Virtual memory manager header
  *
  * created: 2022/12/06 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/12/06 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/12/16 - glafond- <glafond-@student.42.fr>
  */
 
 #ifndef KVM_H
 #define KVM_H
-
-typedef struct pagedir {
-	// TODO
-} pagedir_t;
 
 /*
  * Creates and sets the kernel page directory,
@@ -26,19 +22,20 @@ void kvm_init();
  * Creates a new page directory
  * Returns a pointer to the newly created pagedir struct
  */
-pagedir_t *kvm_new_pagedirectory();
+struct page_entry *kvm_new_pagedirectory();
 
 /*
  * Sets the CR3 register to set the given page directory as
  * the used one
  */
-void kvm_set_pagedirectory(pagedir_t *pagedir);
-
+void kvm_load_cr3(struct page_entry *pagedir);
+struct page_entry *kvm_get_cr3();
+void kvm_reload_cr3();
 
 /*
  * Maps @n pages from @phy to @virt virtual addresses.
  */
-void kvm_map(void *phy, void *virt, uint32_t n);
+struct page_entry *kvm_map(void *phy, void *virt);
 
 /*
  * Unmaps @n pages from @virt address
