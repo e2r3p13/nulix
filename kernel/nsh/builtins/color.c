@@ -6,7 +6,7 @@
  * Insert file description here
  *
  * created: 2022/12/08 - xlmod <glafond-@student.42.fr>
- * updated: 2022/12/12 - glafond- <glafond-@student.42.fr>
+ * updated: 2022/12/14 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/screenbuf.h>
@@ -16,14 +16,20 @@
 extern struct screenbuf sb[];
 extern int sb_index;
 
+#define BLTNAME "color"
+
+static inline void usage() {
+	kprintf("Usage: " BLTNAME " fg/bg COLOR\n");
+	kprintf("       " BLTNAME " reset\n");
+}
+
 /*
  * Change the screenbuf color
  *
  * Usage: color fg/bg COLOR 
  *        color reset
  */
-int color(int argc, char **argv) 
-{
+int color(int argc, char **argv) {
 	char *colors[16] = {
 		"black",
 		"blue",
@@ -43,30 +49,35 @@ int color(int argc, char **argv)
 		"white"
 	};
 	if (argc < 2) {
-		kprintf("color_change" ": Not enough arguments.\n");
+		usage();
 		return -1;
 	}
 	if (!strcmp(argv[1], "reset")) {
 		sb_set_color(sb + sb_index, SB_DFL_COLOR);
 	} else {
 		if (argc < 3) {
-			kprintf("color_change" ": Not enough arguments.\n");
+			usage();
 			return -1;
 		}
 		if (!strcmp(argv[1], "fg")) {
 			for (int i = 0; i < 16; i++) {
-				if (!strcmp(colors[i], argv[2]))
+				if (!strcmp(colors[i], argv[2])) {
 					sb_set_fg(sb + sb_index, i);
+					return 0;
+				}
 			}
+			kprintf(BLTNAME ": '%s' unknown color.\n", argv[2]);
 		} else if (!strcmp(argv[1], "bg")) {
 			for (int i = 0; i < 16; i++) {
-				if (!strcmp(colors[i], argv[2]))
+				if (!strcmp(colors[i], argv[2])) {
 					sb_set_bg(sb + sb_index, i);
+					return 0;
+				}
 			}
+			kprintf(BLTNAME ": '%s' unknown color.\n", argv[2]);
 		} else {
-			kprintf("color_change" ": Unknown command.\n");
-			return -1;
+			kprintf(BLTNAME ": '%s' unknown command.\n", argv[1]);
 		}
 	}
-	return 0;
+	return -1;
 }

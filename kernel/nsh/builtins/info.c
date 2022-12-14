@@ -6,7 +6,7 @@
  * Insert file description here
  *
  * created: 2022/12/09 - mrxx0 <chcoutur@student.42.fr>
- * updated: 2022/12/13 - glafond- <glafond-@student.42.fr>
+ * updated: 2022/12/14 - glafond- <glafond-@student.42.fr>
  */ 
 
 #include <stdint.h>
@@ -29,8 +29,13 @@ extern t_idt_ptr idtp;
 #define PRINT(reg, var, format) \
 	reg(var); kprintf(format, var)
 
-void info_registers()
-{
+#define BLTNAME "info"
+
+static inline void usage() {
+	kprintf("Usage: " BLTNAME " [gdt/idt/stack/buddy/registers]\n");
+}
+
+static void info_registers() {
 	uint32_t reg;
 	PRINT(EAX, reg, "eax : %8p\n");
 	PRINT(EBX, reg, "ebx : %8p\n");
@@ -53,18 +58,16 @@ void info_registers()
 /* Print all the info from the idt basic info and all of the entries
  *
  */
-void info_idt()
-{
+static void info_idt() {
 	kprintf("INFO IDT\n");
-	kprintf("Base : %8p | Limit: %8p\n", idtp.base, idtp.limit);
+	kprintf("Base:  %8p | Limit: %8p\n", idtp.base, idtp.limit);
 	kprintf("Size = %u bytes\n", sizeof(idt));	
 }
 
 /* Print all the info from the buddy allocator
  *
  */
-void info_buddy()
-{
+static void info_buddy() {
 	kprintf("INFO BUDDY\n");
 	kprintf("buddy address:        %p\n", buddy);
 	kprintf("buddy size:           %u KB\n", buddy->size * 1024);
@@ -73,20 +76,18 @@ void info_buddy()
 	kprintf("total blocks size:    %u KB\n\n", (buddy->nframes << 2));
 }
 
-void info_stack()
-{
+static void info_stack() {
 	kprintf("INFO STACK\n");
-	kprintf("Top : %8p | Bottom : %8p\n", &stack_top, &stack_bottom);
-	kprintf("Size : %d bytes\n", (void *)&stack_top - (void *)&stack_bottom);
+	kprintf("Top:   %8p | Bottom : %8p\n", &stack_top, &stack_bottom);
+	kprintf("Size = %d bytes\n", (void *)&stack_top - (void *)&stack_bottom);
 }
 
 /* Print all the info from the gdt basic info and all of the entries
  *
  */
-void info_gdt()
-{
+static void info_gdt() {
 	kprintf("INFO GDT\n");
-	kprintf("Base : %8p | Limit: %8p\n", gdtp.base, gdtp.limit);
+	kprintf("Base:  %8p | Limit: %8p\n", gdtp.base, gdtp.limit);
 	kprintf("Size = %u bytes\n", sizeof(gdt) * GDT_SIZE);
 	kprintf("BASE LOW    BASE MID    BASE HIGH   LIMIT LOW   GRAN        ACC\n");
 	for (uint8_t i = 0; i < GDT_SIZE; i++) {
@@ -100,11 +101,9 @@ void info_gdt()
 	}
 }
 
-int info(int argc, char **argv)
-{
+int info(int argc, char **argv) {
 	if (argc < 2) {
-		kprintf("info" ": Not enough arguments.\n");
-		kprintf("Usage : info [gdt/idt/stack/buddy/registers]\n");
+		usage();
 		return -1;
 	}
 	if (!strcmp(argv[1], "gdt")) {
@@ -118,8 +117,7 @@ int info(int argc, char **argv)
 	} else if (!strcmp(argv[1], "registers")) {
 		info_registers();
 	} else {
-		kprintf("info : '%s' doesn't exist.\n", argv[1]);
-		kprintf("Usage : info [gdt/idt/stack/buddy/registers]\n");
+		kprintf(BLTNAME ": '%s' doesn't exist.\n", argv[1]);
 		return -1;
 	}
 	return 0;

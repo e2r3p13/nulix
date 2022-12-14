@@ -6,7 +6,7 @@
  * Nulix shell
  *
  * created: 2022/12/07 - xlmod <glafond-@student.42.fr>
- * updated: 2022/12/09 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/12/14 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/string.h>
@@ -25,23 +25,22 @@ int nsh_cmdnarg;
 int nsh_bufindex;
 
 struct builtin builtin[] = {
-	{"reboot", reboot},
-	{"poweroff", poweroff},
-	{"exit", poweroff},
-	{"keymap", keymap},
-	{"color", color},
-	{"alloc", alloc},
-	{"free", free},
-	{"info", info},
-	{"clear", clear},
-	{"hexdump", hexdump},
-	{"next", next},
-	{"prev", prev},
-	{"help", help},
-	{"interrupt", interrupt},
-	{NULL, NULL},
+	{"reboot", reboot, "Reboot the machine"},
+	{"poweroff", poweroff, "Power-off the machine"},
+	{"exit", poweroff, "Alias of 'poweroff'"},
+	{"keymap", keymap, "Switch keyboard layout"},
+	{"color", color, "Change the screen buffer color"},
+	{"alloc", alloc, "Return a random address"},
+	{"free", free, "Do nothing"},
+	{"info", info, "Print some information about system"},
+	{"clear", clear, "Clear the screen buffer"},
+	{"hexdump", hexdump, "Dump a memory zone"},
+	{"next", next, "Switch to next screen buffer"},
+	{"prev", prev, "Switch to prev screen buffer"},
+	{"help", help, "Print help"},
+	{"interrupt", interrupt, "Raise an interrupt"},
+	{NULL, NULL, NULL},
 };
-
 
 static void nsh_prompt() {
 	uint8_t oldcolor;
@@ -92,14 +91,6 @@ static void nsh_execcmd() {
 	kprintf("nsh: %s: command not found\n", nsh_cmd[0]);
 }
 
-static void nsh_getkeyevent(struct kbd_event *evt) {
-	while (1) {
-		while (!KBD_poll());
-		if (KBD_getevent(evt) == 0 && evt->type == KEY_PRESSED)
-			return ;
-	}
-}
-
 static void nsh_shortcut(struct kbd_event *evt) {
 	switch (evt->key) {
 		case KEY_CURSOR_UP:
@@ -141,7 +132,7 @@ void nsh() {
 
 	nsh_newline();
 	while (1) {
-		nsh_getkeyevent(&evt);
+		KBD_getevent_by_type(&evt, KEY_PRESSED);
 		if ((c = KBD_getchar(&evt)))
 			nsh_addchar(c);
 		else
