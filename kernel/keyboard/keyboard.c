@@ -6,7 +6,7 @@
  * Keyboard driver
  *
  * created: 2022/10/15 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/11/21 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/12/14 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/keyboard.h>
@@ -141,6 +141,23 @@ int KBD_getevent(struct kbd_event *evt) {
 	kbd_st.ext = 0;
 
 	return evt->key == UNKNOWN ? -1 : 0;
+}
+
+/*
+ * Gets a keyboard event, reading the PS/2 Data port only if it's matching the type
+ *
+ * @evt is a pointer to a kbd_event structure which is
+ * to be filled
+ *
+ * @type is the type event needed to match
+ *
+ */
+void KBD_getevent_by_type(struct kbd_event *evt, enum kbd_eventtype type) {
+	while (1) {
+		while (!KBD_poll());
+		if (KBD_getevent(evt) == 0 && evt->type == type)
+			return ;
+	}
 }
 
 /*
