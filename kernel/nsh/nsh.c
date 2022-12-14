@@ -6,7 +6,7 @@
  * Nulix shell
  *
  * created: 2022/12/07 - xlmod <glafond-@student.42.fr>
- * updated: 2022/12/09 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2022/12/09 - lfalkau <lfalkau@student.42.fr>
  */
 
 #include <kernel/string.h>
@@ -44,7 +44,12 @@ struct builtin builtin[] = {
 
 
 static void nsh_prompt() {
-	kprintf("$> ");
+	uint8_t oldcolor;
+
+	oldcolor = sb_get_color(sb + sb_index);
+		sb_set_fg(sb + sb_index, SB_COLOR_LIGHT_BLUE);
+	kprintf("nsh$ ");
+	sb_set_color(sb + sb_index, oldcolor);
 }
 
 static void nsh_newline() {
@@ -84,7 +89,7 @@ static void nsh_execcmd() {
 			return;
 		}
 	}
-	kprintf("nsh" ": %s: command not found...\n", nsh_cmd[0]);
+	kprintf("nsh: %s: command not found\n", nsh_cmd[0]);
 }
 
 static void nsh_getkeyevent(struct kbd_event *evt) {
@@ -109,6 +114,7 @@ static void nsh_shortcut(struct kbd_event *evt) {
 }
 
 static void nsh_addchar(char c) {
+	sb_scroll_down(sb + sb_index);
 	if (c == '\n') {
 		kprintf("\n");
 		if (nsh_bufindex != 0) {
