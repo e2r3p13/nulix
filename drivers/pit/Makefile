@@ -17,26 +17,11 @@ LDFLAGS+=
 
 # BUILD VAR
 subdir:= \
-		 keyboard \
-		 memory \
-		 nsh \
 
 builddir?= build
 
 src-y:= \
-	kernel.c \
-	boot.s \
-	boot_init.c \
-	port.c \
-	print.c \
-	gdt.c \
-	gdt_flush.s \
-	idt.c \
-	isr.c \
-	spinlock.c \
-	pic_8259.c \
-	screenbuf.c \
-	time.c \
+	pit.c
 
 objs:= $(addprefix ${builddir}/, ${src-y})
 objs:= ${objs:.c=.o}
