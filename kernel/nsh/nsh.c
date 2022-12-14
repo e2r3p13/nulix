@@ -118,6 +118,20 @@ static void nsh_addchar(char c) {
 			nsh_buf[--nsh_bufindex] = 0;
 			kprintf("\b");
 		}
+	} else if (c == '\t') {
+		if (nsh_bufindex == 0)
+			return;
+		for (int i = 0; builtin[i].name != NULL; i++) {
+			char *p = nsh_buf;
+			char *q = builtin[i].name;
+			while (*p && *q && *p == *q)
+				p++, q++;
+			if (*p == 0 && *q != 0) {
+				kprintf("%s", q);
+				while (*q && nsh_bufindex < NSH_BUFSIZE)
+					nsh_buf[nsh_bufindex++] = *q++;
+			}
+		}
 	} else {
 		if (nsh_bufindex < NSH_BUFSIZE - 1) {
 			nsh_buf[nsh_bufindex++] = c;
