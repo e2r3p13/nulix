@@ -6,7 +6,7 @@
  * Insert file description here
  *
  * created: 2022/12/08 - xlmod <glafond-@student.42.fr>
- * updated: 2022/12/08 - xlmod <glafond-@student.42.fr>
+ * updated: 2022/12/14 - glafond- <glafond-@student.42.fr>
  */
 
 
@@ -18,6 +18,7 @@
 struct builtin {
 	char *name;
 	int (*exec)(int ,char **);
+	char *description;
 };
 
 void nsh();

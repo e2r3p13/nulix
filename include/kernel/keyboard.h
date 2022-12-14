@@ -6,7 +6,7 @@
  * Header file for the keyboard driver
  *
  * created: 2022/10/15 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/10/19 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2022/12/14 - glafond- <glafond-@student.42.fr>
  */
 
 #ifndef KEYBOARD_H
@@ -215,6 +215,7 @@ struct kbd_keymap_entry {
 void KBD_initialize();
 int KBD_poll();
 int KBD_getevent(struct kbd_event *evt);
+void KBD_getevent_by_type(struct kbd_event *evt, enum kbd_eventtype type);
 int KBD_getchar(struct kbd_event *evt);
 void KBD_flush();
 void KBD_setkeymap(struct kbd_keymap_entry (*kmfn)(enum kbd_keycode));

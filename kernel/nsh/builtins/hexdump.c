@@ -82,7 +82,6 @@ void hx_print(void *base, size_t size) {
 
 int hexdump(int argc, char **argv) {
 	if (argc < 3) {
-		kprintf(BLTNAME ": Not enough argument.\n");
 		usage();
 		return -1;
 	}
