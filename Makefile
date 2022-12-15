@@ -7,7 +7,7 @@ kernel-version:= 0.0.1
 kernel:= ${kernel-name}-${kernel-version}
 
 #BUILD 
-subdir+= kernel lib
+subdir+= kernel lib drivers
 
 archdir:= arch/${target}
 
