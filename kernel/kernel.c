@@ -38,10 +38,9 @@ static void init_descriptor_tables() {
 void kernel_main(unsigned long multiboot_info_addr) {
 	multiboot_info_t *mbi = (multiboot_info_t *)multiboot_info_addr;
 
-	kernel_init();
+	pit_init();
 	init_descriptor_tables();
 	KBD_initialize();
-	pit_init();
 
 	kpm_init((void *)mbi->mmap_addr,
 		mbi->mmap_length / sizeof(struct multiboot_mmap_entry),

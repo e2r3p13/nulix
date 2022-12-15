@@ -3,16 +3,18 @@
 
 /* include/kernel/time.h
  *
- * Insert file description here
+ * Time relative functions
  *
  * created: 2022/12/14 - xlmod <glafond-@student.42.fr>
- * updated: 2022/12/15 - xlmod <glafond-@student.42.fr>
+ * updated: 2022/12/15 - glafond- <glafond-@student.42.fr>
  */
 
 #ifndef TIME_T
 #define TIME_T
 
 #include <stdint.h>
+
+typedef uint32_t time_t;
 
 /*
  * Sleep at least ms millisecond
