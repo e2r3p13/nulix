@@ -6,7 +6,7 @@
  * Nulix shell
  *
  * created: 2022/12/07 - xlmod <glafond-@student.42.fr>
- * updated: 2022/12/14 - glafond- <glafond-@student.42.fr>
+ * updated: 2022/12/15 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <kernel/string.h>
@@ -30,8 +30,8 @@ struct builtin builtin[] = {
 	{"exit", poweroff, "Alias of 'poweroff'"},
 	{"keymap", keymap, "Switch keyboard layout"},
 	{"color", color, "Change the screen buffer color"},
-	{"alloc", alloc, "Return a random address"},
-	{"free", free, "Do nothing"},
+	{"alloc", alloc, "Allocate a memory area"},
+	{"free", free, "Free a given memory area"},
 	{"info", info, "Print some information about system"},
 	{"clear", clear, "Clear the screen buffer"},
 	{"hexdump", hexdump, "Dump a memory zone"},
@@ -146,7 +146,7 @@ void nsh() {
 
 	nsh_newline();
 	while (1) {
-		KBD_getevent_by_type(&evt, KEY_PRESSED);
+		KBD_geteventbytype(&evt, KEY_PRESSED);
 		if ((c = KBD_getchar(&evt)))
 			nsh_addchar(c);
 		else

@@ -6,7 +6,7 @@
  * Kernel Physical Memory management
  *
  * created: 2022/11/23 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/12/14 - glafond- <glafond-@student.42.fr>
+ * updated: 2022/12/15 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <kernel/kpm.h>
@@ -209,7 +209,7 @@ int kpm_alloc(kpm_chunk_t *chunk, size_t size) {
 	size_t frames_per_block;
 
 	best_fit_order = find_best_fit_order(size);
-	for (size_t n = best_fit_order; n > 0; n--) {
+	for (int n = best_fit_order; n >= 0; n--) {
 		int i = bitmap_ffu(buddy->orders[n].bitmap, buddy->orders[n].size);
 		if (i >= 0) {
 			frames_per_block = 1 << n;
