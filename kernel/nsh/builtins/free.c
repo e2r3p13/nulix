@@ -17,7 +17,7 @@
 #define BLTNAME "free"
 
 extern struct screenbuf sb[];
-extern int sb_index;
+extern struct screenbuf *sb_current;
 
 static inline void usage() {
 	kprintf("Usage: " BLTNAME " size\n");

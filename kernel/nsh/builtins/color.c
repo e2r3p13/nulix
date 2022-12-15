@@ -6,7 +6,7 @@
  * Insert file description here
  *
  * created: 2022/12/08 - xlmod <glafond-@student.42.fr>
- * updated: 2022/12/14 - glafond- <glafond-@student.42.fr>
+ * updated: 2022/12/15 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <kernel/screenbuf.h>
@@ -14,7 +14,7 @@
 #include <kernel/string.h>
 
 extern struct screenbuf sb[];
-extern int sb_index;
+extern struct screenbuf *sb_current;
 
 #define BLTNAME "color"
 
@@ -53,7 +53,7 @@ int color(int argc, char **argv) {
 		return -1;
 	}
 	if (!strcmp(argv[1], "reset")) {
-		sb_set_color(sb + sb_index, SB_DFL_COLOR);
+		sb_set_color(sb_current, SB_DFL_COLOR);
 	} else {
 		if (argc < 3) {
 			usage();
@@ -62,7 +62,7 @@ int color(int argc, char **argv) {
 		if (!strcmp(argv[1], "fg")) {
 			for (int i = 0; i < 16; i++) {
 				if (!strcmp(colors[i], argv[2])) {
-					sb_set_fg(sb + sb_index, i);
+					sb_set_fg(sb_current, i);
 					return 0;
 				}
 			}
@@ -70,7 +70,7 @@ int color(int argc, char **argv) {
 		} else if (!strcmp(argv[1], "bg")) {
 			for (int i = 0; i < 16; i++) {
 				if (!strcmp(colors[i], argv[2])) {
-					sb_set_bg(sb + sb_index, i);
+					sb_set_bg(sb_current, i);
 					return 0;
 				}
 			}
