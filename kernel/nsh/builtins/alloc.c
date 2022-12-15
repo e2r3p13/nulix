@@ -3,54 +3,65 @@
 
 /* kernel/nsh/builtins/alloc.c
  *
- *
+ * Allocate builtins file
  *
  * created: 2022/12/13 - glafond- <glafond-@student.42.fr>
- * updated: 2022/12/13 - glafond- <glafond-@student.42.fr>
+ * updated: 2022/12/15 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <kernel/kpm.h>
 #include <kernel/screenbuf.h>
 #include <kernel/print.h>
+#include <kernel/stdlib.h>
+
+#define BLTNAME "alloc"
 
 extern struct screenbuf sb[];
 extern int sb_index;
 
-kpm_chunk_t g_chunk;
+static inline void usage() {
+	kprintf("Usage: " BLTNAME " size\n");
+}
 
-uint32_t pseudorand(uint32_t min, uint32_t max) {
-	static uint32_t m_seed = 42;
+/* Wrapper for the kpm_alloc function.
+ * Loop until a maximum number of chunk has been allocated to allocate the 
+ * given memory size.
+ *
+ * */
 
-    // Constants for the LCG
-    const uint32_t a = 1103515245;
-    const uint32_t c = 12345;
-    const uint32_t m = (uint32_t)(1 << 16) + 1;
-
-    // Generate the next pseudo-random number
-    m_seed = (a * m_seed + c) % m;
-
-    // Scale the random number to the desired range and return it
-    return (m_seed % (max - min + 1)) + min;
+int alloc_loop(kpm_chunk_t *chunk, size_t size) {
+	uint8_t oldcolor = sb_get_color(sb + sb_index);
+	sb_set_fg(sb + sb_index, SB_COLOR_GREEN);
+	while (size > 0) {
+		if (kpm_alloc(chunk, size) < 0)
+			return -1;
+		kprintf("chunk: {\n    addr = %p\n    size = %u\n}\n", chunk->addr, chunk->size);
+		if (chunk->size >= size)
+			break ;
+		size -= chunk->size;
+	}
+	sb_set_fg(sb + sb_index, oldcolor);
+	return 0;
 }
 
 /* Choose a pseudo random size, print it,
  * allocates a chunk of this size with kpm_alloc
  * and print the resulting chunk.
  */
-void alloc() {
-	size_t size;
-	int res;
-
-	size = pseudorand(1, 1 << 16);
-	sb_set_fg(sb + sb_index, SB_COLOR_GREEN);
-	kprintf("Asked for allocation of %u bytes\n", size);
-	res = kpm_alloc(&g_chunk, size);
-	kprintf("status code: %d\n", res);
-	sb_set_fg(sb + sb_index, SB_DFL_COLOR);
-	kprintf("chunk: {\n    addr = %p\n    size = %u\n}\n", g_chunk.addr, g_chunk.size);
+int alloc(int argc, char **argv) {
+	if (argc < 2) {
+		usage();
+		return -1;
+	}
+	char *ptr;
+	int size = strtol(argv[1], &ptr, 0);
+	if (*ptr != 0) {
+		kprintf(BLTNAME ": Size not well formatted.\n");
+		return -1;
+	}
+	kpm_chunk_t chunk;
+	kprintf("Asked for allocation of %d bytes\n", size);
+	if (alloc_loop(&chunk, size) == -1)
+		kprintf("Failed to allocate memory area.\n");
+	return 0;
 }
-
-void free() {
-	kpm_free(&g_chunk);
-}
-
