@@ -215,7 +215,7 @@ struct kbd_keymap_entry {
 void KBD_initialize();
 int KBD_poll();
 int KBD_getevent(struct kbd_event *evt);
-void KBD_getevent_by_type(struct kbd_event *evt, enum kbd_eventtype type);
+void KBD_geteventbytype(struct kbd_event *evt, enum kbd_eventtype type);
 int KBD_getchar(struct kbd_event *evt);
 void KBD_flush();
 void KBD_setkeymap(struct kbd_keymap_entry (*kmfn)(enum kbd_keycode));

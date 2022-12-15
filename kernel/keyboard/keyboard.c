@@ -152,7 +152,7 @@ int KBD_getevent(struct kbd_event *evt) {
  * @type is the type event needed to match
  *
  */
-void KBD_getevent_by_type(struct kbd_event *evt, enum kbd_eventtype type) {
+void KBD_geteventbytype(struct kbd_event *evt, enum kbd_eventtype type) {
 	while (1) {
 		while (!KBD_poll());
 		if (KBD_getevent(evt) == 0 && evt->type == type)
