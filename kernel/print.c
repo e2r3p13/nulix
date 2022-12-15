@@ -16,7 +16,7 @@
 #define BUFSIZE 4096
 
 extern struct screenbuf sb[];
-extern int sb_index;
+extern struct screenbuf *sb_current;
 
 /*
  * Computes the pow of a number in a specified base
@@ -191,6 +191,6 @@ int kprintf(const char *fmt, ...) {
 	ret = vsnprintf(buf, BUFSIZE - 1, fmt, ap);
 	va_end(ap);
 	
-	sb_putstr(sb + sb_index, buf);
+	sb_putstr(sb_current, buf);
 	return ret;
 }

@@ -6,7 +6,7 @@
  * Insert file description here
  *
  * created: 2022/12/08 - xlmod <glafond-@student.42.fr>
- * updated: 2022/12/14 - glafond- <glafond-@student.42.fr>
+ * updated: 2022/12/15 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <kernel/print.h>
@@ -15,7 +15,7 @@
 #include <kernel/stdlib.h>
 
 extern struct screenbuf sb[];
-extern int sb_index;
+extern struct screenbuf *sb_current;
 extern int sb_nbscreen;
 
 extern struct builtin builtin[];
@@ -24,7 +24,7 @@ extern struct builtin builtin[];
  * Clear screen.
  */
 int clear(__attribute__ ((unused)) int argc, __attribute__ ((unused)) char **argv) {
-	sb_clear(sb + sb_index);
+	sb_clear(sb_current);
 	return 0;
 }
 
@@ -32,9 +32,10 @@ int clear(__attribute__ ((unused)) int argc, __attribute__ ((unused)) char **arg
  * Next screen.
  */
 int next(__attribute__ ((unused)) int argc, __attribute__ ((unused)) char **argv) {
-	sb_unload(sb + sb_index);
-	sb_index = (sb_index + 1) % sb_nbscreen;
-	sb_load(sb + sb_index);
+	sb_unload(sb_current++);
+	if ((sb_current - sb) == sb_nbscreen)
+		sb_current = sb;
+	sb_load(sb_current);
 	return 0;
 }
 
@@ -42,9 +43,10 @@ int next(__attribute__ ((unused)) int argc, __attribute__ ((unused)) char **argv
  * Prev screen.
  */
 int prev(__attribute__ ((unused)) int argc, __attribute__ ((unused)) char **argv) {
-	sb_unload(sb + sb_index);
-	sb_index = abs(sb_index - 1) % sb_nbscreen;
-	sb_load(sb + sb_index);
+	sb_unload(sb_current--);
+	if (sb_current < sb)
+		sb_current = sb + (sb_nbscreen - 1);
+	sb_load(sb_current);
 	return 0;
 }
 

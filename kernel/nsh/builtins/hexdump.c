@@ -23,7 +23,7 @@
 #define C_NONPRINT	SB_DFL_FG_COLOR
 
 extern struct screenbuf sb[];
-extern int sb_index;
+extern struct screenbuf *sb_current;
 
 static inline void usage() {
 	kprintf("Usage: " BLTNAME " address size\n");
@@ -37,29 +37,29 @@ static void hx_printline(void *base, size_t nbytes) {
 			kprintf(" ");
 		if (nb > 0) {
 			byte = *(uint8_t *)(base + i);
-			sb_set_fg(sb + sb_index, byte ? C_ACTIVE : C_INACTIVE);
+			sb_set_fg(sb_current, byte ? C_ACTIVE : C_INACTIVE);
 			kprintf("%2x", byte);
-			sb_set_fg(sb + sb_index, C_INACTIVE);
+			sb_set_fg(sb_current, C_INACTIVE);
 		} else {
 			kprintf("  ");
 		}
 	}
-	sb_set_fg(sb + sb_index, C_INACTIVE);
+	sb_set_fg(sb_current, C_INACTIVE);
 	kprintf("  |");
 	for (int i = 0, nb = (int)nbytes; i < NBYTES_LINE; i++, nb--) {
 		if (nb > 0) {
 			byte = *(uint8_t *)(base + i);
 			if (byte == 0) {
-				sb_set_fg(sb + sb_index, C_INACTIVE);
+				sb_set_fg(sb_current, C_INACTIVE);
 				byte = '.';
 			} else if (byte < 32 || byte > 127) {
-				sb_set_fg(sb + sb_index, C_NONPRINT);
+				sb_set_fg(sb_current, C_NONPRINT);
 				byte = '.';
 			} else {
-				sb_set_fg(sb + sb_index, C_ACTIVE);
+				sb_set_fg(sb_current, C_ACTIVE);
 			}
 			kprintf("%c", byte);
-			sb_set_fg(sb + sb_index, C_INACTIVE);
+			sb_set_fg(sb_current, C_INACTIVE);
 		} else {
 			kprintf(" ");
 		}
@@ -68,16 +68,16 @@ static void hx_printline(void *base, size_t nbytes) {
 }
 
 void hx_print(void *base, size_t size) {
-	enum sb_color color = sb_get_color(sb + sb_index);
-	sb_set_color(sb + sb_index, SB_DFL_COLOR);
-	sb_set_fg(sb + sb_index, C_INACTIVE);
+	enum sb_color color = sb_get_color(sb_current);
+	sb_set_color(sb_current, SB_DFL_COLOR);
+	sb_set_fg(sb_current, C_INACTIVE);
 	for (;size >= NBYTES_LINE; size -= NBYTES_LINE) {
 		hx_printline(base, NBYTES_LINE);
 		base += NBYTES_LINE;
 	}
 	if (size)
 		hx_printline(base, size);
-	sb_set_color(sb + sb_index, color);
+	sb_set_color(sb_current, color);
 }
 
 int hexdump(int argc, char **argv) {

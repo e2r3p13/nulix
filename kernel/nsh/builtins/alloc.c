@@ -17,7 +17,7 @@
 #define BLTNAME "alloc"
 
 extern struct screenbuf sb[];
-extern int sb_index;
+extern struct screenbuf *sb_current;
 
 static inline void usage() {
 	kprintf("Usage: " BLTNAME " size\n");
@@ -30,8 +30,8 @@ static inline void usage() {
  * */
 
 int alloc_loop(kpm_chunk_t *chunk, size_t size) {
-	uint8_t oldcolor = sb_get_color(sb + sb_index);
-	sb_set_fg(sb + sb_index, SB_COLOR_GREEN);
+	uint8_t oldcolor = sb_get_color(sb_current);
+	sb_set_fg(sb_current, SB_COLOR_GREEN);
 	while (size > 0) {
 		if (kpm_alloc(chunk, size) < 0)
 			return -1;
@@ -40,7 +40,7 @@ int alloc_loop(kpm_chunk_t *chunk, size_t size) {
 			break ;
 		size -= chunk->size;
 	}
-	sb_set_fg(sb + sb_index, oldcolor);
+	sb_set_fg(sb_current, oldcolor);
 	return 0;
 }
 
