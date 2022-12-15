@@ -6,7 +6,7 @@
  * Insert file description here
  *
  * created: 2022/12/09 - mrxx0 <chcoutur@student.42.fr>
- * updated: 2022/12/14 - glafond- <glafond-@student.42.fr>
+ * updated: 2022/12/15 - glafond- <glafond-@student.42.fr>
  */ 
 
 #include <stdint.h>
@@ -70,10 +70,10 @@ static void info_idt() {
 static void info_buddy() {
 	kprintf("INFO BUDDY\n");
 	kprintf("buddy address:        %p\n", buddy);
-	kprintf("buddy size:           %u KB\n", buddy->size * 1024);
-	kprintf("orders address:       %p\n", buddy->orders);
-	kprintf("block number:         %x\n", buddy->nframes);
-	kprintf("total blocks size:    %u KB\n\n", (buddy->nframes << 2));
+	kprintf("buddy size:           %u KB\n", buddy->size / 1024);
+	kprintf("orders address:       %p\n", buddy->orders[0].bitmap);
+	kprintf("frame number:         %x\n", buddy->nframes);
+	kprintf("memory size:          %u KB\n\n", buddy->nframes << 2);
 }
 
 static void info_stack() {
