@@ -6,7 +6,7 @@
  * Entrypoint of the KFS kernel
  *
  * created: 2022/10/11 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/12/13 - glafond- <glafond-@student.42.fr>
+ * updated: 2022/12/15 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <kernel/gdt.h>
@@ -21,7 +21,7 @@
 #define NBSCREENBUF 2
 
 struct screenbuf sb[NBSCREENBUF];
-int sb_index = 0;
+struct screenbuf *sb_current;
 int sb_nbscreen = NBSCREENBUF;
 
 /* Initialize all descriptor tables (gdt, idt, ...)
@@ -47,7 +47,8 @@ void kernel_main(unsigned long multiboot_info_addr) {
 		sb_init(sb + i);
 		sb_putstr(sb + i, "Welcome to nulix-2.0.1\n");
 	};
-	sb_load(sb + sb_index);
+	sb_current = sb;
+	sb_load(sb_current);
 
 	nsh();
 }

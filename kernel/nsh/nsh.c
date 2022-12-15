@@ -17,7 +17,7 @@
 #include <kernel/builtins.h>
 
 extern struct screenbuf sb[];
-extern int sb_index;
+extern struct screenbuf *sb_current;
 
 char nsh_buf[NSH_BUFSIZE];
 char *nsh_cmd[NSH_BUFSIZE / 2];
@@ -45,10 +45,10 @@ struct builtin builtin[] = {
 static void nsh_prompt() {
 	uint8_t oldcolor;
 
-	oldcolor = sb_get_color(sb + sb_index);
-		sb_set_fg(sb + sb_index, SB_COLOR_LIGHT_BLUE);
+	oldcolor = sb_get_color(sb_current);
+		sb_set_fg(sb_current, SB_COLOR_LIGHT_BLUE);
 	kprintf("nsh$ ");
-	sb_set_color(sb + sb_index, oldcolor);
+	sb_set_color(sb_current, oldcolor);
 }
 
 static void nsh_newline() {
@@ -94,10 +94,10 @@ static void nsh_execcmd() {
 static void nsh_shortcut(struct kbd_event *evt) {
 	switch (evt->key) {
 		case KEY_CURSOR_UP:
-			sb_scroll(sb + sb_index, -1);
+			sb_scroll(sb_current, -1);
 			break;
 		case KEY_CURSOR_DOWN:
-			sb_scroll(sb + sb_index, 1);
+			sb_scroll(sb_current, 1);
 			break;
 		default:
 			break;
@@ -105,7 +105,7 @@ static void nsh_shortcut(struct kbd_event *evt) {
 }
 
 static void nsh_addchar(char c) {
-	sb_scroll_down(sb + sb_index);
+	sb_scroll_down(sb_current);
 	if (c == '\n') {
 		kprintf("\n");
 		if (nsh_bufindex != 0) {
