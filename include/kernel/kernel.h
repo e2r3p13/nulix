@@ -3,10 +3,10 @@
 
 /* include/kernel/kernel.h
  *
- *
+ * Header file of the kernel
  *
  * created: 2022/12/12 - xlmod <glafond-@student.42.fr>
- * updated: 2022/12/12 - xlmod <glafond-@student.42.fr>
+ * updated: 2022/12/15 - glafond- <glafond-@student.42.fr>
  */
 
 #ifndef KERNEL_H
