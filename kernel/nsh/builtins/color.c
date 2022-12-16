@@ -3,7 +3,7 @@
 
 /* kernel/nsh/builtins/color.c
  *
- * Insert file description here
+ * Color builtin file
  *
  * created: 2022/12/08 - xlmod <glafond-@student.42.fr>
  * updated: 2022/12/15 - mrxx0 <chcoutur@student.42.fr>

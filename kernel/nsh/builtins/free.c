@@ -3,7 +3,7 @@
 
 /* kernel/nsh/builtins/free.c
  *
- * Free builtins file
+ * Free builtin file
  *
  * created: 2022/12/15 - mrxx0 <chcoutur@student.42.fr>
  * updated: 2022/12/15 - mrxx0 <chcoutur@student.42.fr>
@@ -23,8 +23,8 @@ static inline void usage() {
 	kprintf("Usage: " BLTNAME " size\n");
 }
 
-/* Free a (previously allocated) memory area from addr on a given size in bytes.
- * 
+/*
+ * Free a memory area from addr on a given size in bytes.
  */
 int free(int argc, char **argv) {
 	if (argc < 2) {

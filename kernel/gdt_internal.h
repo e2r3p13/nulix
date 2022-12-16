@@ -83,6 +83,7 @@
 #define GDT_USER_STACK_ACCESS SEG_DESCTYPE(1) | SEG_PRES(1) | SEG_SAVL(0) | \
                           SEG_LONG(0) | SEG_SIZE(1) | SEG_GRAN(1) | \
                           SEG_PRIV(3) | SEG_DATA_RDWREXPD
+
 /* Describe an entry of the gdt.
  */
 typedef struct {

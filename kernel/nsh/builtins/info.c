@@ -3,7 +3,7 @@
 
 /* kernel/nsh/builtins/info.c
  *
- * Insert file description here
+ * Info builtin file
  *
  * created: 2022/12/09 - mrxx0 <chcoutur@student.42.fr>
  * updated: 2022/12/15 - glafond- <glafond-@student.42.fr>
@@ -55,18 +55,13 @@ static void info_registers() {
 	PRINT(CR0, reg, "cr0 : %8b\n");
 	PRINT(CR3, reg, "cr3 : %8p\n");
 }
-/* Print all the info from the idt basic info and all of the entries
- *
- */
+
 static void info_idt() {
 	kprintf("INFO IDT\n");
 	kprintf("Base:  %8p | Limit: %8p\n", idtp.base, idtp.limit);
 	kprintf("Size = %u bytes\n", sizeof(idt));	
 }
 
-/* Print all the info from the buddy allocator
- *
- */
 static void info_buddy() {
 	kprintf("INFO BUDDY\n");
 	kprintf("buddy address:        %p\n", buddy);
@@ -82,9 +77,6 @@ static void info_stack() {
 	kprintf("Size = %d bytes\n", (void *)&stack_top - (void *)&stack_bottom);
 }
 
-/* Print all the info from the gdt basic info and all of the entries
- *
- */
 static void info_gdt() {
 	kprintf("INFO GDT\n");
 	kprintf("Base:  %8p | Limit: %8p\n", gdtp.base, gdtp.limit);

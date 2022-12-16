@@ -3,7 +3,7 @@
 
 /* kernel/nsh/builtins/utils.c
  *
- * Insert file description here
+ * Utilitary builtins (clear/next/prev/help) file
  *
  * created: 2022/12/08 - xlmod <glafond-@student.42.fr>
  * updated: 2022/12/15 - mrxx0 <chcoutur@student.42.fr>
