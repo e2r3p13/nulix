@@ -21,6 +21,7 @@ builddir?= build
 
 src-y:= \
 	kpm.c \
+	paging.c \
 
 objs:= $(addprefix ${builddir}/, ${src-y})
 objs:= ${objs:.c=.o}

@@ -6,7 +6,7 @@
  * Header for pagination related things
  *
  * created: 2022/12/12 - xlmod <glafond-@student.42.fr>
- * updated: 2022/12/15 - glafond- <glafond-@student.42.fr>
+ * updated: 2022/12/16 - glafond- <glafond-@student.42.fr>
  */
 
 #ifndef PAGING_H
@@ -16,10 +16,10 @@
 
 #define PAGE_SIZE 4096
 
-#define PAGE_DIRECORY_LENGTH	(PAGE_SIZE / sizeof(uint32_t))
-#define PAGE_TABLE_LENGTH		PAGE_DIRECORY_LENGTH
+#define PAGE_DIRECTORY_LENGTH	1024
+#define PAGE_TABLE_LENGTH		PAGE_DIRECTORY_LENGTH
 
-#define LAST_PAGE_ENTRY			(PAGE_DIRECORY_LENGTH - 1)
+#define LAST_PAGE_ENTRY			(PAGE_DIRECTORY_LENGTH - 1)
 
 struct page_entry {
 	uint32_t present: 1;
@@ -66,5 +66,15 @@ struct page_table_entry {
 	uint32_t avl_5: 1;
 	uint32_t address: 20;
 };
+
+/*
+ * Initialize a page entry with given flags
+ */
+void page_init(struct page_entry *pe, void *addr, int w, int u);
+
+/*
+ * Clear the page entry
+ */
+void page_clear(struct page_entry *pe);
 
 #endif
