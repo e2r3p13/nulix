@@ -3,7 +3,7 @@
 
 /* kernel/nsh/builtins/kexdump.c
  *
- * Insert file description here
+ * Hexdump builtin file
  *
  * created: 2022/12/09 - xlmod <glafond-@student.42.fr>
  * updated: 2022/12/12 - glafond- <glafond-@student.42.fr>
