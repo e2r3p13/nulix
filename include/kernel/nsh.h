@@ -3,12 +3,11 @@
 
 /* include/kernel/nsh.h
  *
- * Insert file description here
+ * Nulix shell header file
  *
  * created: 2022/12/08 - xlmod <glafond-@student.42.fr>
  * updated: 2022/12/14 - glafond- <glafond-@student.42.fr>
  */
-
 
 #ifndef NSH_H
 #define NSH_H

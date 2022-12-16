@@ -1,6 +1,8 @@
 /* kernel/screenbuf.c
  *
- * Big buffer to keep writing and add true scroll
+ * Implementation of a circular buffer used to store
+ * graphic information, and keep track of several metadata
+ * (cursor, color, current view window...)
  *
  * created: 2022/10/19 - xlmod <glafond-@student.42.fr>
  * updated: 2022/10/19 - xlmod <glafond-@student.42.fr>

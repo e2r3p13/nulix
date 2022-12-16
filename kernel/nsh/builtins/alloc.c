@@ -3,10 +3,10 @@
 
 /* kernel/nsh/builtins/alloc.c
  *
- * Allocate builtins file
+ * Allocate builtin file
  *
  * created: 2022/12/13 - glafond- <glafond-@student.42.fr>
- * updated: 2022/12/15 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2022/12/16 - lfalkau <lfalkau@student.42.fr>
  */
 
 #include <kernel/kpm.h>
@@ -23,12 +23,11 @@ static inline void usage() {
 	kprintf("Usage: " BLTNAME " size\n");
 }
 
-/* Wrapper for the kpm_alloc function.
+/*
+ * Wrapper for the kpm_alloc function.
  * Loop until a maximum number of chunk has been allocated to allocate the 
  * given memory size.
- *
- * */
-
+ */
 int alloc_loop(kpm_chunk_t *chunk, size_t size) {
 	uint8_t oldcolor = sb_get_color(sb_current);
 	sb_set_fg(sb_current, SB_COLOR_GREEN);
@@ -44,9 +43,14 @@ int alloc_loop(kpm_chunk_t *chunk, size_t size) {
 	return 0;
 }
 
-/* Choose a pseudo random size, print it,
- * allocates a chunk of this size with kpm_alloc
- * and print the resulting chunk.
+/*
+ * Implements the alloc buitin, that takes
+ * a size and wraps make needed calls to
+ * kpm_alloc to get enough memory.
+ * Prints information about each allocated
+ * node.
+ * Returns 0 if successful, -1 if an error
+ * occured.
  */
 int alloc(int argc, char **argv) {
 	if (argc < 2) {

@@ -3,7 +3,7 @@
 
 /* kernel/nsh/builtins/keymap.c
  *
- * Insert file description here
+ * Keymap builtin file
  *
  * created: 2022/12/08 - xlmod <glafond-@student.42.fr>
  * updated: 2022/12/14 - glafond- <glafond-@student.42.fr>

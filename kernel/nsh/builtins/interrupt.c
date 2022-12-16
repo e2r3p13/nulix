@@ -3,7 +3,7 @@
 
 /* kernel/nsh/builtins/interrupt.c
  *
- * Insert file description here
+ * Interrupt builtin file
  *
  * created: 2022/12/08 - xlmod <glafond-@student.42.fr>
  * updated: 2022/12/12 - glafond- <glafond-@student.42.fr>
