@@ -6,7 +6,7 @@
  * Nulix shell
  *
  * created: 2022/12/07 - xlmod <glafond-@student.42.fr>
- * updated: 2022/12/15 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2022/12/16 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/string.h>
@@ -19,11 +19,17 @@
 extern struct screenbuf sb[];
 extern struct screenbuf *sb_current;
 
+// Buffer where the user input is stored
 char nsh_buf[NSH_BUFSIZE];
-char *nsh_cmd[NSH_BUFSIZE / 2];
+// Buffer where the splitted cmd is stored
+char *nsh_cmd[NSH_BUFSIZE / 2 + 1];
+
 int nsh_cmdnarg;
 int nsh_bufindex;
 
+/*
+ * Array of struct builtin with a function pointer to each builtin
+ */
 struct builtin builtin[] = {
 	{"reboot", reboot, "Reboot the machine"},
 	{"poweroff", poweroff, "Power-off the machine"},
@@ -42,6 +48,9 @@ struct builtin builtin[] = {
 	{NULL, NULL, NULL},
 };
 
+/*
+ * Print a prompt for the shell
+ */
 static void nsh_prompt() {
 	uint8_t oldcolor;
 
@@ -51,6 +60,9 @@ static void nsh_prompt() {
 	sb_set_color(sb_current, oldcolor);
 }
 
+/*
+ * Clear the buffers and print the prompt
+ */
 static void nsh_newline() {
 	memset(nsh_buf, 0 , NSH_BUFSIZE);
 	memset(nsh_cmd, 0 , NSH_BUFSIZE / 2);
@@ -59,6 +71,11 @@ static void nsh_newline() {
 	nsh_prompt();
 }
 
+/*
+ * Split the user input
+ * Get the first char of a word into the cmd buffer and set the space at the
+ * end of a word to a 0 while moving in the buffer.
+ */
 static void nsh_createcmd() {
 	char c;
 	int ibuf = 0;
@@ -78,6 +95,10 @@ static void nsh_createcmd() {
 	nsh_cmdnarg = icmd;
 }
 
+/*
+ * Iterrate through all builtins and if the first element of the cmd buffer
+ * is equal to a builtin name, execute the function.
+ */
 static void nsh_execcmd() {
 	int n = sizeof(builtin) / sizeof(struct builtin);
 	if (nsh_cmd[0] == NULL)
@@ -91,6 +112,9 @@ static void nsh_execcmd() {
 	kprintf("nsh: %s: command not found\n", nsh_cmd[0]);
 }
 
+/*
+ * Handle non character input
+ */
 static void nsh_shortcut(struct kbd_event *evt) {
 	switch (evt->key) {
 		case KEY_CURSOR_UP:
@@ -99,14 +123,26 @@ static void nsh_shortcut(struct kbd_event *evt) {
 		case KEY_CURSOR_DOWN:
 			sb_scroll(sb_current, 1);
 			break;
+		case KEY_PAGE_DOWN:
+			sb_scroll_down(sb_current);
+			break;
+		case KEY_PAGE_UP:
+			sb_scroll_top(sb_current);
+			break;
 		default:
 			break;
 	}
 }
 
+/*
+ * Handle character input
+ */
 static void nsh_addchar(char c) {
+	// put the viewport where the cursor is
 	sb_scroll_down(sb_current);
+
 	if (c == '\n') {
+		// New line
 		kprintf("\n");
 		if (nsh_bufindex != 0) {
 			nsh_createcmd();
@@ -114,11 +150,13 @@ static void nsh_addchar(char c) {
 		}
 		nsh_newline();
 	} else if (c == '\b') {
+		// Backspace
 		if (nsh_bufindex > 0) {
 			nsh_buf[--nsh_bufindex] = 0;
 			kprintf("\b");
 		}
 	} else if (c == '\t') {
+		// Use tabulation to do autocompletion
 		if (nsh_bufindex == 0)
 			return;
 		for (int i = 0; builtin[i].name != NULL; i++) {
@@ -133,6 +171,7 @@ static void nsh_addchar(char c) {
 			}
 		}
 	} else {
+		// Other char
 		if (nsh_bufindex < NSH_BUFSIZE - 1) {
 			nsh_buf[nsh_bufindex++] = c;
 			kprintf("%c", c);
@@ -140,6 +179,9 @@ static void nsh_addchar(char c) {
 	}
 }
 
+/*
+ * Main nsh function with a infinite loop 
+ */
 void nsh() {
 	struct kbd_event evt;
 	char c;
