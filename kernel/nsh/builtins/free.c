@@ -6,7 +6,7 @@
  * Free builtin file
  *
  * created: 2022/12/15 - mrxx0 <chcoutur@student.42.fr>
- * updated: 2022/12/15 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2022/12/19 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <kernel/kpm.h>
@@ -33,12 +33,12 @@ int free(int argc, char **argv) {
 	}
 	char *ptr;
 	uint32_t addr = strtol(argv[1], &ptr, 0);
-	if (*ptr != 0) {
+	if (*ptr != 0 || argv[1][0] == '-') {
 		kprintf(BLTNAME ": Address not well formatted.\n");
 		return -1;
 	}
-	size_t size = strtol(argv[2], &ptr, 0);
-	if (*ptr != 0) {
+	int32_t size = strtol(argv[2], &ptr, 0);
+	if (*ptr != 0 || size < 0) {
 		kprintf(BLTNAME ": Size not well formatted.\n");
 		return -1;
 	}
