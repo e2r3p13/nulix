@@ -6,7 +6,7 @@
  * Kernel Physical Memory management
  *
  * created: 2022/11/23 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/12/15 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2022/12/17 - xlmod <glafond-@student.42.fr>
  */
 
 #include <kernel/kpm.h>
@@ -58,8 +58,8 @@ void kpm_init(struct multiboot_mmap_entry *entries, size_t count, size_t memkb) 
 			kpm_enable((void *)(uintptr_t)entry->addr, (uint32_t)(entry->len));
 	}
 	kpm_disable((void *)0, PAGE_SIZE); // Also disables IDT + GDT by design
-	kpm_disable(&sk, (void *)(&ek - KERNEL_VIRT_OFFSET) - (void *)&sk);
-	kpm_disable(buddy - KERNEL_VIRT_OFFSET, buddy->size);
+	kpm_disable(&sk, ((uintptr_t)&ek - KERNEL_VIRT_OFFSET) - (uintptr_t)&sk);
+	kpm_disable((void *)((uintptr_t)buddy - KERNEL_VIRT_OFFSET), buddy->size);
 }
 
 /*
@@ -186,8 +186,8 @@ static int bitmap_ffu(bitmap_t *bitmap, size_t size) {
 	int ffu;
 
 	for (size_t i = 0; i < size; i++) {
-		bitmap_t *cur = bitmap + i;
-		ffu = __builtin_ffs(~*cur);
+		bitmap_t cur = ~bitmap[i];
+		ffu = __builtin_ffs(cur);
 		if (ffu)
 			return ffu + (i * 8) - 1;
 	}
@@ -210,10 +210,10 @@ int kpm_alloc(kpm_chunk_t *chunk, size_t size) {
 	size_t frames_per_block;
 
 	best_fit_order = find_best_fit_order(size);
-	for (int n = best_fit_order; n >= 0; n--) {
-		int i = bitmap_ffu(buddy->orders[n].bitmap, buddy->orders[n].size);
+	for (int o = best_fit_order; o >= 0; o--) {
+		int i = bitmap_ffu(buddy->orders[o].bitmap, buddy->orders[o].size);
 		if (i >= 0) {
-			frames_per_block = 1 << n;
+			frames_per_block = 1 << o;
 			base_index = i * frames_per_block;
 			for (size_t j = 0; j < frames_per_block; j++)
 				KPM_ALLOC(0, base_index + j);
