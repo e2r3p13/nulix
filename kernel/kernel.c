@@ -6,7 +6,7 @@
  * Entrypoint of the KFS kernel
  *
  * created: 2022/10/11 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/12/15 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2022/12/19 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <kernel/gdt.h>
@@ -17,6 +17,8 @@
 #include <kernel/kpm.h>
 #include <kernel/screenbuf.h>
 #include <kernel/nsh.h>
+
+#include <kernel/panic.h>
 
 #define NBSCREENBUF 2
 
@@ -49,6 +51,6 @@ void kernel_main(unsigned long multiboot_info_addr) {
 	};
 	sb_current = sb;
 	sb_load(sb_current);
-
-	nsh();
+	panic();
+//	nsh();
 }
