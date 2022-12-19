@@ -40,7 +40,7 @@ struct page_entry *kvm_map(void *phy, void *virt);
 /*
  * Unmaps @n pages from @virt address
  */
-void kvm_unmap(void *virt, uint32_t n);
+void kvm_unmap(void *virt);
 
 /*
  * Allocates @size bytes through kpm_alloc and

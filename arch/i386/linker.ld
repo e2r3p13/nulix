@@ -22,24 +22,32 @@ SECTIONS
 
 	. += kernel_virt_offset;
 
-	.text ALIGN (4K) : AT (ADDR (.text) - 0xC0000000) {
+	.text ALIGN (4K) : AT (ADDR (.text) - kernel_virt_offset) {
+		sym_start_text = . - kernel_virt_offset;
 		*(.text)
+		sym_end_text = . - kernel_virt_offset;
 	}
 
-	.rodata ALIGN (4K) : AT (ADDR (.rodata) - 0xC0000000) {
+	.rodata ALIGN (4K) : AT (ADDR (.rodata) - kernel_virt_offset) {
+		sym_start_rodata = . - kernel_virt_offset;
 		*(.rodata)
+		sym_end_rodata = . - kernel_virt_offset;
 	}
 
-	.data ALIGN (4K) : AT (ADDR (.data) - 0xC0000000) {
+	.data ALIGN (4K) : AT (ADDR (.data) - kernel_virt_offset) {
+		sym_start_data = . - kernel_virt_offset;
 		*(.data)
+		sym_end_data = . - kernel_virt_offset;
 	}
 
-	.bss ALIGN (4K) : AT (ADDR (.bss) - 0xC0000000) {
+	.bss ALIGN (4K) : AT (ADDR (.bss) - kernel_virt_offset) {
+		sym_start_bss = . - kernel_virt_offset;
 		*(COMMON)
 		*(.bss)
 		*(.bootstrap_stack)
+		sym_end_bss = . - kernel_virt_offset;
 	}
 
-	ek = .;
+	ek = . - kernel_virt_offset;
 
 }

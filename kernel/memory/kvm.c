@@ -15,6 +15,42 @@
 #include <kernel/paging.h>
 #include <kernel/kpm.h>
 #include <kernel/string.h>
+#include <kernel/kernel.h>
+
+extern uint32_t sym_start_text;
+extern uint32_t sym_end_text;
+extern uint32_t sym_start_rodata;
+extern uint32_t sym_end_rodata;
+extern uint32_t sym_start_data;
+extern uint32_t sym_end_data;
+extern uint32_t sym_start_bss;
+extern uint32_t sym_end_bss;
+
+static int kvm_map_zone(struct page_entry *pagedir, void *virt, void *phys_start, void *phys_end, int writable, int user) {
+	struct page_entry *pagetab;
+	uint32_t pagedir_index;
+	uint32_t pagetab_index;
+
+	for (void *addr = phys_start; addr < phys_end; addr += PAGE_SIZE, virt += PAGE_SIZE) {
+		pagedir_index = (uint32_t)virt >> 22;
+		pagetab_index = ((uint32_t)virt >> 12) & (PAGE_TABLE_LENGTH - 1);
+
+		if (!pagedir[pagedir_index].present) {
+			kpm_chunk_t	mem_chunk;
+			if (kpm_alloc(&mem_chunk, PAGE_SIZE))
+				return -1;
+			page_init(pagedir + pagedir_index, mem_chunk.addr, 1, 0);
+		}
+	}
+
+}
+
+static int kvm_map_kernel(struct page_entry *pagedir) {
+	void *addr;
+
+	addr = (void *)sym_start_text;
+	kvm_map_zone(pagedir, addr + KERNEL_VIRT_OFFSET, addr, (void *)&sym_end_text, 0, 0);
+}
 
 /*
  * Creates and sets the kernel page directory,
@@ -79,10 +115,11 @@ struct page_entry *kvm_map(void *phy, void *virt) {
 
 	struct page_entry *pd = (struct page_entry *)0xFFFFF000;
 	if (!pd[pagedir_index].present) {
-		// TODO: page table not present need to alloc a new page table add it to
-		// the page directory, then continue.
+		kpm_chunk_t	mem_chunk;
+		if (kpm_alloc(&mem_chunk, PAGE_SIZE))
+			return NULL;
+		page_init(pd + pagedir_index, mem_chunk.addr, 1, 0);
 	}
-
 	struct page_entry *pt = (struct page_entry *)(0xFFC00000 + (pagedir_index << 12));
 	page_init(pt + pagetab_index, phy, 0, 0);
 	return pt + pagetab_index;
@@ -91,7 +128,21 @@ struct page_entry *kvm_map(void *phy, void *virt) {
 /*
  * Unmaps @n pages from @virt address
  */
-void kvm_unmap(void *virt, uint32_t n);
+void kvm_unmap(void *virt) {
+	uint32_t pagedir_index = (uint32_t)virt >> 22;
+	uint32_t pagetab_index = ((uint32_t)virt >> 12) & (PAGE_TABLE_LENGTH - 1);
+
+	struct page_entry *pd = (struct page_entry *)0xFFFFF000;
+	if (pd[pagedir_index].present) {
+		struct page_entry *pt = (struct page_entry *)(0xFFC00000 + (pagedir_index << 12));
+		page_clear(pt + pagetab_index);
+		for (int i = 0; i < PAGE_TABLE_LENGTH; i++) {
+			if (pt[i].present)
+				return;
+		}
+		page_clear(pd + pagedir_index);
+	}
+}
 
 /*
  * Allocates @size bytes through kpm_alloc and

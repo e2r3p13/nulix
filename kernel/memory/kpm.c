@@ -6,7 +6,7 @@
  * Kernel Physical Memory management
  *
  * created: 2022/11/23 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/12/17 - xlmod <glafond-@student.42.fr>
+ * updated: 2022/12/19 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/kpm.h>
@@ -34,7 +34,7 @@ void kpm_init(struct multiboot_mmap_entry *entries, size_t count, size_t memkb) 
 	size_t enabled_frames_size;
 	size_t total_orders_size;
 
-	buddy = (buddy_t *)ALIGNNEXT((uint32_t)&ek, PAGE_SIZE);
+	buddy = (buddy_t *)ALIGNNEXT(((uintptr_t)&ek + KERNEL_VIRT_OFFSET), PAGE_SIZE);
 	buddy->nframes = ALIGN(memkb * 1024 / PAGE_SIZE, 1024);
 	enabled_frames_size = KPM_NBYTES_FROM_NBITS(buddy->nframes);
 	total_orders_size = 0;
@@ -58,7 +58,7 @@ void kpm_init(struct multiboot_mmap_entry *entries, size_t count, size_t memkb) 
 			kpm_enable((void *)(uintptr_t)entry->addr, (uint32_t)(entry->len));
 	}
 	kpm_disable((void *)0, PAGE_SIZE); // Also disables IDT + GDT by design
-	kpm_disable(&sk, ((uintptr_t)&ek - KERNEL_VIRT_OFFSET) - (uintptr_t)&sk);
+	kpm_disable(&sk, (uintptr_t)&ek - (uintptr_t)&sk);
 	kpm_disable((void *)((uintptr_t)buddy - KERNEL_VIRT_OFFSET), buddy->size);
 }
 
