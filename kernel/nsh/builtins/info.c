@@ -137,7 +137,7 @@ int info(int argc, char **argv) {
 			char *ptr;
 			int order = strtol(argv[2], &ptr, 0);
 			if (*ptr || order < 0 || order >= KPM_NORDERS) {
-				kprintf(BLTNAME ": order number wrong.\n");
+				kprintf(BLTNAME ": order number not formatted correctly\n");
 				return -1;
 			}
 			info_buddy(order);
