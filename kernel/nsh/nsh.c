@@ -6,7 +6,7 @@
  * Nulix shell
  *
  * created: 2022/12/07 - xlmod <glafond-@student.42.fr>
- * updated: 2022/12/16 - glafond- <glafond-@student.42.fr>
+ * updated: 2022/12/19 - lfalkau <lfalkau@student.42.fr>
  */
 
 #include <kernel/string.h>
@@ -21,6 +21,7 @@ extern struct screenbuf *sb_current;
 
 // Buffer where the user input is stored
 char nsh_buf[NSH_BUFSIZE];
+char nsh_old[NSH_BUFSIZE];
 // Buffer where the splitted cmd is stored
 char *nsh_cmd[NSH_BUFSIZE / 2 + 1];
 
@@ -80,6 +81,9 @@ static void nsh_createcmd() {
 	char c;
 	int ibuf = 0;
 	int icmd = 0;
+
+	memset(nsh_old, 0, NSH_BUFSIZE);
+	memcpy(nsh_old, nsh_buf, nsh_bufindex);
 	while (ibuf < nsh_bufindex) {
 		c = nsh_buf[ibuf];
 		if (c != ' ' && c != 0) {
@@ -128,6 +132,13 @@ static void nsh_shortcut(struct kbd_event *evt) {
 			break;
 		case KEY_PAGE_UP:
 			sb_scroll_top(sb_current);
+			break;
+		case KEY_CURSOR_LEFT:
+			for (int i = 0; i < nsh_bufindex; i++)
+				sb_putchar(sb_current, '\b');
+			nsh_bufindex = strlen(nsh_old);
+			memcpy(nsh_buf, nsh_old, nsh_bufindex);
+			sb_putstr(sb_current, nsh_buf);
 			break;
 		default:
 			break;
