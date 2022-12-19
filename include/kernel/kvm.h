@@ -47,7 +47,7 @@ void kvm_unmap(void *virt, uint32_t n);
  * returns the virtual address of the newly allocated
  * area
  */
-void *kvm_alloc(uint32_t size);
+void *kvm_alloc(void *virt, uint32_t size);
 
 /*
  * Releases memory

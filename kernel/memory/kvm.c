@@ -6,7 +6,7 @@
  * Virtual memory manager
  *
  * created: 2022/12/13 - xlmod <glafond-@student.42.fr>
- * updated: 2022/12/16 - glafond- <glafond-@student.42.fr>
+ * updated: 2022/12/19 - lfalkau <lfalkau@student.42.fr>
  */
 
 #include <stdint.h>
@@ -73,7 +73,7 @@ void kvm_reload_cr3() {
  * Maps @n pages from @phy to @virt virtual addresses.
  * NOTE: if @phy isn't aligned the whole page is mapped.
  */
-struct page_entry *kvm_map(void *phy, void *virt) {
+struct page_table *kvm_map(void *phy, void *virt) {
 	uint32_t pagedir_index = (uint32_t)virt >> 22;
 	uint32_t pagetab_index = ((uint32_t)virt >> 12) & (PAGE_TABLE_LENGTH - 1);
 
@@ -98,7 +98,45 @@ void kvm_unmap(void *virt, uint32_t n);
  * returns the virtual address of the newly allocated
  * area
  */
-void *kvm_alloc(uint32_t size);
+void *kvm_alloc(void *virt, uint32_t size) {
+	struct kpm_chunk chunk;
+	struct page_entry *pe;
+	size_t npages;
+	uint32_t allocated = 0;
+
+	while (size > 0) {
+		if (kpm_alloc(&chunk, size) < 0) {
+			kvm_free(virt, allocated);
+			return NULL;
+		}
+		size = chunk.size >= size ? 0 : size - chunk.size;
+		npages = chunk.size / PAGE_SIZE;
+		allocated += chunk.size;
+		for (size_t n = 0; n < npages; n++) {
+			pe = kvm_map(chunk.addr + n * PAGE_SIZE, virt + n * PAGE_SIZE);
+			if (pe == NULL) {
+				kvm_free(virt, allocated);
+				return NULL;
+			}
+			if (n < npages - 1)
+				pe->avl_contiguous = 1;
+		}
+	}
+	return virt;
+}
+
+static struct page_entry *get_page_table(void *virt) {
+	struct page_entry *pd, *pt;
+	uint32_t pd_index, pt_index;
+
+	pd_index = (uint32_t)virt >> 22;
+	pt_index = ((uint32_t)virt >> 12) & (PAGE_TABLE_LENGTH - 1);
+	pd = (struct page_entry *)0xFFFFF000;
+	if (!pd[pd_index].present)
+		return NULL;
+	pt = (struct page_entry *)(0xFFC00000 + (pd_index << 12));
+	return pt;
+}
 
 /*
  * Releases memory
@@ -106,7 +144,22 @@ void *kvm_alloc(uint32_t size);
  * been obtained through a previous kvm_alloc call
  * @size determines the size of the memory area to release
  */
-void kvm_free(void *addr, uint32_t size);
+void kvm_free(void *addr, uint32_t size) {
+	size_t off = 0;
+	size_t allocated;
+	struct page_table *pt;
+
+	while (off < size) {
+		allocated = 0;
+		do {
+			pt = get_page_table(addr + off);
+			kvm_unmap(addr + off);
+			allocated += PAGE_SIZE;
+		} while (pt->avl_contiguous);
+		kpm_free(get_physical(addr + off), allocated);
+		off += allocated;
+	}
+}
 
 /*
  * Converts a virtual address to a physical one

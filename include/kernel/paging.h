@@ -6,7 +6,7 @@
  * Header for pagination related things
  *
  * created: 2022/12/12 - xlmod <glafond-@student.42.fr>
- * updated: 2022/12/16 - glafond- <glafond-@student.42.fr>
+ * updated: 2022/12/19 - lfalkau <lfalkau@student.42.fr>
  */
 
 #ifndef PAGING_H
@@ -29,7 +29,7 @@ struct page_entry {
 	uint32_t cache_disable: 1;
 	uint32_t accessed: 1;
 	uint32_t specific: 3;
-	uint32_t avl_3: 1;
+	uint32_t avl_contiguous: 1;
 	uint32_t avl_4: 1;
 	uint32_t avl_5: 1;
 	uint32_t address: 20;
@@ -45,7 +45,7 @@ struct page_directory_entry {
 	uint32_t avl_1: 1;
 	uint32_t page_size: 1;
 	uint32_t avl_2: 1;
-	uint32_t avl_3: 1;
+	uint32_t avl_contiguous: 1;
 	uint32_t avl_4: 1;
 	uint32_t avl_5: 1;
 	uint32_t address: 20;
@@ -61,7 +61,7 @@ struct page_table_entry {
 	uint32_t dirty: 1;
 	uint32_t page_attribute_table: 1;
 	uint32_t global: 1;
-	uint32_t avl_3: 1;
+	uint32_t avl_contiguous: 1;
 	uint32_t avl_4: 1;
 	uint32_t avl_5: 1;
 	uint32_t address: 20;
