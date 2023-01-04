@@ -6,7 +6,7 @@
  * Kernel Physical Memory management header file
  *
  * created: 2022/11/23 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/12/07 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2023/01/04 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #ifndef KPM_H
@@ -16,6 +16,7 @@
 #include <stdint.h>
 
 #include <kernel/multiboot.h>
+#include <kernel/list.h>
 
 #define PAGE_SIZE		4096
 
@@ -58,6 +59,7 @@ struct order {
  */
 typedef struct buddy {
 	size_t nframes;
+	size_t nfree;
 	size_t size;
 	bitmap_t *enabled_frames;
 	struct order orders[KPM_NORDERS];
@@ -73,7 +75,10 @@ typedef struct buddy {
 typedef struct kpm_chunk {
 	void *addr;
 	size_t size;
+	TAILQ_ENTRY(kpm_chunk) list;
 } kpm_chunk_t;
+
+TAILQ_HEAD(kpm_chunk_head, kpm_chunk);
 
 /*
  * Creates and itinialize the buddy allocator with memory maps information.
@@ -102,7 +107,8 @@ int kpm_isalloc(void *addr);
  * Allocate @size bytes of memory
  * Returns the address of the newly allocated region, or NULL on error
  */
-int kpm_alloc(kpm_chunk_t *chunk, size_t size);
+//int kpm_alloc(kpm_chunk_t *chunk, size_t size);
+int kpm_alloc(struct kpm_chunk_head *head, size_t size);
 
 /*
  * Release the buddy node starting at addr @addr

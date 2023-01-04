@@ -6,13 +6,15 @@
  * Kernel Physical Memory management
  *
  * created: 2022/11/23 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/12/17 - xlmod <glafond-@student.42.fr>
+ * updated: 2023/01/04 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <kernel/kpm.h>
 #include <kernel/print.h>
 #include <kernel/string.h>
 #include <kernel/kernel.h>
+
+#include <kernel/list.h>
 
 buddy_t *buddy;
 
@@ -36,6 +38,7 @@ void kpm_init(struct multiboot_mmap_entry *entries, size_t count, size_t memkb) 
 
 	buddy = (buddy_t *)ALIGNNEXT((uint32_t)&ek, PAGE_SIZE);
 	buddy->nframes = ALIGN(memkb * 1024 / PAGE_SIZE, 1024);
+	buddy->nfree = 0;
 	enabled_frames_size = KPM_NBYTES_FROM_NBITS(buddy->nframes);
 	total_orders_size = 0;
 	for (size_t i = 0, nblocks = buddy->nframes; i < KPM_NORDERS; i++, nblocks /= 2) {
@@ -60,6 +63,7 @@ void kpm_init(struct multiboot_mmap_entry *entries, size_t count, size_t memkb) 
 	kpm_disable((void *)0, PAGE_SIZE); // Also disables IDT + GDT by design
 	kpm_disable(&sk, ((uintptr_t)&ek - KERNEL_VIRT_OFFSET) - (uintptr_t)&sk);
 	kpm_disable((void *)((uintptr_t)buddy - KERNEL_VIRT_OFFSET), buddy->size);
+	kpm_disable((void *)0x400000, PAGE_SIZE * 1024);
 }
 
 /*
@@ -107,6 +111,7 @@ void kpm_enable(void *base, size_t limit) {
 	for (int i = 0; i < limit / PAGE_SIZE; i++) {
 		KPM_ENABLE(base_index + i);
 		KPM_FREE(0, base_index + i);
+		buddy->nfree++;
 	}
 
 	for (size_t n = 1; n < KPM_NORDERS; n++)
@@ -133,6 +138,8 @@ void kpm_disable(void *base, size_t limit) {
 	for (int i = 0; i < limit / PAGE_SIZE; i++) {
 		KPM_DISABLE(base_index + i);
 		KPM_ALLOC(0, base_index + i);
+		if (buddy->nfree)
+			buddy->nfree--;
 	}
 
 	for (size_t n = 1; n < KPM_NORDERS; n++)
@@ -204,7 +211,7 @@ static int bitmap_ffu(bitmap_t *bitmap, size_t size) {
  * is no contiguous block big enough. In this case, subsequent calls will
  * be needed to get the remaining chunks.
  */
-int kpm_alloc(kpm_chunk_t *chunk, size_t size) {
+int kpm_alloc_chunk(kpm_chunk_t *chunk, size_t size) {
 	size_t best_fit_order;
 	size_t base_index;
 	size_t frames_per_block;
@@ -215,8 +222,10 @@ int kpm_alloc(kpm_chunk_t *chunk, size_t size) {
 		if (i >= 0) {
 			frames_per_block = 1 << o;
 			base_index = i * frames_per_block;
-			for (size_t j = 0; j < frames_per_block; j++)
+			for (size_t j = 0; j < frames_per_block; j++) {
 				KPM_ALLOC(0, base_index + j);
+				buddy->nfree--;
+			}
 			chunk->addr = (void *)(i * PAGE_SIZE * frames_per_block);
 			chunk->size = PAGE_SIZE * frames_per_block;
 			for (size_t n = 1; n < KPM_NORDERS; n++)
@@ -227,7 +236,55 @@ int kpm_alloc(kpm_chunk_t *chunk, size_t size) {
 	return -1;
 }
 
-void kpm_free(kpm_chunk_t *chunk) {
+static uint8_t slab[(1024 * PAGE_SIZE) / sizeof(struct kpm_chunk)] = {0};
+
+void *kpm_chunk_slab_alloc() {
+	for (int i = 0; i < 1024; i++) {
+		if (slab[i] == 0) {
+			slab[i] = 1;
+			return (void *)(0xf0000000 + (i * sizeof(struct kpm_chunk))); 
+		}
+	}
+	return NULL;
+}
+
+void kpm_chunk_slab_free(void *ptr) {
+	slab[((uintptr_t)ptr - 0xf0000000) / sizeof(struct kpm_chunk)] = 0;
+}
+
+int kpm_alloc(struct kpm_chunk_head *head, size_t size) {
+
+	if (ALIGNNEXT(size, PAGE_SIZE) / PAGE_SIZE > buddy->nfree)
+		return -1;
+
+	TAILQ_INIT(head);
+
+	while (size) {
+		struct kpm_chunk *c = (struct kpm_chunk *)kpm_chunk_slab_alloc();
+		if (!c) {
+			while ((c = TAILQ_FIRST(head))) {
+				TAILQ_REMOVE(head, c, list);
+				kpm_chunk_slab_free(c);
+			}
+			return -1;
+		}
+		if (kpm_alloc_chunk(c, size) < 0) {
+			kpm_chunk_slab_free(c);
+			while ((c = TAILQ_FIRST(head))) {
+				TAILQ_REMOVE(head, c, list);
+				kpm_chunk_slab_free(c);
+			}
+			return -1;
+		}
+		TAILQ_INSERT_TAIL(head, c, list);
+		if (size < c->size)
+			break;
+		size -= c->size;
+	}
+	return 0;
+}
+
+void kpm_free_chunk(kpm_chunk_t *chunk) {
 	size_t nframes;
 	size_t first_frame_index;
 
@@ -243,4 +300,13 @@ void kpm_free(kpm_chunk_t *chunk) {
 	}
 	for (size_t n = 1; n < KPM_NORDERS; n++)
 		kpm_update_order(n, chunk->addr, chunk->size);
+}
+
+void kpm_free(struct kpm_chunk_head *head) {
+	struct kpm_chunk *c;
+	while ((c = TAILQ_FIRST(head))) {
+		TAILQ_REMOVE(head, c, list);
+		kpm_free_chunk(c);
+		kpm_chunk_slab_free(c);
+	}
 }

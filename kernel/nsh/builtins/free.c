@@ -6,7 +6,7 @@
  * Free builtin file
  *
  * created: 2022/12/15 - mrxx0 <chcoutur@student.42.fr>
- * updated: 2022/12/19 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2023/01/04 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <kernel/kpm.h>
@@ -18,6 +18,10 @@
 
 extern struct screenbuf sb[];
 extern struct screenbuf *sb_current;
+
+extern const int MAXALLOC;
+extern struct kpm_chunk_head chunk_heads[];
+extern int nalloc;
 
 static inline void usage() {
 	kprintf("Usage: " BLTNAME " size\n");
@@ -34,17 +38,13 @@ int free(int argc, char **argv) {
 	char *ptr;
 	uint32_t addr = strtol(argv[1], &ptr, 0);
 	if (*ptr != 0 || argv[1][0] == '-') {
-		kprintf(BLTNAME ": Address not well formatted.\n");
+		kprintf(BLTNAME ": Index not well formatted.\n");
 		return -1;
 	}
-	int32_t size = strtol(argv[2], &ptr, 0);
-	if (*ptr != 0 || size < 0) {
-		kprintf(BLTNAME ": Size not well formatted.\n");
+	if (addr >= MAXALLOC) {
+		kprintf(BLTNAME ": Index too big.\n");
 		return -1;
 	}
-	kpm_chunk_t chunk;
-	chunk.addr = (void*)addr;
-	chunk.size = size;
-	kpm_free(&chunk);
+	kpm_free(&chunk_heads[nalloc]);
 	return 0;
 }
