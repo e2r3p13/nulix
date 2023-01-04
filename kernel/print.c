@@ -6,12 +6,14 @@
  * Implements some functions to print format strings
  *
  * created: 2022/10/15 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/12/09 - xlmod <glafond-@student.42.fr>
+ * updated: 2023/01/04 - xlmod <glafond-@student.42.fr>
  */
 
 #include <stdarg.h>
 #include <kernel/string.h>
 #include <kernel/screenbuf.h>
+#include <kernel/serial.h>
+#include <kernel/print.h>
 
 #define BUFSIZE 4096
 
@@ -192,5 +194,19 @@ int kprintf(const char *fmt, ...) {
 	va_end(ap);
 	
 	sb_putstr(sb_current, buf);
+	return ret;
+}
+
+int klog(const char *fmt, ...) {
+	char buf[BUFSIZE] = {0};
+	int ret;
+	va_list ap;
+
+	va_start(ap, fmt);
+	ret = vsnprintf(buf, BUFSIZE - 1, fmt, ap);
+	va_end(ap);
+	
+	serial_putstr(buf);
+	serial_putstr(SERIAL_RESET);
 	return ret;
 }

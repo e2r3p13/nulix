@@ -6,7 +6,7 @@
  * Insert file description here
  *
  * created: 2022/11/29 - xlmod <glafond-@student.42.fr>
- * updated: 2022/11/29 - xlmod <glafond-@student.42.fr>
+ * updated: 2023/01/04 - xlmod <glafond-@student.42.fr>
  */
 
 #include <stddef.h>
@@ -36,18 +36,18 @@ int serial_init() {
    return 0;
 }
 
-static void serial_write_char(char a) {
-   while (port_read_u8(PORT + 5) & 0x20 == 0)
+void serial_putchar(char a) {
+   while ((port_read_u8(PORT + 5) & 0x20) == 0)
 	   continue;
    port_write_u8(PORT, a);
 }
 
-void serial_write(char *s, size_t size) {
-	while (size--)
-		serial_write_char(*s++);
+void serial_putstr(char *s) {
+	while (*s)
+		serial_putchar(*s++);
 }
 
-void serial_write_str(char *s) {
-	while (*s)
-		serial_write_char(*s++);
+void serial_write(char *s, size_t size) {
+	while (size--)
+		serial_putchar(*s++);
 }

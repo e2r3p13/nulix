@@ -11,6 +11,7 @@
 
 #include <kernel/port.h>
 #include <kernel/ps2.h>
+#include <kernel/print.h>
 
 /*
  * Reboot kernel through the PS/2 controller by sending
@@ -18,6 +19,7 @@
  * buffer is empty.
  */
 int reboot(__attribute__ ((unused)) int argc, __attribute__ ((unused)) char **argv) {
+	klog(SERIAL_KINFO "REBOOT\n\n");
 	while (port_read_u8(PS2_STATUS_REGISTER_PORT) & PS2_INPUT_BUFFER_FULL);
 	port_write_u8(PS2_STATUS_COMMAND_PORT, CPU_RESET);
 	asm volatile ("hlt");
@@ -28,6 +30,7 @@ int reboot(__attribute__ ((unused)) int argc, __attribute__ ((unused)) char **ar
  * Poweroff the kernel through the qemu debug port
  */
 int poweroff(__attribute__ ((unused)) int argc, __attribute__ ((unused)) char **argv) {
+	klog(SERIAL_KINFO "POWEROFF\n\n");
 	port_write_u16(0x604, 0x2000);
 	asm volatile ("hlt");
 	return 0;

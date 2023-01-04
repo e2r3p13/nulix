@@ -6,7 +6,7 @@
  * Kernel Physical Memory management
  *
  * created: 2022/11/23 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/12/17 - xlmod <glafond-@student.42.fr>
+ * updated: 2023/01/04 - xlmod <glafond-@student.42.fr>
  */
 
 #include <kernel/kpm.h>
@@ -34,8 +34,10 @@ void kpm_init(struct multiboot_mmap_entry *entries, size_t count, size_t memkb) 
 	size_t enabled_frames_size;
 	size_t total_orders_size;
 
+	klog(SERIAL_KINFO "KPM:  memory size %u KB\n", memkb);
 	buddy = (buddy_t *)ALIGNNEXT((uint32_t)&ek, PAGE_SIZE);
 	buddy->nframes = ALIGN(memkb * 1024 / PAGE_SIZE, 1024);
+	klog(SERIAL_KINFO "KPM:  total page frames %u\n", buddy->nframes);
 	enabled_frames_size = KPM_NBYTES_FROM_NBITS(buddy->nframes);
 	total_orders_size = 0;
 	for (size_t i = 0, nblocks = buddy->nframes; i < KPM_NORDERS; i++, nblocks /= 2) {
@@ -53,7 +55,12 @@ void kpm_init(struct multiboot_mmap_entry *entries, size_t count, size_t memkb) 
 	memset(buddy->enabled_frames, 0, enabled_frames_size);
 	memset(buddy->orders[0].bitmap, 0xff, total_orders_size);
 
+	klog(SERIAL_KINFO "KPM:  MMAP MULTIBOOT ENTRIES\n");
 	for (struct multiboot_mmap_entry *entry = entries; entry->size != 0; entry++) {
+		klog(SERIAL_KINFO "KPM:  MMAP  addr 0x%8x  size 0x%8x  type %1d\n",
+				(uint32_t)entry->addr,
+				(uint32_t)entry->len,
+				entry->type);
 		if (entry->type == MULTIBOOT_MEMORY_AVAILABLE)
 			kpm_enable((void *)(uintptr_t)entry->addr, (uint32_t)(entry->len));
 	}
@@ -100,6 +107,9 @@ void kpm_enable(void *base, size_t limit) {
 		return;
 	limit = ALIGN(limit, PAGE_SIZE);
 
+	klog(SERIAL_KDEBUG "KPM:  enable  addr 0x%8x  size 0x%8x\n",
+			base, limit);
+
 	size_t base_index = (uintptr_t)base / PAGE_SIZE;
 	if ((uintptr_t)(base + limit) / PAGE_SIZE > buddy->nframes)
 		limit = (buddy->nframes * PAGE_SIZE) - (uintptr_t)base;
@@ -125,6 +135,9 @@ void kpm_disable(void *base, size_t limit) {
 		return;
 	if (!ISALIGNED(limit, PAGE_SIZE))
 		limit = ALIGNNEXT(limit, PAGE_SIZE);
+
+	klog(SERIAL_KDEBUG "KPM:  disable  addr 0x%8x  size 0x%8x\n",
+			base, limit);
 
 	size_t base_index = (uintptr_t)base / PAGE_SIZE;
 	if ((uintptr_t)(base + limit) / PAGE_SIZE > buddy->nframes)
