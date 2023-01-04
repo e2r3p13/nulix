@@ -6,13 +6,14 @@
  * Allocate builtin file
  *
  * created: 2022/12/13 - glafond- <glafond-@student.42.fr>
- * updated: 2022/12/19 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2023/01/04 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <kernel/kpm.h>
 #include <kernel/screenbuf.h>
 #include <kernel/print.h>
 #include <kernel/stdlib.h>
+#include <kernel/list.h>
 
 #define BLTNAME "alloc"
 
@@ -23,27 +24,9 @@ static inline void usage() {
 	kprintf("Usage: " BLTNAME " size\n");
 }
 
-/*
- * Wrapper for the kpm_alloc function.
- * Loop until a maximum number of chunk has been allocated to allocate the 
- * given memory size.
- */
-int alloc_loop(kpm_chunk_t *chunk, size_t size) {
-	uint8_t oldcolor = sb_get_color(sb_current);
-	sb_set_fg(sb_current, SB_COLOR_GREEN);
-	while (size > 0) {
-		if (kpm_alloc(chunk, size) < 0) {
-			sb_set_color(sb_current, oldcolor);
-			return -1;
-		}
-		kprintf("chunk: {\n    addr = %p\n    size = %u\n}\n", chunk->addr, chunk->size);
-		if (chunk->size >= size)
-			break ;
-		size -= chunk->size;
-	}
-	sb_set_color(sb_current, oldcolor);
-	return 0;
-}
+const int MAXALLOC = 10;
+struct kpm_chunk_head chunk_heads[MAXALLOC] = {0};
+int nalloc = 0;
 
 /*
  * Implements the alloc buitin, that takes
@@ -65,9 +48,24 @@ int alloc(int argc, char **argv) {
 		kprintf(BLTNAME ": Size not well formatted.\n");
 		return -1;
 	}
-	kpm_chunk_t chunk;
+	if (nalloc == MAXALLOC) {
+		kprintf(BLTNAME ": Max allocation reached (%d).\n", MAXALLOC);
+		return -1;
+	}
 	kprintf("Asked for allocation of %d bytes\n", size);
-	if (alloc_loop(&chunk, size) == -1)
+	struct kpm_chunk *chunk;
+	if (kpm_alloc(&chunk_heads[nalloc], size) < 0) {
 		kprintf("Failed to allocate memory area.\n");
+		return -1;
+	}
+	kprintf("Allocation %d/%d\n", nalloc, MAXALLOC);
+
+	uint8_t oldcolor = sb_get_color(sb_current);
+	sb_set_fg(sb_current, SB_COLOR_GREEN);
+	TAILQ_FOREACH(chunk, &chunk_heads[nalloc], list) {
+		kprintf("chunk: {\n    addr = %p\n    size = %u\n}\n", chunk->addr, chunk->size);
+	}
+	nalloc++;
+	sb_set_color(sb_current, oldcolor);
 	return 0;
 }
