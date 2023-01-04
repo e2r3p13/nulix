@@ -6,7 +6,7 @@
  * Initialize temporary boot pages and load them in cr3
  *
  * created: 2022/12/12 - xlmod <glafond-@student.42.fr>
- * updated: 2022/12/16 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/04 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <stdint.h>
@@ -22,6 +22,7 @@
 void boot_init() {
 	struct page_entry *page_directory = (struct page_entry *)0x1000;
 	struct page_entry *page_table1 = (struct page_entry *)0x2000;
+	struct page_entry *page_table2 = (struct page_entry *)0x3000;
 
 	(memset - KERNEL_VIRT_OFFSET)(page_directory, 0, PAGE_DIRECTORY_LENGTH);
 	(page_init - KERNEL_VIRT_OFFSET)(page_directory + LAST_PAGE_ENTRY, page_directory, 1, 0);
@@ -33,6 +34,11 @@ void boot_init() {
 
 	(page_init - KERNEL_VIRT_OFFSET)(page_directory, page_table1, 1 ,0);
 	(page_init - KERNEL_VIRT_OFFSET)(page_directory + (KERNEL_VIRT_OFFSET >> 22), page_table1, 1, 0);
+
+	for (uint32_t pindex = 0; pindex < PAGE_TABLE_LENGTH; pindex++)
+		(page_init - KERNEL_VIRT_OFFSET)(page_table2 + pindex, (void *)((pindex * PAGE_SIZE) + 0x400000), 1, 0);
+
+	(page_init - KERNEL_VIRT_OFFSET)(page_directory + (0xf0000000 >> 22), page_table1, 1, 0);
 
 	// Load the page directory to cr3 to tell the cpu to using this page directory
 	// to resolve virtual address.
