@@ -6,7 +6,7 @@
  * Bitmap struct header
  *
  * created: 2023/01/05 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/05 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/05 - xlmod <glafond-@student.42.fr>
  */
 
 #ifndef BITMAP_H
@@ -31,8 +31,13 @@ int bitmap_set_all(struct bitmap *bitmap, int value);
 int bitmap_set_at(struct bitmap *bitmap, size_t index, int value);
 int bitmap_get_at(struct bitmap *bitmap, size_t index);
 
+int bitmap_get_next_one(struct bitmap *bitmap, size_t index);
+int bitmap_get_prev_one(struct bitmap *bitmap, size_t index);
 int bitmap_get_first_one(struct bitmap *bitmap);
 int bitmap_get_last_one(struct bitmap *bitmap);
+
+int bitmap_get_next_zero(struct bitmap *bitmap, size_t index);
+int bitmap_get_prev_zero(struct bitmap *bitmap, size_t index);
 int bitmap_get_first_zero(struct bitmap *bitmap);
 int bitmap_get_last_zero(struct bitmap *bitmap);
 

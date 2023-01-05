@@ -6,7 +6,7 @@
  * Kernel Physical Memory management
  *
  * created: 2022/11/23 - lfalkau <lfalkau@student.42.fr>
- * updated: 2023/01/05 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/05 - xlmod <glafond-@student.42.fr>
  */
 
 #include <kernel/kpm.h>
@@ -54,11 +54,12 @@ void kpm_init(struct multiboot_mmap_entry *entries, size_t count, size_t memkb) 
 			KPM_NBYTES_FROM_NBITS(nblocks));
 
 	total_orders_size = KPM_NBYTES_FROM_NBITS(nblocks);
+	nblocks /= 2;
 	for (size_t i = 1; i < KPM_NORDERS; i++, nblocks /= 2) {
 		size_t order_size = KPM_NBYTES_FROM_NBITS(nblocks);
 		bitmap_init(&buddy->orders[i],
 				nblocks,
-				buddy->orders[i - 1].array + KPM_NBYTES_FROM_NBITS(nblocks / 2),
+				buddy->orders[i - 1].array + KPM_NBYTES_FROM_NBITS(nblocks * 2),
 				order_size);
 		total_orders_size += order_size;
 	}
