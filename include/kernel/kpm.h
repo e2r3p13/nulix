@@ -113,7 +113,8 @@ int kpm_alloc(struct kpm_chunk_head *head, size_t size);
 /*
  * Release the buddy node starting at addr @addr
  */
-void kpm_free(kpm_chunk_t *chunk);
+//void kpm_free(kpm_chunk_t *chunk);
+void kpm_free(struct kpm_chunk_head *head);
 
 /*
  * Prints the buddy allocator
