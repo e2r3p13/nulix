@@ -15,6 +15,7 @@ LDFLAGS+=
 subdir:= \
 	string \
 	std \
+	bit \
 
 builddir?= build
 

@@ -6,7 +6,7 @@
  * Kernel Physical Memory management header file
  *
  * created: 2022/11/23 - lfalkau <lfalkau@student.42.fr>
- * updated: 2023/01/04 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2023/01/05 - glafond- <glafond-@student.42.fr>
  */
 
 #ifndef KPM_H
@@ -17,6 +17,7 @@
 
 #include <kernel/multiboot.h>
 #include <kernel/list.h>
+#include <kernel/bitmap.h>
 
 #define PAGE_SIZE		4096
 
@@ -30,7 +31,6 @@
 /*
  * Represents a page frame.
  */
-typedef uint8_t bitmap_t;
 
 #define KPM_NBYTES_FROM_NBITS(n)		(ALIGNNEXT(n, 8) / 8)
 
@@ -42,11 +42,6 @@ typedef uint8_t bitmap_t;
 #define KPM_ENABLE(index)				(buddy->enabled_frames[(index)/8] |= (1 << ((index) % 8)))
 #define KPM_DISABLE(index)				(buddy->enabled_frames[(index)/8] &= ~(1 << ((index) % 8)))
 #define KPM_IS_ENABLED(index)			((buddy->enabled_frames[(index)/8] & (1 << ((index) % 8))) != 0)
-
-struct order {
-	bitmap_t *bitmap;
-	size_t size;
-};
 
 /*
  * The buddy allocator structure, that contains 11 orders.
@@ -61,8 +56,8 @@ typedef struct buddy {
 	size_t nframes;
 	size_t nfree;
 	size_t size;
-	bitmap_t *enabled_frames;
-	struct order orders[KPM_NORDERS];
+	struct bitmap enabled_frames;
+	struct bitmap orders[KPM_NORDERS];
 } buddy_t;
 
 /*
