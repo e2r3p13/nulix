@@ -14,7 +14,7 @@
 
 /* GDT entries information
  */
-#define GDT_BASE_ADDRESS 0x800
+#define GDT_BASE_ADDRESS 0x5800
 #define GDT_SIZE 0x6
 #define GDT_KERNEL_LIMIT 0xFFFF
 #define GDT_USER_LIMIT 0xFFFF
