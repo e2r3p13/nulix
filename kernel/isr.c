@@ -7,7 +7,7 @@
  * and interrupts
  *
  * created: 2022/10/18 - xlmod <glafond-@student.42.fr>
- * updated: 2022/10/21 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2023/01/05 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/print.h>
@@ -72,11 +72,59 @@ __attribute__ ((interrupt)) void double_fault_handler(t_int_frame *int_frame, ui
 
 	kprintf("DOUBLE FAULT\n");
 	print_int_frame(int_frame, &error_code);
+	while (1);
 	asm volatile ("hlt");
 
 	RESET_INTERRUPT_STACK;
 }
 
+#define PRINT(reg, var, format) \
+	reg(var); kprintf(format, var)
+#define CR3(x) \
+	__asm__ ("mov %%cr3, %0" : "=r"(x)::)
+#define CR2(x) \
+	__asm__ ("mov %%cr2, %0" : "=r"(x)::)
+
+/* PAGE FAULT(14)
+ * Occure when a fault happen in a interrupt/exception or when no handle functions
+ * is in the idt.
+ *
+ * @arg(int_frame): interrupt frame structure.
+ * @arg(error_code): code d'erreur.
+ */
+__attribute__ ((interrupt)) void page_fault_handler(t_int_frame *int_frame, uint32_t error_code)
+{
+	LOAD_INTERRUPT_STACK;
+
+	kprintf("PAGE FAULT\n");
+	print_int_frame(int_frame, &error_code);
+	uint32_t reg;
+	PRINT(CR3, reg, "cr3 : %8p\n");
+	PRINT(CR2, reg, "cr2 : %8p\n");
+	while (1);
+	asm volatile ("hlt");
+
+	RESET_INTERRUPT_STACK;
+}
+
+/* GP FAULT(13)
+ * Occure when a fault happen in a interrupt/exception or when no handle functions
+ * is in the idt.
+ *
+ * @arg(int_frame): interrupt frame structure.
+ * @arg(error_code): code d'erreur.
+ */
+__attribute__ ((interrupt)) void gp_fault_handler(t_int_frame *int_frame, uint32_t error_code)
+{
+	LOAD_INTERRUPT_STACK;
+
+	kprintf("GP FAULT\n");
+	print_int_frame(int_frame, &error_code);
+	while (1);
+	asm volatile ("hlt");
+
+	RESET_INTERRUPT_STACK;
+}
 /* TIMER HANDLER (32)
  * Occurs when 8259 PIC receive an IRQ0 (timer hardware interrupt)
  *

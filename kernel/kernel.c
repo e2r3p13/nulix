@@ -38,6 +38,13 @@ static void init_descriptor_tables() {
 void kernel_main(unsigned long multiboot_info_addr) {
 	multiboot_info_t *mbi = (multiboot_info_t *)multiboot_info_addr;
 
+	for (int i = 0; i < NBSCREENBUF; i++) {
+		sb_init(sb + i);
+		sb_putstr(sb + i, "Welcome to nulix-2.0.1\n");
+	};
+	sb_current = sb;
+	sb_load(sb_current);
+
 	init_descriptor_tables();
 	KBD_initialize();
 
@@ -45,12 +52,5 @@ void kernel_main(unsigned long multiboot_info_addr) {
 		mbi->mmap_length / sizeof(struct multiboot_mmap_entry),
 		mbi->mem_upper - mbi->mem_lower);
 
-	for (int i = 0; i < NBSCREENBUF; i++) {
-		sb_init(sb + i);
-		sb_putstr(sb + i, "Welcome to nulix-2.0.1\n");
-	};
-	sb_current = sb;
-	sb_load(sb_current);
-	PANIC;
-//	nsh();
+	nsh();
 }

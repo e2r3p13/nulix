@@ -6,7 +6,7 @@
  * Info builtin file
  *
  * created: 2022/12/09 - mrxx0 <chcoutur@student.42.fr>
- * updated: 2022/12/17 - xlmod <glafond-@student.42.fr>
+ * updated: 2023/01/05 - glafond- <glafond-@student.42.fr>
  */ 
 
 #include <stdint.h>
@@ -15,6 +15,7 @@
 #include <kernel/kpm.h>
 #include <kernel/screenbuf.h>
 #include <kernel/stdlib.h>
+#include <kernel/bitmap.h>
 
 #include "../../gdt_internal.h"
 #include "../../idt_internal.h"
@@ -73,7 +74,7 @@ static void info_buddy_print_order(int order) {
 		if (i % 32 == 0) {
 			kprintf("\n%4x  ", i);
 		}
-		bitmap_t val = buddy->orders[order].bitmap[i];
+		uint8_t val = buddy->orders[order].array[i];
 		if (val == 0) {
 			sb_set_bg(sb_current, SB_COLOR_WHITE);
 			kprintf("  ");
@@ -94,7 +95,7 @@ static void info_buddy(int order) {
 	kprintf("INFO BUDDY\n");
 	kprintf("buddy address:        %p\n", buddy);
 	kprintf("buddy size:           %u KB\n", buddy->size / 1024);
-	kprintf("orders address:       %p\n", buddy->orders[0].bitmap);
+	kprintf("orders address:       %p\n", buddy->orders[0].array);
 	kprintf("frame number:         %x\n", buddy->nframes);
 	kprintf("memory size:          %u KB\n", buddy->nframes << 2);
 	if (order >= 0)

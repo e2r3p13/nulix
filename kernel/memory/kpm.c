@@ -6,13 +6,14 @@
  * Kernel Physical Memory management
  *
  * created: 2022/11/23 - lfalkau <lfalkau@student.42.fr>
- * updated: 2023/01/04 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2023/01/05 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/kpm.h>
 #include <kernel/print.h>
 #include <kernel/string.h>
 #include <kernel/kernel.h>
+#include <kernel/bitmap.h>
 
 #include <kernel/list.h>
 
@@ -40,21 +41,32 @@ void kpm_init(struct multiboot_mmap_entry *entries, size_t count, size_t memkb) 
 	buddy->nframes = ALIGN(memkb * 1024 / PAGE_SIZE, 1024);
 	buddy->nfree = 0;
 	enabled_frames_size = KPM_NBYTES_FROM_NBITS(buddy->nframes);
-	total_orders_size = 0;
-	for (size_t i = 0, nblocks = buddy->nframes; i < KPM_NORDERS; i++, nblocks /= 2) {
+
+	bitmap_init(&buddy->enabled_frames,
+			buddy->nframes,
+			(uint8_t *)buddy + sizeof(buddy_t),
+			enabled_frames_size);
+
+	size_t nblocks = buddy->nframes;
+	bitmap_init(&buddy->orders[0],
+			nblocks,
+			(uint8_t *)buddy->enabled_frames.array + enabled_frames_size,
+			KPM_NBYTES_FROM_NBITS(nblocks));
+
+	total_orders_size = KPM_NBYTES_FROM_NBITS(nblocks);
+	for (size_t i = 1; i < KPM_NORDERS; i++, nblocks /= 2) {
 		size_t order_size = KPM_NBYTES_FROM_NBITS(nblocks);
-		buddy->orders[i].size = order_size;
+		bitmap_init(&buddy->orders[i],
+				nblocks,
+				buddy->orders[i - 1].array + KPM_NBYTES_FROM_NBITS(nblocks / 2),
+				order_size);
 		total_orders_size += order_size;
 	}
+
 	buddy->size = sizeof(buddy_t) + enabled_frames_size + total_orders_size;
-	buddy->enabled_frames = (void *)buddy + sizeof(buddy_t);
 
-	buddy->orders[0].bitmap = (void *)buddy->enabled_frames + enabled_frames_size;
-	for (size_t i = 1, prev_nblocks = buddy->nframes; i < KPM_NORDERS; i++, prev_nblocks /= 2)
-		buddy->orders[i].bitmap = (void *)buddy->orders[i - 1].bitmap + KPM_NBYTES_FROM_NBITS(prev_nblocks);
-
-	memset(buddy->enabled_frames, 0, enabled_frames_size);
-	memset(buddy->orders[0].bitmap, 0xff, total_orders_size);
+	for (size_t i = 0; i < KPM_NORDERS; i++)
+		bitmap_set_all(&buddy->orders[i], 1);
 
 	for (struct multiboot_mmap_entry *entry = entries; entry->size != 0; entry++) {
 		if (entry->type == MULTIBOOT_MEMORY_AVAILABLE)
@@ -83,10 +95,9 @@ inline static void kpm_update_order(size_t n, void *base, size_t limit) {
 		lchild_index = index * 2;
 		rchild_index = lchild_index + 1;
 
-		if (KPM_IS_ALLOCATED(n - 1, lchild_index) || KPM_IS_ALLOCATED(n - 1, rchild_index))
-			KPM_ALLOC(n, index);
-		else
-			KPM_FREE(n, index);
+		int val = bitmap_get_at(&buddy->orders[n - 1], lchild_index)
+				+ bitmap_get_at(&buddy->orders[n - 1], rchild_index);
+		bitmap_set_at(&buddy->orders[n], index, val);
 
 		base = (void *)ALIGNNEXTFORCE(base, order_block_size);
 	}
@@ -109,9 +120,11 @@ void kpm_enable(void *base, size_t limit) {
 		limit = (buddy->nframes * PAGE_SIZE) - (uintptr_t)base;
 
 	for (int i = 0; i < limit / PAGE_SIZE; i++) {
-		KPM_ENABLE(base_index + i);
-		KPM_FREE(0, base_index + i);
-		buddy->nfree++;
+		if (!bitmap_get_at(&buddy->enabled_frames, base_index + i)) {
+			bitmap_set_at(&buddy->enabled_frames, base_index + i, 1);
+			bitmap_set_at(&buddy->orders[0], base_index + i, 0);
+			buddy->nfree++;
+		}
 	}
 
 	for (size_t n = 1; n < KPM_NORDERS; n++)
@@ -121,6 +134,8 @@ void kpm_enable(void *base, size_t limit) {
 /*
  * Set pageframes as unvailable
  *
+		buddy->nfree++;
+		buddy->nfree++;
  * @base: Start address of the memory region to enable
  * @limit: Size of the region
  *
@@ -136,10 +151,12 @@ void kpm_disable(void *base, size_t limit) {
 		limit = (buddy->nframes * PAGE_SIZE) - (uintptr_t)base;
 
 	for (int i = 0; i < limit / PAGE_SIZE; i++) {
-		KPM_DISABLE(base_index + i);
-		KPM_ALLOC(0, base_index + i);
-		if (buddy->nfree)
-			buddy->nfree--;
+		if (bitmap_get_at(&buddy->enabled_frames, base_index + i)) {
+			bitmap_set_at(&buddy->enabled_frames, base_index + i, 0);
+			bitmap_set_at(&buddy->orders[0], base_index + i, 1);
+			if (buddy->nfree)
+				buddy->nfree--;
+		}
 	}
 
 	for (size_t n = 1; n < KPM_NORDERS; n++)
@@ -155,7 +172,7 @@ void kpm_disable(void *base, size_t limit) {
  *
  */
 int kpm_isenabled(void *addr) {
-	return KPM_IS_ENABLED((uintptr_t)addr / PAGE_SIZE);
+	return bitmap_get_at(&buddy->enabled_frames, (uintptr_t)addr / PAGE_SIZE);
 }
 
 /*
@@ -168,7 +185,7 @@ int kpm_isenabled(void *addr) {
  *
  */
 int kpm_isalloc(void *addr) {
-	return KPM_IS_ALLOCATED(0, (uintptr_t)addr / PAGE_SIZE);
+	return bitmap_get_at(&buddy->orders[0], (uintptr_t)addr / PAGE_SIZE);
 }
 
 static int find_best_fit_order(size_t size) {
@@ -181,24 +198,6 @@ static int find_best_fit_order(size_t size) {
 			return n;
 	}
 	return KPM_NORDERS - 1;
-}
-
-/*
- * Search for a bit set to 0 in a bitmap composed
- * of several words.
- *
- * Returns the index of a bit set to 0 if found, 0 otherwise
- */
-static int bitmap_ffu(bitmap_t *bitmap, size_t size) {
-	int ffu;
-
-	for (size_t i = 0; i < size; i++) {
-		bitmap_t cur = ~bitmap[i];
-		ffu = __builtin_ffs(cur);
-		if (ffu)
-			return ffu + (i * 8) - 1;
-	}
-	return -1;
 }
 
 /*
@@ -218,13 +217,14 @@ int kpm_alloc_chunk(kpm_chunk_t *chunk, size_t size) {
 
 	best_fit_order = find_best_fit_order(size);
 	for (int o = best_fit_order; o >= 0; o--) {
-		int i = bitmap_ffu(buddy->orders[o].bitmap, buddy->orders[o].size);
+		int i = bitmap_get_first_zero(&buddy->orders[o]);
 		if (i >= 0) {
 			frames_per_block = 1 << o;
 			base_index = i * frames_per_block;
 			for (size_t j = 0; j < frames_per_block; j++) {
-				KPM_ALLOC(0, base_index + j);
-				buddy->nfree--;
+				bitmap_set_at(&buddy->orders[0], base_index + j, 1);
+				if (buddy->nfree)
+					buddy->nfree--;
 			}
 			chunk->addr = (void *)(i * PAGE_SIZE * frames_per_block);
 			chunk->size = PAGE_SIZE * frames_per_block;
@@ -295,8 +295,8 @@ void kpm_free_chunk(kpm_chunk_t *chunk) {
 	nframes = ALIGNNEXT(chunk->size, PAGE_SIZE) / PAGE_SIZE;
 	
 	for (size_t i = first_frame_index; i < first_frame_index + nframes; i++) {
-		if (KPM_IS_ENABLED(i))
-			KPM_FREE(0, i);
+		if (bitmap_get_at(&buddy->enabled_frames, i))
+			bitmap_set_at(&buddy->orders[0], i, 0);
 	}
 	for (size_t n = 1; n < KPM_NORDERS; n++)
 		kpm_update_order(n, chunk->addr, chunk->size);
