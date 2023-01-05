@@ -6,7 +6,7 @@
  * Declaration of idt internal structures and functions.
  *
  * created: 2022/10/18 - xlmod <glafond-@student.42.fr>
- * updated: 2022/10/21 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2023/01/05 - glafond- <glafond-@student.42.fr>
  */
 
 #ifndef IDT_INTERNAL_H
@@ -29,6 +29,8 @@
 #define ISR_DE 0
 #define ISR_OF 4
 #define ISR_DF 8
+#define ISR_GF 14
+#define ISR_PF 14
 #define ISR_TM 32
 #define ISR_KB 33
 
@@ -100,6 +102,8 @@ typedef struct {
 __attribute__ ((interrupt)) void divide_error_handler(t_int_frame *int_frame);
 __attribute__ ((interrupt)) void overflow_handler(t_int_frame *int_frame);
 __attribute__ ((interrupt)) void double_fault_handler(t_int_frame *int_frame, uint32_t error_code);
+__attribute__ ((interrupt)) void gp_fault_handler(t_int_frame *int_frame, uint32_t error_code);
+__attribute__ ((interrupt)) void page_fault_handler(t_int_frame *int_frame, uint32_t error_code);
 
 /* IRQ
  * Hardware Interrupt

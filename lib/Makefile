@@ -17,6 +17,7 @@ subdir:= \
 	std \
 	crypto \
 	tools \
+	bit \
 
 builddir?= build
 

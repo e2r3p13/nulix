@@ -7,7 +7,7 @@
  * and interrupts
  *
  * created: 2022/10/18 - xlmod <glafond-@student.42.fr>
- * updated: 2022/11/25 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2023/01/05 - glafond- <glafond-@student.42.fr>
  */
 
 #include <stdint.h>
@@ -15,7 +15,7 @@
 
 #include "idt_internal.h"
 
-t_idt_entry *idt = (t_idt_entry *)0x0;
+t_idt_entry *idt = (t_idt_entry *)0x5000;
 t_idt_ptr idtp;
 
 // Set up a descriptor
@@ -36,6 +36,8 @@ void idt_init() {
 	idt_set_descriptor(ISR_DE, divide_error_handler, TRAP_GATE_FLAGS);
 	idt_set_descriptor(ISR_OF, overflow_handler, TRAP_GATE_FLAGS);
 	idt_set_descriptor(ISR_DF, double_fault_handler, TRAP_GATE_FLAGS);
+	idt_set_descriptor(ISR_GF, gp_fault_handler, TRAP_GATE_FLAGS);
+	idt_set_descriptor(ISR_PF, page_fault_handler, TRAP_GATE_FLAGS);
 	idt_set_descriptor(ISR_TM, timer_handler, INT_GATE_FLAGS);
 	idt_set_descriptor(ISR_KB, keyboard_handler, INT_GATE_FLAGS);
 
