@@ -6,7 +6,7 @@
  * Allocate builtin file
  *
  * created: 2022/12/13 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/04 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2023/01/05 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <kernel/kpm.h>
@@ -24,7 +24,7 @@ static inline void usage() {
 	kprintf("Usage: " BLTNAME " size\n");
 }
 
-const int MAXALLOC = 10;
+#define MAXALLOC 10
 struct kpm_chunk_head chunk_heads[MAXALLOC] = {0};
 int nalloc = 0;
 
