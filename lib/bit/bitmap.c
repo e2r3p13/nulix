@@ -6,7 +6,7 @@
  * Bitmap struct functions
  *
  * created: 2023/01/05 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/05 - xlmod <glafond-@student.42.fr>
+ * updated: 2023/01/06 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/bitmap.h>
@@ -58,6 +58,28 @@ int bitmap_set_at(struct bitmap *bitmap, size_t index, int value) {
 	return 0;
 }
 
+int bitmap_set_from(struct bitmap *bitmap, size_t index, size_t len, int value) {
+	size_t array_index = index / 8;
+	size_t bit_index = index % 8;
+
+	if (array_index > (bitmap->len - 1) / 8)
+		return -1;
+	else if (index + len >= bitmap->len || len == 0)
+		return -1;
+	else if (array_index == (bitmap->len / 8) && bit_index >= bitmap->len % 8)
+		return -1;
+	for (size_t ai = array_index; len > 0; ai++) {
+		for (size_t bi = bit_index; bi < 8 && len > 0; bi++, len--) {
+			if (value)
+				bitmap->array[ai] |= (1 << bi);
+			else
+				bitmap->array[ai] &= ~(1 << bi);
+		}
+		bit_index = 0;
+	}
+	return 0;
+}
+
 int bitmap_get_at(struct bitmap *bitmap, size_t index) {
 	size_t array_index = index / 8;
 	size_t bit_index = index % 8;
@@ -74,7 +96,7 @@ int bitmap_get_next_one(struct bitmap *bitmap, size_t index) {
 		return -1;
 	int i = (int)(index / 8);
 	uint8_t byte = bitmap->array[i];
-	byte &= ((size_t)(~0) << (index % 8));
+	byte &= ((size_t)(~0U) << (index % 8));
 	if (byte)
 		return __builtin_ctz(byte) + (i * 8);
 	i++;
