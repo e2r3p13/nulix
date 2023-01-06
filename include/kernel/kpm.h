@@ -6,7 +6,7 @@
  * Kernel Physical Memory management header file
  *
  * created: 2022/11/23 - lfalkau <lfalkau@student.42.fr>
- * updated: 2023/01/05 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/06 - glafond- <glafond-@student.42.fr>
  */
 
 #ifndef KPM_H
@@ -18,6 +18,7 @@
 #include <kernel/multiboot.h>
 #include <kernel/list.h>
 #include <kernel/bitmap.h>
+#include <kernel/bitmaptree.h>
 
 #define PAGE_SIZE		4096
 
@@ -57,7 +58,7 @@ typedef struct buddy {
 	size_t nfree;
 	size_t size;
 	struct bitmap enabled_frames;
-	struct bitmap orders[KPM_NORDERS];
+	struct bitmaptree orders;
 } buddy_t;
 
 /*
@@ -82,14 +83,14 @@ TAILQ_HEAD(kpm_chunk_head, kpm_chunk);
  *
  * Internally stores the address of the buddy structure
  */
-void kpm_init(struct multiboot_mmap_entry *mmap_entries, size_t n, size_t memsize);
+int kpm_init(struct multiboot_mmap_entry *mmap_entries, size_t n, size_t memsize);
 
 /*
  * Enables or disable memory regison to make them available or not
  * for later kpm_alloc/free calls.
  */
-void kpm_enable(void *base, size_t limit);
-void kpm_disable(void *base, size_t limit);
+int kpm_enable(void *base, size_t limit);
+int kpm_disable(void *base, size_t limit);
 
 /*
  * Returns 1 if the memory region starting at @addr is enabled/allocated,
@@ -109,7 +110,7 @@ int kpm_alloc(struct kpm_chunk_head *head, size_t size);
  * Release the buddy node starting at addr @addr
  */
 //void kpm_free(kpm_chunk_t *chunk);
-void kpm_free(struct kpm_chunk_head *head);
+int kpm_free(struct kpm_chunk_head *head);
 
 /*
  * Prints the buddy allocator

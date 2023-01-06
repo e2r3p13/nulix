@@ -29,6 +29,8 @@ int bitmaptree_init(struct bitmaptree *bmt, size_t nleafs, struct bitmap *layers
 
 int bitmaptree_get_fit(struct bitmaptree *bmt, size_t len);
 int bitmaptree_set_from(struct bitmaptree *bmt, size_t index, size_t len, size_t value);
+int bitmaptree_set_from_if(struct bitmaptree *bmt, struct bitmap *control,
+					size_t index, size_t len, size_t value);
 
 int bitmaptree_update(struct bitmaptree *bmt, size_t index, size_t len);
 
