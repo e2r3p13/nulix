@@ -32,6 +32,8 @@ int bitmap_set_at(struct bitmap *bitmap, size_t index, int value);
 int bitmap_get_at(struct bitmap *bitmap, size_t index);
 
 int bitmap_set_from(struct bitmap *bitmap, size_t index, size_t len, int value);
+int bitmap_set_from_if(struct bitmap *bitmap, struct bitmap *control,
+				size_t index, size_t len, int value);
 
 int bitmap_get_next_one(struct bitmap *bitmap, size_t index);
 int bitmap_get_prev_one(struct bitmap *bitmap, size_t index);
