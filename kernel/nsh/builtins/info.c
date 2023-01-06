@@ -6,7 +6,7 @@
  * Info builtin file
  *
  * created: 2022/12/09 - mrxx0 <chcoutur@student.42.fr>
- * updated: 2023/01/05 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/06 - glafond- <glafond-@student.42.fr>
  */ 
 
 #include <stdint.h>
@@ -69,12 +69,13 @@ static void info_idt() {
 
 static void info_buddy_print_order(int order) {
 	uint8_t oldcolor = sb_get_color(sb_current);
-	kprintf("order %u(size of %u)\n", order, buddy->orders[order].size);
-	for (size_t i = 0; i < buddy->orders[order].size; i++) {
+	kprintf("order %u: %p (size of %u)\n", order, &buddy->orders.layers[order], buddy->orders.layers[order].size);
+	kprintf("array %p\n", buddy->orders.layers[order].array);
+	for (size_t i = 0; i < buddy->orders.layers[order].size; i++) {
 		if (i % 32 == 0) {
 			kprintf("\n%4x  ", i);
 		}
-		uint8_t val = buddy->orders[order].array[i];
+		uint8_t val = buddy->orders.layers[order].array[i];
 		if (val == 0) {
 			sb_set_bg(sb_current, SB_COLOR_WHITE);
 			kprintf("  ");
@@ -95,7 +96,7 @@ static void info_buddy(int order) {
 	kprintf("INFO BUDDY\n");
 	kprintf("buddy address:        %p\n", buddy);
 	kprintf("buddy size:           %u KB\n", buddy->size / 1024);
-	kprintf("orders address:       %p\n", buddy->orders[0].array);
+	kprintf("orders address:       %p\n", buddy->orders.layers[0].array);
 	kprintf("frame number:         %x\n", buddy->nframes);
 	kprintf("memory size:          %u KB\n", buddy->nframes << 2);
 	if (order >= 0)

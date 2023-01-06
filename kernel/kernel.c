@@ -6,7 +6,7 @@
  * Entrypoint of the KFS kernel
  *
  * created: 2022/10/11 - lfalkau <lfalkau@student.42.fr>
- * updated: 2023/01/05 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/06 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/gdt.h>
@@ -17,6 +17,7 @@
 #include <kernel/kpm.h>
 #include <kernel/screenbuf.h>
 #include <kernel/nsh.h>
+#include <kernel/print.h>
 
 #define NBSCREENBUF 2
 
@@ -47,9 +48,12 @@ void kernel_main(unsigned long multiboot_info_addr) {
 	init_descriptor_tables();
 	KBD_initialize();
 
-	kpm_init((void *)mbi->mmap_addr,
+	if (kpm_init((void *)mbi->mmap_addr,
 		mbi->mmap_length / sizeof(struct multiboot_mmap_entry),
-		mbi->mem_upper - mbi->mem_lower);
+		mbi->mem_upper - mbi->mem_lower)) {
+		kprintf("ERROR\n");
+		return;
+	}
 
 	nsh();
 }

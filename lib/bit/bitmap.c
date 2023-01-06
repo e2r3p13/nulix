@@ -16,7 +16,7 @@
 extern struct screenbuf *sb_current;
 
 int bitmap_init(struct bitmap *bitmap, size_t len, uint8_t *array, size_t size) {
-	if (len / 8 > size || len == 0)
+	if (!len || !size || len / 8 > size)
 		return -1;
 	bitmap->len = len;
 	bitmap->size = size;
@@ -47,9 +47,7 @@ int bitmap_set_at(struct bitmap *bitmap, size_t index, int value) {
 	size_t array_index = index / 8;
 	size_t bit_index = index % 8;
 
-	if (array_index > (bitmap->len - 1) / 8)
-		return -1;
-	else if (array_index == (bitmap->len / 8) && bit_index >= bitmap->len % 8)
+	if (index >= bitmap->len)
 		return -1;
 	if (value)
 		bitmap->array[array_index] |= (1 << bit_index);
@@ -61,15 +59,14 @@ int bitmap_set_at(struct bitmap *bitmap, size_t index, int value) {
 int bitmap_set_from(struct bitmap *bitmap, size_t index, size_t len, int value) {
 	size_t array_index = index / 8;
 	size_t bit_index = index % 8;
+	size_t nset = 0;
 
-	if (array_index > (bitmap->len - 1) / 8)
-		return -1;
-	else if (index + len >= bitmap->len || len == 0)
-		return -1;
-	else if (array_index == (bitmap->len / 8) && bit_index >= bitmap->len % 8)
+	if (!len || index + len > bitmap->len)
 		return -1;
 	for (size_t ai = array_index; len > 0; ai++) {
 		for (size_t bi = bit_index; bi < 8 && len > 0; bi++, len--) {
+			if (!(bitmap_get_at(bitmap, (ai * 8) + bi) ^ (value && 1)))
+				nset++;
 			if (value)
 				bitmap->array[ai] |= (1 << bi);
 			else
@@ -77,16 +74,39 @@ int bitmap_set_from(struct bitmap *bitmap, size_t index, size_t len, int value) 
 		}
 		bit_index = 0;
 	}
-	return 0;
+	return nset;
+}
+
+int bitmap_set_from_if(struct bitmap *bitmap, struct bitmap *control, size_t index, size_t len, int value) {
+	size_t array_index = index / 8;
+	size_t bit_index = index % 8;
+	size_t nset = 0;
+
+	if (!len || index + len > bitmap->len)
+		return -1;
+	if (control->len != bitmap->len)
+		return -1;
+	for (size_t ai = array_index; len > 0; ai++) {
+		for (size_t bi = bit_index; bi < 8 && len > 0; bi++, len--) {
+			if (bitmap_get_at(control, (ai * 8) + bi) == 1) {
+				if (!(bitmap_get_at(bitmap, (ai * 8) + bi) ^ (value && 1)))
+					nset++;
+				if (value)
+					bitmap->array[ai] |= (1 << bi);
+				else
+					bitmap->array[ai] &= ~(1 << bi);
+			}
+		}
+		bit_index = 0;
+	}
+	return nset;
 }
 
 int bitmap_get_at(struct bitmap *bitmap, size_t index) {
 	size_t array_index = index / 8;
 	size_t bit_index = index % 8;
 
-	if (array_index > (bitmap->len - 1) / 8)
-		return -1;
-	else if (array_index == (bitmap->len / 8) && bit_index >= bitmap->len % 8)
+	if (index >= bitmap->len)
 		return -1;
 	return (bitmap->array[array_index] & (1 << bit_index)) != 0;
 }
@@ -156,11 +176,10 @@ int bitmap_get_next_zero(struct bitmap *bitmap, size_t index) {
 }
 
 int bitmap_get_prev_zero(struct bitmap *bitmap, size_t index) {
-	uint8_t byte;
 	if (index >= bitmap->len)
 		return -1;
 	int i = (int)(index / 8);
-	byte = bitmap->array[i];
+	uint8_t byte = bitmap->array[i];
 	byte = (~byte) & (~((size_t)(~0) << (index % 8)));
 	if (byte)
 		return ((__builtin_clz(byte) + 1) - 8) + (i * 8);
