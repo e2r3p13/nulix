@@ -103,7 +103,7 @@ static void nsh_execcmd() {
 	int n = sizeof(builtin) / sizeof(struct builtin);
 	if (nsh_cmd[0] == NULL)
 		return;
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < n - 1; i++) {
 		if (strcmp(nsh_cmd[0], builtin[i].name) == 0) {
 			builtin[i].exec(nsh_cmdnarg, (char **)nsh_cmd);
 			return;
