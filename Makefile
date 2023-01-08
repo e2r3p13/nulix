@@ -86,12 +86,12 @@ re: clean all
 # SUBDIR
 .PHONY: build-subdir
 build-subdir:
-	@for subd in ${subdir}; do \
+	@set -e; for subd in ${subdir}; do \
 		${MAKE} -C $$subd builddir=${builddir} .INCLUDE_DIRS=${.INCLUDE_DIRS} all; \
 	done
 
 .PHONY: clean-subdir
 clean-subdir:
-	@for subd in ${subdir}; do \
+	@set -e; for subd in ${subdir}; do \
 		${MAKE} -C $$subd builddir=${builddir} .INCLUDE_DIRS=${.INCLUDE_DIRS} clean; \
 	done
