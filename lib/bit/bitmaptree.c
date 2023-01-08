@@ -6,7 +6,7 @@
  * Bitmap tree function handler
  *
  * created: 2023/01/05 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/06 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/08 - xlmod <glafond-@student.42.fr>
  */
 
 #include <kernel/bitmaptree.h>
@@ -42,10 +42,9 @@ int bitmaptree_get_fit(struct bitmaptree *bmt, size_t len) {
 		return -1;
 
 	size_t l;
-	//for (l = bmt->height - 1; len < (size_t)(1 << l); l--);
+	for (l = bmt->height - 1; len < (size_t)(1 << l); l--);
 
-	for (l = 0; len > (size_t)(1 << l) && l < bmt->height; l++);
-	l = 0;
+	//for (l = 0; len > (size_t)(1 << l) && l < bmt->height; l++);
 
 
 	size_t ref_index = 0;
@@ -57,10 +56,8 @@ int bitmaptree_get_fit(struct bitmaptree *bmt, size_t len) {
 		if (start_index) {
 			for (int layer_index = (int)l - 1; layer_index >= 0; layer_index--) {
 				start_index = (start_index * 2) - 1;
-				kprintf("1- fz: %d  st: %d   li: %d\n", first_zero, start_index, layer_index);
 				if (bitmap_get_at(&bmt->layers[layer_index], start_index))
 					start_index++;
-				kprintf("2- fz: %d  st: %d   li: %d\n", first_zero, start_index, layer_index);
 			}
 		}
 		// start_index == index sur l0 libre
@@ -90,7 +87,8 @@ int bitmaptree_set_from(struct bitmaptree *bmt, size_t index, size_t len, size_t
 	int nset = bitmap_set_from(&bmt->layers[0], index, len, value);
 	if (nset < 0)
 		return -1;
-	bitmaptree_update(bmt, index, len);
+	if (bitmaptree_update(bmt, index, len) < 0)
+		return -1;
 	return nset;
 }
 
@@ -103,7 +101,8 @@ int bitmaptree_set_from_if(struct bitmaptree *bmt, struct bitmap *control, size_
 	int nset = bitmap_set_from_if(&bmt->layers[0], control, index, len, value);
 	if (nset < 0)
 		return -1;
-	bitmaptree_update(bmt, index, len);
+	if (bitmaptree_update(bmt, index, len) < 0)
+		return -1;
 	return nset;
 }
 
@@ -114,10 +113,11 @@ int bitmaptree_update(struct bitmaptree *bmt, size_t index, size_t len) {
 
 	for (size_t l = 1, i = index / 2; l < bmt->height; l++, i /= 2) {
 		len = (len + 1) / 2;
-		for (size_t count = i; count < len; count++) {
+		for (size_t count = i; count < i + len; count++) {
 			int val = bitmap_get_at(&bmt->layers[l - 1], (count * 2))
 					+ bitmap_get_at(&bmt->layers[l - 1], (count * 2) + 1);
-			bitmap_set_at(&bmt->layers[l], count, val);
+			if (bitmap_set_at(&bmt->layers[l], count, val) < 0)
+				return -1;
 		}
 	}
 	return 0;
