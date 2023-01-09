@@ -6,15 +6,14 @@
  * Header for pagination related things
  *
  * created: 2022/12/12 - xlmod <glafond-@student.42.fr>
- * updated: 2022/12/16 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/09 - glafond- <glafond-@student.42.fr>
  */
 
 #ifndef PAGING_H
 #define PAGING_H
 
 #include <stdint.h>
-
-#define PAGE_SIZE 4096
+#include <kernel/memory.h>
 
 #define PAGE_DIRECTORY_LENGTH	1024
 #define PAGE_TABLE_LENGTH		PAGE_DIRECTORY_LENGTH

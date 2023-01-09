@@ -6,14 +6,27 @@
  * Bitmap struct functions
  *
  * created: 2023/01/05 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/06 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/09 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/bitmap.h>
 #include <kernel/print.h>
-#include <kernel/screenbuf.h>
+#include <kernel/kmalloc.h>
 
-extern struct screenbuf *sb_current;
+int bitmap_alloc(struct bitmap *bitmap, size_t len, int type) {
+	if (!len)
+		return -1;
+	size_t size = ((len - 1) / 8) + 1;
+	void *array = kmalloc(size * sizeof(uint8_t), type);
+	if (!array)
+		return -1;
+	if (bitmap_init(bitmap, len, array, size) < 0) {
+		if (type != KMZ_ETERNAL)
+			kfree(array);
+		return -1;
+	}
+	return 0;
+}
 
 int bitmap_init(struct bitmap *bitmap, size_t len, uint8_t *array, size_t size) {
 	if (!len || !size || len / 8 > size)
@@ -65,7 +78,7 @@ int bitmap_set_from(struct bitmap *bitmap, size_t index, size_t len, int value) 
 		return -1;
 	for (size_t ai = array_index; len > 0; ai++) {
 		for (size_t bi = bit_index; bi < 8 && len > 0; bi++, len--) {
-			if (!(bitmap_get_at(bitmap, (ai * 8) + bi) ^ (value && 1)))
+			if ((bitmap_get_at(bitmap, (ai * 8) + bi) ^ (value && 1))) 
 				nset++;
 			if (value)
 				bitmap->array[ai] |= (1 << bi);
@@ -89,7 +102,7 @@ int bitmap_set_from_if(struct bitmap *bitmap, struct bitmap *control, size_t ind
 	for (size_t ai = array_index; len > 0; ai++) {
 		for (size_t bi = bit_index; bi < 8 && len > 0; bi++, len--) {
 			if (bitmap_get_at(control, (ai * 8) + bi) == 1) {
-				if (!(bitmap_get_at(bitmap, (ai * 8) + bi) ^ (value && 1)))
+				if ((bitmap_get_at(bitmap, (ai * 8) + bi) ^ (value && 1))) 
 					nset++;
 				if (value)
 					bitmap->array[ai] |= (1 << bi);

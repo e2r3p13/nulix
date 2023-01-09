@@ -15,11 +15,14 @@
 #include <kernel/kernel.h>
 #include <kernel/bitmap.h>
 #include <kernel/bitmaptree.h>
+#include <kernel/slab.h>
+#include <kernel/memory.h>
 
 #include <kernel/list.h>
 
 buddy_t *buddy;
 struct bitmap orders[KPM_NORDERS];
+struct slab chunk_slab;
 
 extern uint32_t sk;
 extern uint32_t ek;
@@ -71,14 +74,18 @@ int kpm_init(struct multiboot_mmap_entry *entries, size_t count, size_t memkb) {
 		}
 	}
 
-	if (kpm_disable((void *)0, 0x800000))
+	if (slab_init(&chunk_slab, buddy->nframes / 2, sizeof(struct kpm_chunk)) < 0)
 		return -1;
-	return 0;
 
-//	kpm_disable((void *)0, PAGE_SIZE); // Also disables IDT + GDT by design
-//	kpm_disable(&sk, ((uintptr_t)&ek - KERNEL_VIRT_OFFSET) - (uintptr_t)&sk);
-//	kpm_disable((void *)((uintptr_t)buddy - KERNEL_VIRT_OFFSET), buddy->size);
-//	kpm_disable((void *)0x400000, PAGE_SIZE * 1024);
+	if (kpm_disable((void *)0, 1 * MB) < 0)
+		return -1;
+	if (kpm_disable(&sk, ((uintptr_t)buddy - KERNEL_VIRT_OFFSET)
+				- (uintptr_t)&sk + buddy->size) < 0)
+		return -1;
+	kpm_disable((void *)PHYSMEM_KMETERNAL_ADDR, PHYSMEM_KMETERNAL_SIZE);
+	kpm_disable((void *)PHYSMEM_KMFIX_ADDR, PHYSMEM_KMFIX_SIZE);
+
+	return 0;
 }
 
 /*
@@ -186,44 +193,30 @@ int kpm_alloc_chunk(kpm_chunk_t *chunk, size_t size) {
 	return -1;
 }
 
-static uint8_t slab[(1024 * PAGE_SIZE) / sizeof(struct kpm_chunk)] = {0};
-
-void *kpm_chunk_slab_alloc() {
-	for (int i = 0; i < 1024; i++) {
-		if (slab[i] == 0) {
-			slab[i] = 1;
-			return (void *)(0xf0000000 + (i * sizeof(struct kpm_chunk))); 
-		}
-	}
-	return NULL;
-}
-
-void kpm_chunk_slab_free(void *ptr) {
-	slab[((uintptr_t)ptr - 0xf0000000) / sizeof(struct kpm_chunk)] = 0;
-}
-
 int kpm_alloc(struct kpm_chunk_head *head, size_t size) {
 
-	if (ALIGNNEXT(size, PAGE_SIZE) / PAGE_SIZE > buddy->nfree)
+	if (ALIGNNEXT(size, PAGE_SIZE) / PAGE_SIZE > buddy->nfree) {
 		return -1;
+	}
 
 	TAILQ_INIT(head);
 
 	while (size) {
-		struct kpm_chunk *c = (struct kpm_chunk *)kpm_chunk_slab_alloc();
+		struct kpm_chunk *c = (struct kpm_chunk *)slab_alloc(&chunk_slab);
 		if (!c) {
 			while ((c = TAILQ_FIRST(head))) {
 				TAILQ_REMOVE(head, c, list);
-				kpm_chunk_slab_free(c);
+				slab_free(&chunk_slab, c);
 			}
 			return -1;
 		}
 		if (kpm_alloc_chunk(c, size) < 0) {
-			kpm_chunk_slab_free(c);
+			slab_free(&chunk_slab, c);
 			while ((c = TAILQ_FIRST(head))) {
 				TAILQ_REMOVE(head, c, list);
-				kpm_chunk_slab_free(c);
+				slab_free(&chunk_slab, c);
 			}
+			kprintf("2\n");
 			return -1;
 		}
 		TAILQ_INSERT_TAIL(head, c, list);
@@ -255,6 +248,6 @@ int kpm_free(struct kpm_chunk_head *head) {
 		if (kpm_free_chunk(c))
 			return -1;
 		TAILQ_REMOVE(head, c, list);
-		kpm_chunk_slab_free(c);
+		slab_free(&chunk_slab, c);
 	}
 }

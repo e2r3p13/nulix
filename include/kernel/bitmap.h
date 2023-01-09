@@ -6,7 +6,7 @@
  * Bitmap struct header
  *
  * created: 2023/01/05 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/06 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/09 - glafond- <glafond-@student.42.fr>
  */
 
 #ifndef BITMAP_H
@@ -23,6 +23,8 @@ struct bitmap {
 	uint8_t	*array;	
 	size_t	size;
 };
+
+int bitmap_alloc(struct bitmap *bitmap, size_t len, int type);
 
 int bitmap_init(struct bitmap *bitmap, size_t len, uint8_t *array, size_t size);
 
