@@ -6,7 +6,7 @@
  * Kernel Physical Memory management
  *
  * created: 2022/11/23 - lfalkau <lfalkau@student.42.fr>
- * updated: 2023/01/06 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/09 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/kpm.h>
@@ -172,16 +172,16 @@ int kpm_isalloc(void *addr) {
 int kpm_alloc_chunk(kpm_chunk_t *chunk, size_t size) {
 	size_t len = size / PAGE_SIZE;
 	for (;len > 0; len /= 2) {
-		size_t index = bitmaptree_get_fit(&buddy->orders, len);
-		if (index >= 0) {
-			size_t nset = bitmaptree_set_from(&buddy->orders, index, len, 1);
-			if (nset < 0)
-				return -1;
-			buddy->nfree -= nset;
-			chunk->addr = (void *)(index * PAGE_SIZE);
-			chunk->size = len * PAGE_SIZE;
-			return 0;
-		}
+		int index = bitmaptree_get_fit(&buddy->orders, len);
+		if (index < 0)
+			continue;
+		size_t nset = bitmaptree_set_from(&buddy->orders, (size_t)index, len, 1);
+		if (nset < 0)
+			return -1;
+		buddy->nfree -= nset;
+		chunk->addr = (void *)(index * PAGE_SIZE);
+		chunk->size = len * PAGE_SIZE;
+		return 0;
 	}
 	return -1;
 }
