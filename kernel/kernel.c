@@ -6,7 +6,7 @@
  * Entrypoint of the KFS kernel
  *
  * created: 2022/10/11 - lfalkau <lfalkau@student.42.fr>
- * updated: 2023/01/09 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/09 - xlmod <glafond-@student.42.fr>
  */
 
 #include <kernel/gdt.h>
@@ -26,18 +26,7 @@ struct screenbuf sb[NBSCREENBUF];
 struct screenbuf *sb_current;
 int sb_nbscreen = NBSCREENBUF;
 
-/* Initialize all descriptor tables (gdt, idt, ...)
- *
- */
-static void init_descriptor_tables() {
-	pic_8259_init(PIC1_OFFSET, PIC2_OFFSET);
-	gdt_init();
-	idt_init();
-}
-
-void kernel_main(unsigned long multiboot_info_addr) {
-	multiboot_info_t *mbi = (multiboot_info_t *)multiboot_info_addr;
-
+static int kernel_init(unsigned long multiboot_info_addr) {
 	for (int i = 0; i < NBSCREENBUF; i++) {
 		sb_init(sb + i);
 		sb_putstr(sb + i, "Welcome to nulix-2.0.1\n");
@@ -45,17 +34,32 @@ void kernel_main(unsigned long multiboot_info_addr) {
 	sb_current = sb;
 	sb_load(sb_current);
 
-	kmalloc_init_eternal();
+	if (kmalloc_eternal_init() < 0) {
+		return -1;
+	}
 
-	init_descriptor_tables();
+	if (kmalloc_fix_init() < 0) {
+		return -1;
+	}
+
+	pic_8259_init(PIC1_OFFSET, PIC2_OFFSET);
+	gdt_init();
+	idt_init();
 	KBD_initialize();
 
+	multiboot_info_t *mbi = (multiboot_info_t *)multiboot_info_addr;
 	if (kpm_init((void *)mbi->mmap_addr,
 		mbi->mmap_length / sizeof(struct multiboot_mmap_entry),
 		mbi->mem_upper - mbi->mem_lower)) {
-		kprintf("ERROR\n");
-		return;
+		return -1;
 	}
+
+	return 0;
+}
+
+void kernel_main(unsigned long multiboot_info_addr) {
+	if (kernel_init(multiboot_info_addr) < 0)
+		return;
 
 	nsh();
 }

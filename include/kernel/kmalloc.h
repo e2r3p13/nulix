@@ -6,7 +6,7 @@
  * Kmalloc header
  *
  * created: 2023/01/09 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/09 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/09 - xlmod <glafond-@student.42.fr>
  */
 
 #ifndef KMALLOC_H
@@ -24,7 +24,7 @@
 struct kmalloc_node {
 	void *address;
 	size_t size;
-	SLIST_ENTRY(kmalloc_node) next;
+	TAILQ_ENTRY(kmalloc_node) next;
 };
 
 #define KM_BMT_NLAYERS 8
@@ -33,9 +33,9 @@ struct kmalloc_fix {
 	virtaddr_t start;
 	virtaddr_t end;
 	struct bitmaptree kbmt;
-	struct kpm_chunk pchunk;
-	SLIST_HEAD(,kmalloc_node) nodes_list;
+	TAILQ_HEAD(,kmalloc_node) nodes_list;
 	struct slab node_slab;
+	struct kpm_chunk pchunk;
 };
 
 struct kmalloc_block {
@@ -71,9 +71,9 @@ struct kmalloc {
 #define KMZ_HEAP		1
 #define KMZ_ETERNAL		2
 
-int kmalloc_init_eternal();
-int kmalloc_init_fix();
-int kmalloc_init_heap();
+int kmalloc_eternal_init();
+int kmalloc_fix_init();
+int kmalloc_heap_init();
 
 void *kmalloc(size_t size, int type);
 void kfree(void *addr);
