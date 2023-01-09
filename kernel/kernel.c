@@ -18,6 +18,7 @@
 #include <kernel/screenbuf.h>
 #include <kernel/nsh.h>
 #include <kernel/print.h>
+#include <kernel/kmalloc.h>
 
 #include <kernel/panic.h>
 
@@ -45,6 +46,8 @@ void kernel_main(unsigned long multiboot_info_addr) {
 	};
 	sb_current = sb;
 	sb_load(sb_current);
+
+	kmalloc_init_eternal();
 
 	init_descriptor_tables();
 	KBD_initialize();

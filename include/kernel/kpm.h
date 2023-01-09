@@ -6,7 +6,7 @@
  * Kernel Physical Memory management header file
  *
  * created: 2022/11/23 - lfalkau <lfalkau@student.42.fr>
- * updated: 2023/01/06 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/09 - glafond- <glafond-@student.42.fr>
  */
 
 #ifndef KPM_H
@@ -19,13 +19,7 @@
 #include <kernel/list.h>
 #include <kernel/bitmap.h>
 #include <kernel/bitmaptree.h>
-
-#define PAGE_SIZE		4096
-
-#define ALIGN(size, align)			(((uint32_t)(size)) & (0xffffffff ^ ((align) - 1)))
-#define ALIGNNEXT(size, align)		((((uint32_t)(size)) + ((align) - 1)) & (0xffffffff ^ ((align) - 1)))
-#define ALIGNNEXTFORCE(size, align)	((((uint32_t)(size)) + ((align))) & (0xffffffff ^ ((align) - 1)))
-#define ISALIGNED(size, align)		(!(((uint32_t)(size)) & ((align) - 1)))
+#include <kernel/memory.h>
 
 #define KPM_NORDERS		11
 
