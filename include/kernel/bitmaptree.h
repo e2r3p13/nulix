@@ -6,7 +6,7 @@
  * Bitmap tree header
  *
  * created: 2023/01/05 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/06 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/09 - glafond- <glafond-@student.42.fr>
  */
 
 #ifndef BITMAPTREE_H
@@ -23,6 +23,8 @@ struct bitmaptree {
 	struct bitmap *layers;
 	size_t size;
 };
+
+int bitmaptree_alloc(struct bitmaptree *bmt, size_t nleafs, size_t height, int type);
 
 int bitmaptree_init(struct bitmaptree *bmt, size_t nleafs, struct bitmap *layers,
 					size_t height, uint8_t *array, size_t size);
