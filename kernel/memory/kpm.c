@@ -6,7 +6,7 @@
  * Kernel Physical Memory management
  *
  * created: 2022/11/23 - lfalkau <lfalkau@student.42.fr>
- * updated: 2023/01/09 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/10 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/kpm.h>
@@ -20,12 +20,16 @@
 
 #include <kernel/list.h>
 
+#define KPM_MAX_BUDDY_SIZE ((((uint32_t)(-1) / PAGE_SIZE) / 8) * 2)
+
 buddy_t *buddy;
 struct bitmap orders[KPM_NORDERS];
 struct slab chunk_slab;
 
 extern uint32_t sk;
 extern uint32_t ek;
+
+__attribute__ ((section(".buddy"))) static uint8_t kpm_buddy_reserved_memory[KPM_MAX_BUDDY_SIZE];
 
 /*
  * kpm_init must be called before any call to other kpm functions.
@@ -39,7 +43,7 @@ extern uint32_t ek;
  */
 int kpm_init(struct multiboot_mmap_entry *entries, size_t count, size_t memkb) {
 
-	buddy = (buddy_t *)ALIGNNEXT((uint32_t)&ek, PAGE_SIZE);
+	buddy = (buddy_t *)kpm_buddy_reserved_memory;
 	buddy->nframes = ALIGN(memkb * 1024 / PAGE_SIZE, 1024);
 	buddy->nfree = 0;
 
@@ -79,11 +83,8 @@ int kpm_init(struct multiboot_mmap_entry *entries, size_t count, size_t memkb) {
 
 	if (kpm_disable((void *)0, 1 * MB) < 0)
 		return -1;
-	if (kpm_disable(&sk, ((uintptr_t)buddy - KERNEL_VIRT_OFFSET)
-				- (uintptr_t)&sk + buddy->size) < 0)
+	if (kpm_disable(&sk, ((uintptr_t)&ek - KERNEL_VIRT_OFFSET)) < 0)
 		return -1;
-	kpm_disable((void *)PHYSMEM_KMETERNAL_ADDR, PHYSMEM_KMETERNAL_SIZE);
-	kpm_disable((void *)PHYSMEM_KMFIX_ADDR, PHYSMEM_KMFIX_SIZE);
 
 	return 0;
 }
@@ -95,7 +96,7 @@ int kpm_init(struct multiboot_mmap_entry *entries, size_t count, size_t memkb) {
  * @limit: Size of the region
  *
  */
-int kpm_enable(void *base, size_t limit) {
+int kpm_enable(physaddr_t base, size_t limit) {
 	if (!ISALIGNED(base, PAGE_SIZE))
 		return -1;
 	limit = ALIGN(limit, PAGE_SIZE);
@@ -122,7 +123,7 @@ int kpm_enable(void *base, size_t limit) {
  * @limit: Size of the region
  *
  */
-int kpm_disable(void *base, size_t limit) {
+int kpm_disable(physaddr_t base, size_t limit) {
 	if (!ISALIGNED(base, PAGE_SIZE))
 		return -1;
 	if (!ISALIGNED(limit, PAGE_SIZE))
@@ -149,7 +150,7 @@ int kpm_disable(void *base, size_t limit) {
  * @addr: the address to check
  *
  */
-int kpm_isenabled(void *addr) {
+int kpm_isenabled(physaddr_t addr) {
 	return bitmap_get_at(&buddy->enabled_frames, (uintptr_t)addr / PAGE_SIZE);
 }
 
@@ -162,7 +163,7 @@ int kpm_isenabled(void *addr) {
  * @addr: the address to check
  *
  */
-int kpm_isalloc(void *addr) {
+int kpm_isalloc(physaddr_t addr) {
 	return bitmap_get_at(&buddy->orders.layers[0], (uintptr_t)addr / PAGE_SIZE);
 }
 
@@ -176,6 +177,19 @@ int kpm_isalloc(void *addr) {
  * is no contiguous block big enough. In this case, subsequent calls will
  * be needed to get the remaining chunks.
  */
+physaddr_t kpm_alloc_zone(size_t size) {
+	size_t len = size / PAGE_SIZE;
+	int index = bitmaptree_get_fit(&buddy->orders, len);
+	if (index <= 0)
+		return PHYSADDR(0);
+	size_t nset = bitmaptree_set_from(&buddy->orders, (size_t)index, len, 1);
+	if (nset < 0)
+		return PHYSADDR(0);
+	buddy->nfree -= nset;
+	return PHYSADDR(index * PAGE_SIZE);
+}
+
+
 int kpm_alloc_chunk(kpm_chunk_t *chunk, size_t size) {
 	size_t len = size / PAGE_SIZE;
 	for (;len > 0; len /= 2) {

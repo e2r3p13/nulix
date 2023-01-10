@@ -24,7 +24,7 @@ struct bitmaptree {
 	size_t size;
 };
 
-int bitmaptree_alloc(struct bitmaptree *bmt, size_t nleafs, size_t height, int type);
+int bitmaptree_alloc(struct bitmaptree *bmt, size_t nleafs, size_t height, int flag);
 
 int bitmaptree_init(struct bitmaptree *bmt, size_t nleafs, struct bitmap *layers,
 					size_t height, uint8_t *array, size_t size);

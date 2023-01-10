@@ -6,7 +6,7 @@
  * Entrypoint of the KFS kernel
  *
  * created: 2022/10/11 - lfalkau <lfalkau@student.42.fr>
- * updated: 2023/01/19 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/10 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/gdt.h>
@@ -34,17 +34,14 @@ static int kernel_init(unsigned long multiboot_info_addr) {
 	sb_current = sb;
 	sb_load(sb_current);
 
-	if (kmalloc_eternal_init() < 0) {
-		return -1;
-	}
-
-	if (kmalloc_fix_init() < 0) {
-		return -1;
-	}
-
 	pic_8259_init(PIC1_OFFSET, PIC2_OFFSET);
 	gdt_init();
 	idt_init();
+
+	if (kmalloc_init() < 0) {
+		return -1;
+	}
+
 	KBD_initialize();
 
 	multiboot_info_t *mbi = (multiboot_info_t *)multiboot_info_addr;
