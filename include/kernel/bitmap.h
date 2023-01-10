@@ -24,7 +24,7 @@ struct bitmap {
 	size_t	size;
 };
 
-int bitmap_alloc(struct bitmap *bitmap, size_t len, int type);
+int bitmap_alloc(struct bitmap *bitmap, size_t len, int flag);
 
 int bitmap_init(struct bitmap *bitmap, size_t len, uint8_t *array, size_t size);
 

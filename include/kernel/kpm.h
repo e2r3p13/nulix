@@ -99,6 +99,7 @@ int kpm_isalloc(void *addr);
  */
 //int kpm_alloc(kpm_chunk_t *chunk, size_t size);
 int kpm_alloc(struct kpm_chunk_head *head, size_t size);
+physaddr_t kpm_alloc_zone(size_t size);
 
 /*
  * Release the buddy node starting at addr @addr

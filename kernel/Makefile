@@ -77,7 +77,7 @@ clean: clean-subdir
 # SUBDIR
 .PHONY: build-subdir
 build-subdir:
-	@for subd in ${subdir}; do \
+	@set -e ;for subd in ${subdir}; do \
 		${MAKE} -C $$subd builddir=${builddir} all; \
 	done
 

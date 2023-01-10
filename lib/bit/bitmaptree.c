@@ -6,30 +6,28 @@
  * Bitmap tree function handler
  *
  * created: 2023/01/05 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/09 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/10 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/bitmaptree.h>
 #include <kernel/kmalloc.h>
 
-int bitmaptree_alloc(struct bitmaptree *bmt, size_t nleafs, size_t height, int type) {
+int bitmaptree_alloc(struct bitmaptree *bmt, size_t nleafs, size_t height, int flag) {
 	if (!nleafs || !height)
 		return -1;
 	if (!(nleafs >> (height - 1)))
 		return -1;
 	
-	struct bitmap *layers = kmalloc(height * sizeof(struct bitmap), type);
+	struct bitmap *layers = kmalloc(height * sizeof(struct bitmap), flag);
 	if (!layers)
 		return -1;
 
 	size_t size = 0;
 	for (size_t i = 0, n = nleafs; i < height; i++, n /= 2) {
-		if (bitmap_alloc(&layers[i], n, type) < 0) {
-			if (type != KMZ_ETERNAL) {
-				for (; i != 0; i--)
-					kfree(layers[i - 1].array);
-				kfree(layers);
-			}
+		if (bitmap_alloc(&layers[i], n, flag) < 0) {
+			for (; i != 0; i--)
+				kfree(layers[i - 1].array);
+			kfree(layers);
 			return -1;
 		}
 		size += layers[i].size;

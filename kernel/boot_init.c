@@ -6,7 +6,7 @@
  * Initialize temporary boot pages and load them in cr3
  *
  * created: 2022/12/12 - xlmod <glafond-@student.42.fr>
- * updated: 2023/01/09 - xlmod <glafond-@student.42.fr>
+ * updated: 2023/01/10 - glafond- <glafond-@student.42.fr>
  */
 
 #include <stdint.h>
@@ -15,6 +15,8 @@
 #include <kernel/kernel.h>
 #include <kernel/string.h>
 #include <kernel/memory.h>
+
+extern uint32_t sym_heap;
 
 /*
  * Create a page directory and a page table and map the first 4M at virtual
@@ -39,7 +41,7 @@ void boot_init() {
 	for (uint32_t pindex = 0; pindex < PAGE_TABLE_LENGTH; pindex++)
 		(page_init - KERNEL_VIRT_OFFSET)(page_table2 + pindex, (void *)((pindex * PAGE_SIZE) + 0x400000), 1, 0);
 
-	(page_init - KERNEL_VIRT_OFFSET)(page_directory + ((PHYSMEM_KMFIX_ADDR + KERNEL_VIRT_OFFSET) >> 22), page_table2, 1, 0);
+	(page_init - KERNEL_VIRT_OFFSET)(page_directory + (((uintptr_t)&sym_heap) >> 22), page_table2, 1, 0);
 
 	// Load the page directory to cr3 to tell the cpu to using this page directory
 	// to resolve virtual address.

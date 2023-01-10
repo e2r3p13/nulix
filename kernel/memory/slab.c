@@ -6,7 +6,7 @@
  * Slab allocator
  *
  * created: 2023/01/09 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/09 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/10 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/slab.h>
@@ -19,11 +19,11 @@ int slab_init(struct slab *slab, size_t nobj, size_t objsize) {
 	if (!nobj || !objsize)
 		return -1;
 
-	slab->zone = kzalloc(nobj * objsize, KMZ_ETERNAL);
+	slab->zone = kzalloc(nobj * objsize, KMF_NOFAIL);
 	if (!slab->zone)
 		return -1;
 
-	if (bitmap_alloc(&slab->bm, nobj, KMZ_ETERNAL))
+	if (bitmap_alloc(&slab->bm, nobj, KMF_NOFAIL))
 		return -1;
 
 	slab->objsize = objsize;

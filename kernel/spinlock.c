@@ -6,7 +6,7 @@
  * Light spinlock library implementation
  *
  * created: 2022/10/18 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/10/19 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2023/01/10 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/spinlock.h>
@@ -22,8 +22,8 @@
  * 1 if the lock is busy
  *
  */
-static inline int acquire_or_one(struct kspin *ks) {
-	return __sync_val_compare_and_swap(&ks->lock, 0, 1);
+static inline int acquire_or_one(spinlock_t *lock) {
+	return __sync_val_compare_and_swap(lock, 0, 1);
 }
 
 /*
@@ -31,9 +31,8 @@ static inline int acquire_or_one(struct kspin *ks) {
  * No particular locking mechanism involved here
  *
  */
-void kspin_init(struct kspin *ks, void *data) {
-	ks->lock = 0;
-	ks->data = data;
+void kspin_init(spinlock_t *lock) {
+	*lock = 0;
 }
 
 /*
@@ -42,9 +41,8 @@ void kspin_init(struct kspin *ks, void *data) {
  *
  * Returns the locked data when the lock is acquired
  */
-void *kspin_lock(struct kspin *ks) {
-	while (acquire_or_one(ks) == 1);
-	return ks->data;
+void kspin_lock(spinlock_t *lock) {
+	while (acquire_or_one(lock) == 1);
 }
 
 /* Tries to lock the spinlock, and returns immediately
@@ -52,8 +50,8 @@ void *kspin_lock(struct kspin *ks) {
  *
  * Returns 0 if the lock has been aquered, -1 otherwise
  */
-int kspin_trylock(struct kspin *ks) {
-	return -acquire_or_one(ks);
+int kspin_trylock(spinlock_t *lock) {
+	return -acquire_or_one(lock);
 }
 
 /*
@@ -61,7 +59,7 @@ int kspin_trylock(struct kspin *ks) {
  * No locking mechanism involved here
  *
  */
-void kspin_drop(struct kspin *ks) {
-	ks->lock = 0;
+void kspin_drop(spinlock_t *lock) {
+	*lock = 0;
 }
 

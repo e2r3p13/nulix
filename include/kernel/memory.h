@@ -6,7 +6,7 @@
  * Memory related defines, typedefs and functions.
  *
  * created: 2022/11/19 - lfalkau <lfalkau@student.42.fr>
- * updated: 2023/01/09 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/10 - glafond- <glafond-@student.42.fr>
  */
 
 #ifndef MEMORY_H
@@ -28,18 +28,18 @@
 
 // Address typedefs
 typedef void* physaddr_t;
+#define PHYSADDR(x) (physaddr_t)(x);
+
 typedef void* virtaddr_t;
+#define VIRTADDR(x) (physaddr_t)(x);
 
-// Physocal Memory mapping
-#define PHYSMEM_NULLPAGE_ADDR	0
-#define PHYSMEM_KERNEL_ADDR		(1 * MB)
+// Physical Memory mapping
+#define PHYSMEM_NULLPAGE_ADDR	PHYSADDR(0)
+#define PHYSMEM_KERNEL_ADDR		PHYSADDR(1 * MB)
 
-#define PHYSMEM_KMETERNAL_ADDR	(2 * MB)
+#define PHYSMEM_KMETERNAL_ADDR	PHYSADDR(2 * MB)
 #define PHYSMEM_KMETERNAL_SIZE	(2 * MB)
 
-#define PHYSMEM_KMFIX_ADDR		(4 * MB)
-#define PHYSMEM_KMFIX_SIZE		(4 * MB)
-
-#define PHYSMEM_KMHEAP_ADDR		(8 * MB)
+#define PHYSMEM_KMHEAP_ADDR		PHYSADDR(8 * MB)
 
 #endif
