@@ -7,15 +7,15 @@
  * and interrupts
  *
  * created: 2022/10/18 - xlmod <glafond-@student.42.fr>
- * updated: 2023/01/05 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/10 - xlmod <glafond-@student.42.fr>
  */
 
 #include <stdint.h>
-#include <kernel/print.h>
+#include <kernel/kmalloc.h>
 
 #include "idt_internal.h"
 
-t_idt_entry *idt = (t_idt_entry *)0x5000;
+t_idt_entry *idt;
 t_idt_ptr idtp;
 
 // Set up a descriptor
@@ -30,7 +30,9 @@ void idt_set_descriptor(uint8_t idt_index, void *isr_addr, uint8_t flags) {
 }
 
 void idt_init() {
-	idtp.limit = sizeof(t_idt_entry) * 256;
+	size_t idtbytes = sizeof(t_idt_entry) * 256;
+	idt = (t_idt_entry *)kmalloc(idtbytes, KMF_NOFAIL);
+	idtp.limit = idtbytes;
 	idtp.base = (uint32_t)idt;
 
 	idt_set_descriptor(ISR_DE, divide_error_handler, TRAP_GATE_FLAGS);

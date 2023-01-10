@@ -6,18 +6,19 @@
  * Fill the gdt entries and load it.
  *
  * created: 2022/10/18 - mrxx0 <chcoutur@student.42.fr>
- * updated: 2022/12/09 - xlmod <glafond-@student.42.fr>
+ * updated: 2023/01/10 - xlmod <glafond-@student.42.fr>
  */
 
 #include <stdint.h>
 #include <kernel/gdt.h>
+#include <kernel/kmalloc.h>
 
 #include "gdt_internal.h"
 
 extern void gdt_flush();
 
 /* Pointer to the gdt. */
-t_gdt_entry *gdt = (t_gdt_entry *)GDT_BASE_ADDRESS;
+t_gdt_entry *gdt;
 
 /* Store a pointer to the gdt and its size. */
 t_gdt_ptr gdtp;
@@ -41,7 +42,9 @@ static void gdt_set_gate(int num, uint32_t base, uint32_t limit, uint8_t access,
  */
 void gdt_init()
 {
-	gdtp.limit = (sizeof(t_gdt_entry) * GDT_SIZE);
+	size_t gdtbytes = sizeof(t_gdt_entry) * GDT_SIZE;
+	gdt = (t_gdt_entry *)kmalloc(gdtbytes, KMF_NOFAIL);
+	gdtp.limit = gdtbytes;
 	gdtp.base = (uint32_t)gdt;
 	gdt_set_gate(GDT_ENTRY_NULL,	GDT_ENTRY_NULL,		GDT_ENTRY_NULL,		GDT_ENTRY_NULL,							GDT_ENTRY_NULL);	// NULL descriptor
 	gdt_set_gate(GDT_KERNEL_CODE,	GDT_BASE_SEGMENT,	GDT_KERNEL_LIMIT,	(uint8_t)(GDT_KERNEL_CODE_ACCESS),		GDT_GRAN_BASE);		// Kernel Mode Code Segment

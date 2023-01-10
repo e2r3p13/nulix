@@ -6,7 +6,7 @@
  * Kmalloc functions
  *
  * created: 2023/01/09 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/10 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/10 - xlmod <glafond-@student.42.fr>
  */
 
 #include <stddef.h>
@@ -16,13 +16,13 @@
 #include <kernel/string.h>
 #include <kernel/bitmaptree.h>
 #include <kernel/kpm.h>
+#include <kernel/symbole.h>
 
 #include "kmalloc_internal.h"
 
 #include <kernel/print.h>
 
-extern uint32_t ek;
-virtaddr_t brkptr = VIRTADDR(&ek);
+virtaddr_t brkptr = VIRTADDR(SYM_KERNEL_END);
 
 static struct kmalloc km;
 static struct km_block km_initial_block;

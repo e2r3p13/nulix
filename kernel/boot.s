@@ -6,7 +6,7 @@
  * Boot sector of our kernel
  *
  * created: 2022/10/11 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/12/15 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/11 - xlmod <glafond-@student.42.fr>
  */
 
 .global stack_top
@@ -36,7 +36,7 @@ multiboot_stack_top:
 # Reserve a temporary stack to use before allocation of a new one
 .section .bootstrap_stack, "aw",@nobits
 stack_bottom:
-	.skip 4096
+	.skip 16384
 stack_top:
 
 .section .bss, "aw", @nobits
