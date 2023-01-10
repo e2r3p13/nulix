@@ -40,6 +40,21 @@ SECTIONS
 		*(.bootstrap_stack)
 	}
 
+	.buddy ALIGN (4K) : AT (ADDR (.buddy) - 0xC0000000) {
+		*(.buddy)
+	}
+
+	.heap ALIGN (4K) : AT (ADDR (.heap) - 0xC0000000) {
+		sym_heap = .;
+		*(.heap)
+	}
+
 	ek = .;
+	/*
+	. += 0xffbff000 - ek;
+
+	.stack ALIGN (4K) : AT (ADDR (.stack) - (0xC0000000 + (0xffbff000 - ek))) {
+	}
+		*/
 
 }

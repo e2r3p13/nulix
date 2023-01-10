@@ -6,20 +6,17 @@
  * Header of the spinlock module: kernel/spinlock.c
  *
  * created: 2022/10/18 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/10/19 - lfalkau <lfalkau@student.42.fr>
+ * updated: 2023/01/10 - glafond- <glafond-@student.42.fr>
  */
 
 #ifndef SPINLOCK_H
 #define SPINLOCK_H
 
-struct kspin {
-	int lock;
-	void *data;
-};
+typedef int spinlock_t;
 
-void kspin_new(struct kspin *ks, void *data);
-void *kspin_lock(struct kspin *ks);
-int kspin_trylock(struct kspin *ks);
-void kspin_drop(struct kspin *ks);
+void kspin_init(spinlock_t *lock);
+void kspin_lock(spinlock_t *lock);
+int kspin_trylock(spinlock_t *lock);
+void kspin_drop(spinlock_t *lock);
 
 #endif

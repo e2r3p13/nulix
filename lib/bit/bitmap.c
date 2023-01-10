@@ -6,23 +6,22 @@
  * Bitmap struct functions
  *
  * created: 2023/01/05 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/09 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/10 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/bitmap.h>
 #include <kernel/print.h>
 #include <kernel/kmalloc.h>
 
-int bitmap_alloc(struct bitmap *bitmap, size_t len, int type) {
+int bitmap_alloc(struct bitmap *bitmap, size_t len, int flag) {
 	if (!len)
 		return -1;
 	size_t size = ((len - 1) / 8) + 1;
-	void *array = kmalloc(size * sizeof(uint8_t), type);
+	void *array = kmalloc(size * sizeof(uint8_t), flag);
 	if (!array)
 		return -1;
 	if (bitmap_init(bitmap, len, array, size) < 0) {
-		if (type != KMZ_ETERNAL)
-			kfree(array);
+		kfree(array);
 		return -1;
 	}
 	return 0;
