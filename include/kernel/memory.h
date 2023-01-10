@@ -6,7 +6,7 @@
  * Memory related defines, typedefs and functions.
  *
  * created: 2022/11/19 - lfalkau <lfalkau@student.42.fr>
- * updated: 2023/01/10 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/10 - xlmod <glafond-@student.42.fr>
  */
 
 #ifndef MEMORY_H
@@ -28,10 +28,10 @@
 
 // Address typedefs
 typedef void* physaddr_t;
-#define PHYSADDR(x) (physaddr_t)(x);
+#define PHYSADDR(x) ((physaddr_t)(x))
 
 typedef void* virtaddr_t;
-#define VIRTADDR(x) (physaddr_t)(x);
+#define VIRTADDR(x) ((physaddr_t)(x))
 
 // Physical Memory mapping
 #define PHYSMEM_NULLPAGE_ADDR	PHYSADDR(0)
