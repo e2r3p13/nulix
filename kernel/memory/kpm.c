@@ -6,7 +6,7 @@
  * Kernel Physical Memory management
  *
  * created: 2022/11/23 - lfalkau <lfalkau@student.42.fr>
- * updated: 2023/01/10 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/10 - xlmod <glafond-@student.42.fr>
  */
 
 #include <kernel/kpm.h>
@@ -17,6 +17,7 @@
 #include <kernel/bitmaptree.h>
 #include <kernel/slab.h>
 #include <kernel/memory.h>
+#include <kernel/symbole.h>
 
 #include <kernel/list.h>
 
@@ -25,9 +26,6 @@
 buddy_t *buddy;
 struct bitmap orders[KPM_NORDERS];
 struct slab chunk_slab;
-
-extern uint32_t sk;
-extern uint32_t ek;
 
 __attribute__ ((section(".buddy"))) static uint8_t kpm_buddy_reserved_memory[KPM_MAX_BUDDY_SIZE];
 
@@ -83,7 +81,7 @@ int kpm_init(struct multiboot_mmap_entry *entries, size_t count, size_t memkb) {
 
 	if (kpm_disable((void *)0, 1 * MB) < 0)
 		return -1;
-	if (kpm_disable(&sk, ((uintptr_t)&ek - KERNEL_VIRT_OFFSET)) < 0)
+	if (kpm_disable((void *)SYM_KERNEL_START, SYM_KERNEL_END - SYM_KERNEL_START) < 0)
 		return -1;
 
 	return 0;

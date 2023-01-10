@@ -13,9 +13,9 @@
 
 #define VGA_WIDTH	80
 #define VGA_HEIGHT	25
-#define VGA_PTR		(uint16_t *)0xB8000
+#define VGA_PTR		(uint16_t *)0xc00B8000
 
-#define SB_HEIGHT		VGA_HEIGHT * 8
+#define SB_HEIGHT		VGA_HEIGHT * 16
 
 enum sb_color {
 	SB_COLOR_BLACK = 0,
