@@ -6,7 +6,7 @@
  * Kmalloc header
  *
  * created: 2023/01/09 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/10 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/11 - glafond- <glafond-@student.42.fr>
  */
 
 #ifndef KMALLOC_H

@@ -6,7 +6,7 @@
  * Bitmap tree function handler
  *
  * created: 2023/01/05 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/10 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/11 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/bitmaptree.h>
@@ -140,8 +140,10 @@ int bitmaptree_update(struct bitmaptree *bmt, size_t index, size_t len) {
 	if (!len || index + len > bmt->nleafs)
 		return -1;
 
+	size_t previndex = index;
 	for (size_t l = 1, i = index / 2; l < bmt->height; l++, i /= 2) {
-		len = (len + 1) / 2;
+		len = ((len + 1 + (previndex % 2)) / 2);
+		previndex /= 2;
 		for (size_t count = i; count < i + len; count++) {
 			int val = bitmap_get_at(&bmt->layers[l - 1], (count * 2))
 					+ bitmap_get_at(&bmt->layers[l - 1], (count * 2) + 1);
