@@ -6,7 +6,7 @@
  * Entrypoint of the KFS kernel
  *
  * created: 2022/10/11 - lfalkau <lfalkau@student.42.fr>
- * updated: 2023/01/11 - xlmod <glafond-@student.42.fr>
+ * updated: 2023/01/11 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/gdt.h>
@@ -35,28 +35,8 @@ static int kernel_init(unsigned long multiboot_info_addr) {
 	sb_current = sb;
 	sb_load(sb_current);
 
-	kprintf("SYM_KERNEL_VIRT_START: %p\n", SYM_KERNEL_VIRT_START);
-	kprintf("SYM_KERNEL_END:        %p\n", SYM_KERNEL_END);
-	kprintf("SYM_TEXT:         %8p\n", SYM_TEXT);
-	kprintf("SYM_VIRT_TEXT:    %8p\n", SYM_VIRT_TEXT);
-	kprintf("SYM_RODATA:       %8p\n", SYM_RODATA);
-	kprintf("SYM_VIRT_RODATA:  %8p\n", SYM_VIRT_RODATA);
-	kprintf("SYM_DATA:         %8p\n", SYM_DATA);
-	kprintf("SYM_VIRT_DATA:    %8p\n", SYM_VIRT_DATA);
-	kprintf("SYM_BSS:          %8p\n", SYM_BSS);
-	kprintf("SYM_VIRT_BSS:     %8p\n", SYM_VIRT_BSS);
-	kprintf("SYM_BUDDY:        %8p\n", SYM_BUDDY);
-	kprintf("SYM_VIRT_BUDDY:   %8p\n", SYM_VIRT_BUDDY);
-	kprintf("SYM_STACK:        %8p\n", SYM_STACK);
-	kprintf("SYM_VIRT_STACK:   %8p\n", SYM_VIRT_STACK);
-	kprintf("SYM_HEAP:         %8p\n", SYM_HEAP);
-	kprintf("SYM_VIRT_HEAP:    %8p\n", SYM_VIRT_HEAP);
-	kprintf("STACK_TOP:        %8p\n", STACK_TOP);
-	kprintf("STACK_BOTTOM:     %8p\n", STACK_BOTTOM);
-
-	if (kmalloc_init() < 0) {
+	if (kmalloc_init() < 0)
 		return -1;
-	}
 
 	pic_8259_init(PIC1_OFFSET, PIC2_OFFSET);
 	gdt_init();
