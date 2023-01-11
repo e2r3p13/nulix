@@ -6,7 +6,7 @@
  * Bitmap struct functions
  *
  * created: 2023/01/05 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/10 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/11 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/bitmap.h>
@@ -77,8 +77,9 @@ int bitmap_set_from(struct bitmap *bitmap, size_t index, size_t len, int value) 
 		return -1;
 	for (size_t ai = array_index; len > 0; ai++) {
 		for (size_t bi = bit_index; bi < 8 && len > 0; bi++, len--) {
-			if ((bitmap_get_at(bitmap, (ai * 8) + bi) ^ (value && 1))) 
+			if ((bitmap_get_at(bitmap, (ai * 8) + bi) ^ (value && 1))) {
 				nset++;
+			}
 			if (value)
 				bitmap->array[ai] |= (1 << bi);
 			else
