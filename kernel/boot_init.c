@@ -6,7 +6,7 @@
  * Initialize temporary boot pages and load them in cr3
  *
  * created: 2022/12/12 - xlmod <glafond-@student.42.fr>
- * updated: 2023/01/11 - xlmod <glafond-@student.42.fr>
+ * updated: 2023/01/12 - glafond- <glafond-@student.42.fr>
  */
 
 #include <stdint.h>
@@ -30,7 +30,7 @@ void boot_init() {
 	struct page_entry *page_table2 = (struct page_entry *)0x3000;
 	struct page_entry *page_table3 = (struct page_entry *)0x4000;
 
-	(memset - KERNEL_VIRT_OFFSET)(page_directory, 0, PAGE_DIRECTORY_LENGTH);
+	(memset - KERNEL_VIRT_OFFSET)(page_directory, 0, PAGE_DIR_LENGTH);
 	(page_init - KERNEL_VIRT_OFFSET)(page_directory + LAST_PAGE_ENTRY, page_directory, 1, 0);
 
 	(page_init - KERNEL_VIRT_OFFSET)(page_table1 + (0xb8000 / PAGE_SIZE), (void *)0xb8000, 1, 0);

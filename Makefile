@@ -24,7 +24,7 @@ LDFLAGS+= -T ${archdir}/linker.ld
 QEMU:= qemu-system-i386
 QEMUFLAGS+= -serial stdio --enable-kvm -d cpu_reset
 GRUBMK:=grub2-mkrescue
-GRUBMKFLAGS+=--compress=xz
+#GRUBMKFLAGS+=--compress=xz
 #GRUBMOD:=--install-modules="normal multiboot2 part_gpt part_acorn part_apple\
 #		part_bsd part_amiga part_dfly part_dvh part_plan part_sun part_sunpc"
 

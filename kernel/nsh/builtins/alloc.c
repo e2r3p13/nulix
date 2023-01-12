@@ -6,7 +6,7 @@
  * Allocate builtin file
  *
  * created: 2022/12/13 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/08 - xlmod <glafond-@student.42.fr>
+ * updated: 2023/01/12 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/kpm.h>
@@ -40,7 +40,7 @@ void alloc_print() {
 		kprintf("Allocation %d/%d\n", index, MAXALLOC);
 		uint8_t oldcolor = sb_get_color(sb_current);
 		sb_set_fg(sb_current, SB_COLOR_GREEN);
-		TAILQ_FOREACH(chunk, &chunk_heads[index], list) {
+		TAILQ_FOREACH(chunk, &chunk_heads[index], next) {
 			kprintf("chunk: {\n    addr = %p\n    size = %u\n}\n", chunk->addr, chunk->size);
 		}
 		sb_set_color(sb_current, oldcolor);
@@ -92,7 +92,7 @@ int alloc(int argc, char **argv) {
 	kprintf("Allocation %d/%d\n", index, MAXALLOC);
 	uint8_t oldcolor = sb_get_color(sb_current);
 	sb_set_fg(sb_current, SB_COLOR_GREEN);
-	TAILQ_FOREACH(chunk, &chunk_heads[index], list) {
+	TAILQ_FOREACH(chunk, &chunk_heads[index], next) {
 		kprintf("chunk: {\n    addr = %p\n    size = %u\n}\n", chunk->addr, chunk->size);
 	}
 	sb_set_color(sb_current, oldcolor);

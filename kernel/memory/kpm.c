@@ -223,7 +223,7 @@ int kpm_alloc(struct kpm_chunk_head *head, size_t size) {
 		struct kpm_chunk *c = (struct kpm_chunk *)kmalloc(sizeof(struct kpm_chunk), KMF_NOFAIL);
 		if (!c) {
 			while ((c = TAILQ_FIRST(head))) {
-				TAILQ_REMOVE(head, c, list);
+				TAILQ_REMOVE(head, c, next);
 				kfree(c);
 			}
 			return -1;
@@ -231,13 +231,13 @@ int kpm_alloc(struct kpm_chunk_head *head, size_t size) {
 		if (kpm_alloc_chunk(c, size) < 0) {
 			kfree(c);
 			while ((c = TAILQ_FIRST(head))) {
-				TAILQ_REMOVE(head, c, list);
+				TAILQ_REMOVE(head, c, next);
 				kfree(c);
 			}
 			kprintf("2\n");
 			return -1;
 		}
-		TAILQ_INSERT_TAIL(head, c, list);
+		TAILQ_INSERT_TAIL(head, c, next);
 		if (size < c->size)
 			break;
 		size -= c->size;
@@ -265,7 +265,7 @@ int kpm_free(struct kpm_chunk_head *head) {
 	while ((c = TAILQ_FIRST(head))) {
 		if (kpm_free_chunk(c))
 			return -1;
-		TAILQ_REMOVE(head, c, list);
+		TAILQ_REMOVE(head, c, next);
 		kfree(c);
 	}
 }
