@@ -17,15 +17,12 @@ LDFLAGS+=
 
 # BUILD VAR
 subdir:= \
-		 vmm \
 
 builddir?= build
 
 src-y:= \
-	kpm.c \
-	paging.c \
-	kmalloc.c \
-	slab.c \
+	vmzone.c \
+	vmmap.c \
 
 objs:= $(addprefix ${builddir}/, ${src-y})
 objs:= ${objs:.c=.o}

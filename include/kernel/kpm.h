@@ -65,7 +65,7 @@ typedef struct buddy {
 typedef struct kpm_chunk {
 	void *addr;
 	size_t size;
-	TAILQ_ENTRY(kpm_chunk) list;
+	TAILQ_ENTRY(kpm_chunk) next;
 } kpm_chunk_t;
 
 TAILQ_HEAD(kpm_chunk_head, kpm_chunk);
