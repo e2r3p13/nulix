@@ -6,7 +6,7 @@
  * Kmalloc functions
  *
  * created: 2023/01/09 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/11 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/12 - glafond- <glafond-@student.42.fr>
  */
 
 #include <stddef.h>
@@ -92,7 +92,7 @@ void *kmalloc(size_t size, int flag) {
 			if (!ptr)
 				continue;
 			kspin_drop(&km.lock);
-			return ptr;
+			return VIRTADDR(ptr);
 		}
 	}
 	if (flag == KMF_NOFAIL) {
@@ -102,20 +102,20 @@ void *kmalloc(size_t size, int flag) {
 			virtaddr_t ptr = km_alloc_from(block, index, requested_chunks);
 			if (ptr) {
 				kspin_drop(&km.lock);
-				return ptr;
+				return VIRTADDR(ptr);
 			}
 		}
 		kspin_drop(&km.lock);
-		return VIRTADDR(0);
+		return VIRTADDR(NULL);
 	} else if (flag == KMF_NORMAL && 0) { // TODO: Remove && 0
 		kspin_drop(&km.lock);
 		size_t zonesize = ALIGNNEXT(size, (KM_MEMORY_CHUNK_SIZE << (KM_BMT_NLAYERS - 1)));
 		physaddr_t zone = kpm_alloc_zone(zonesize);
 		if (!zone)
-			return VIRTADDR(0);
+			return VIRTADDR(NULL);
 		struct km_block *new = (struct km_block *)kmalloc(sizeof(struct km_block), KMF_NOFAIL);
 		if (!new)
-			return VIRTADDR(0);
+			return VIRTADDR(NULL);
 		new->paddr = PHYSADDR(zone);
 		new->size = zonesize;
 		new->nchunk = zonesize / KM_MEMORY_CHUNK_SIZE;
@@ -123,15 +123,15 @@ void *kmalloc(size_t size, int flag) {
 		if (bitmaptree_alloc(&new->bmt, new->nchunk, KM_BMT_NLAYERS, KMF_NOFAIL) < 0) {
 			kfree(new);
 			//TODO: Add kpm_free
-			return VIRTADDR(0);
+			return VIRTADDR(NULL);
 		}
 		TAILQ_INSERT_TAIL(&km.block_list, new, next);
 		// TODO: Use mapping function to map the new zone to virtual space and alloc the needed space.
 		kspin_drop(&km.lock);
-		return VIRTADDR(0);
+		return VIRTADDR(NULL);
 	}
 	kspin_drop(&km.lock);
-	return VIRTADDR(0);
+	return VIRTADDR(NULL);
 }
 
 // Check emergency pool after all block
@@ -140,6 +140,8 @@ void *kmalloc(size_t size, int flag) {
  *
  */
 void kfree(void *addr) {
+	if (!addr)
+		return;
 	kspin_lock(&km.lock);
 	struct km_header *kmh = (struct km_header *)(addr - sizeof(struct km_header));
 	struct km_block *block;
@@ -182,6 +184,8 @@ void kfree(void *addr) {
  *
  */
 void *krealloc(void *addr, size_t size, int flag) {
+	if (!addr)
+		return VIRTADDR(NULL);
 	kspin_lock(&km.lock);
 	size = ALIGNNEXT(size + sizeof(struct km_header), KM_MEMORY_CHUNK_SIZE);
 	struct km_header *kmh = (struct km_header *)(addr - sizeof(struct km_header));
@@ -199,7 +203,7 @@ void *krealloc(void *addr, size_t size, int flag) {
 				|| (virtaddr_t)kmh > block->vaddr + block->size
 				|| kmh->data + kmh->allocated_size > block->vaddr + block->size) {
 			kspin_drop(&km.lock);
-			return VIRTADDR(0);
+			return VIRTADDR(NULL);
 		}
 	}
 	if (kmh->allocated_size > size) {
@@ -210,7 +214,7 @@ void *krealloc(void *addr, size_t size, int flag) {
 		int nset = bitmaptree_set_from(&block->bmt, sindex, ssize, 0);
 		if (nset < 0 || nset != ssize) {
 			kspin_drop(&km.lock);
-			return VIRTADDR(0);
+			return VIRTADDR(NULL);
 		}
 		block->nallocated -= nset;
 		kmh->allocated_size = size;
@@ -223,7 +227,7 @@ void *krealloc(void *addr, size_t size, int flag) {
 			int nset = bitmaptree_set_from(&block->bmt, end_index, add_size, 1);
 			if (nset <= 0 || nset != add_size) {
 				kspin_drop(&km.lock);
-				return VIRTADDR(0);
+				return VIRTADDR(NULL);
 			}
 			block->nallocated += nset;
 			kmh->allocated_size = size;
@@ -232,11 +236,11 @@ void *krealloc(void *addr, size_t size, int flag) {
 			void *naddr = kmalloc(size - sizeof(struct km_header), flag);
 			if (!naddr) {
 				kprintf("3\n");
-				return VIRTADDR(0);
+				return VIRTADDR(NULL);
 			}
 			memcpy(naddr, addr, kmh->allocated_size);
 			kfree(addr);
-			return naddr;
+			return VIRTADDR(naddr);
 		}
 	}
 	kspin_drop(&km.lock);
@@ -250,7 +254,7 @@ void *krealloc(void *addr, size_t size, int flag) {
 void *kzalloc(size_t size, int flag) {
 	void *ptr = kmalloc(size, flag); 
 	if (!ptr)
-		return NULL;
+		return VIRTADDR(NULL);
 	memset(ptr, 0, ALIGNNEXT(size, KM_MEMORY_CHUNK_SIZE));
-	return ptr;
+	return VIRTADDR(ptr);
 }
