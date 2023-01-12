@@ -49,7 +49,7 @@ SECTIONS
 	}
 
 	tmp0 = .;
-	tmp_stack_virt = 0xffbfc000;
+	tmp_stack_virt = 0xffbfb000;
 	. += tmp_stack_virt - tmp0;
 	.stack ALIGN (4K) : AT (ADDR (.stack) - (kernel_virt_offset + (tmp_stack_virt - tmp0))) {
 		sym_virt_stack = .;
