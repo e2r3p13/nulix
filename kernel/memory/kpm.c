@@ -6,7 +6,7 @@
  * Kernel Physical Memory management
  *
  * created: 2022/11/23 - lfalkau <lfalkau@student.42.fr>
- * updated: 2023/01/10 - xlmod <glafond-@student.42.fr>
+ * updated: 2023/01/12 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/kpm.h>
@@ -15,17 +15,18 @@
 #include <kernel/kernel.h>
 #include <kernel/bitmap.h>
 #include <kernel/bitmaptree.h>
-#include <kernel/slab.h>
 #include <kernel/memory.h>
 #include <kernel/symbole.h>
+#include <kernel/kmalloc.h>
 
 #include <kernel/list.h>
 
-#define KPM_MAX_BUDDY_SIZE ((((uint32_t)(-1) / PAGE_SIZE) / 8) * 2)
+// Allocate three times the max size of a bitmap of the number of pages 
+// and add 0x200 aproximatly the size of the structs.
+#define KPM_MAX_BUDDY_SIZE ((((uint32_t)(-1) / PAGE_SIZE) / 8) * 3) + 0x200
 
 buddy_t *buddy;
 struct bitmap orders[KPM_NORDERS];
-struct slab chunk_slab;
 
 __attribute__ ((section(".buddy"))) static uint8_t kpm_buddy_reserved_memory[KPM_MAX_BUDDY_SIZE];
 
@@ -75,9 +76,6 @@ int kpm_init(struct multiboot_mmap_entry *entries, size_t count, size_t memkb) {
 				return -1;
 		}
 	}
-
-	if (slab_init(&chunk_slab, buddy->nframes / 2, sizeof(struct kpm_chunk)) < 0)
-		return -1;
 
 	if (kpm_disable((void *)0, 1 * MB) < 0)
 		return -1;
@@ -214,19 +212,19 @@ int kpm_alloc(struct kpm_chunk_head *head, size_t size) {
 	TAILQ_INIT(head);
 
 	while (size) {
-		struct kpm_chunk *c = (struct kpm_chunk *)slab_alloc(&chunk_slab);
+		struct kpm_chunk *c = (struct kpm_chunk *)kmalloc(sizeof(struct kpm_chunk), KMF_NOFAIL);
 		if (!c) {
 			while ((c = TAILQ_FIRST(head))) {
 				TAILQ_REMOVE(head, c, list);
-				slab_free(&chunk_slab, c);
+				kfree(c);
 			}
 			return -1;
 		}
 		if (kpm_alloc_chunk(c, size) < 0) {
-			slab_free(&chunk_slab, c);
+			kfree(c);
 			while ((c = TAILQ_FIRST(head))) {
 				TAILQ_REMOVE(head, c, list);
-				slab_free(&chunk_slab, c);
+				kfree(c);
 			}
 			kprintf("2\n");
 			return -1;
@@ -260,6 +258,6 @@ int kpm_free(struct kpm_chunk_head *head) {
 		if (kpm_free_chunk(c))
 			return -1;
 		TAILQ_REMOVE(head, c, list);
-		slab_free(&chunk_slab, c);
+		kfree(c);
 	}
 }
