@@ -6,7 +6,7 @@
  * Kernel Physical Memory management header file
  *
  * created: 2022/11/23 - lfalkau <lfalkau@student.42.fr>
- * updated: 2023/01/09 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/12 - glafond- <glafond-@student.42.fr>
  */
 
 #ifndef KPM_H
@@ -100,6 +100,7 @@ int kpm_isalloc(void *addr);
 //int kpm_alloc(kpm_chunk_t *chunk, size_t size);
 int kpm_alloc(struct kpm_chunk_head *head, size_t size);
 physaddr_t kpm_alloc_zone(size_t size);
+physaddr_t kpm_alloc_page();
 
 /*
  * Release the buddy node starting at addr @addr

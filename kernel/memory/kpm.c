@@ -164,27 +164,35 @@ int kpm_isalloc(physaddr_t addr) {
 }
 
 /*
- * kpm_alloc searches for the biggest contiguous region, up to
- * @size bytes, and fills the struct @chunk with this candidate.
- *
- * Returns 0 on success, -1 on error
- *
- * NOTE: the returned chunk may be smaller than the requested size if there
- * is no contiguous block big enough. In this case, subsequent calls will
- * be needed to get the remaining chunks.
+ * kpm_alloc_zone searches for contiguous zone of @size bytes and return
+ * the physical address of the zone. Otherwise return PHYSADDR(NULL).
  */
 physaddr_t kpm_alloc_zone(size_t size) {
-	size_t len = size / PAGE_SIZE;
+	size_t len = ALIGNNEXT(size, PAGE_SIZE) / PAGE_SIZE;
 	int index = bitmaptree_get_fit(&buddy->orders, len);
 	if (index <= 0)
-		return PHYSADDR(0);
+		return PHYSADDR(NULL);
 	size_t nset = bitmaptree_set_from(&buddy->orders, (size_t)index, len, 1);
 	if (nset < 0)
-		return PHYSADDR(0);
+		return PHYSADDR(NULL);
 	buddy->nfree -= nset;
 	return PHYSADDR(index * PAGE_SIZE);
 }
 
+/*
+ * kpm_alloc_page searches for a free page and return its
+ * the physical address of the zone. Otherwise return PHYSADDR(NULL).
+ */
+physaddr_t kpm_alloc_page() {
+	int index = bitmap_get_first_zero(&buddy->orders.layers[0]);
+	if (index < 0)
+		return PHYSADDR(NULL);
+	if (bitmap_set_at(&buddy->orders.layers[0], index, 1) < 0)
+		return PHYSADDR(NULL);
+	if (bitmaptree_update(&buddy->orders, index, 1) < 0)
+		return PHYSADDR(NULL);
+	return PHYSADDR(index * PAGE_SIZE);
+}
 
 int kpm_alloc_chunk(kpm_chunk_t *chunk, size_t size) {
 	size_t len = size / PAGE_SIZE;
