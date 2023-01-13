@@ -21,8 +21,10 @@ subdir:= \
 builddir?= build
 
 src-y:= \
+	map.c \
 	vmzone.c \
 	vmmap.c \
+	vmobject.c \
 
 objs:= $(addprefix ${builddir}/, ${src-y})
 objs:= ${objs:.c=.o}
