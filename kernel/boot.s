@@ -80,7 +80,7 @@ kernel_start:
 
 	# Call kernel c entry point with multibool structure in arguments
 	pushl %ebx
-	call kernel_main
+	call kernel_init
 
 1:
 	cli

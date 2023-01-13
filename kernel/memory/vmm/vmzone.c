@@ -6,7 +6,7 @@
  * Virtual Memory Zone functions
  *
  * created: 2023/01/12 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/13 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/17 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <kernel/vmm.h>
@@ -26,11 +26,11 @@ struct vmzone *vmzone_new(virtaddr_t start, virtaddr_t end, char *name,
 		uint32_t flags, struct vmobject *obj, size_t offset) {
 	if (start >= end)
 		return NULL;
-	if (!ISALIGNED(start, PAGE_SIZE) || !ISALIGNED(end, PAGE_SIZE))
+	if (!ISALIGNED(start, PAGE_SIZE))
 		return NULL;
 	if (!(*(struct page_entry_flags *)&flags).present)
 		return NULL;
-	if (offset + (end - start) / PAGE_SIZE > obj->size / PAGE_SIZE)
+	if ((offset + (end - start)) / PAGE_SIZE > obj->size / PAGE_SIZE)
 		return NULL;
 
 	struct vmzone *newzone = kmalloc(sizeof(struct vmzone), KMF_NOFAIL);
@@ -45,7 +45,7 @@ struct vmzone *vmzone_new(virtaddr_t start, virtaddr_t end, char *name,
 	strcpy(newzone->name, name);
 
 	newzone->start = start;
-	newzone->end = end;
+	newzone->end = VIRTADDR(ALIGNNEXT(end, PAGE_SIZE));
 	newzone->flags = *(struct page_entry_flags *)&flags;
 	newzone->offset = offset;
 
@@ -60,7 +60,7 @@ struct vmzone *vmzone_new(virtaddr_t start, virtaddr_t end, char *name,
 /*
  * Free the name, the chunk_list and the ptr of a vmzone
  */
-void vmzone_free(struct vmzone *vmzone) {
+void vmzone_delete(struct vmzone *vmzone) {
 	kspin_lock(&vmzone->obj->lock);
 	if (vmzone->obj->refcount)
 		vmzone->obj->refcount--;

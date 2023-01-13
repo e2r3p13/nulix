@@ -6,7 +6,7 @@
  * Info builtin file
  *
  * created: 2022/12/09 - mrxx0 <chcoutur@student.42.fr>
- * updated: 2023/01/06 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/17 - glafond- <glafond-@student.42.fr>
  */ 
 
 #include <stdint.h>
@@ -16,6 +16,7 @@
 #include <kernel/screenbuf.h>
 #include <kernel/stdlib.h>
 #include <kernel/bitmap.h>
+#include <kernel/paging.h>
 
 #include "../../gdt_internal.h"
 #include "../../idt_internal.h"
@@ -37,7 +38,7 @@ extern struct screenbuf *sb_current;
 #define BLTNAME "info"
 
 static inline void usage() {
-	kprintf("Usage: " BLTNAME " [gdt/idt/stack/buddy/registers]\n");
+	kprintf("Usage: " BLTNAME " [gdt/idt/stack/buddy/registers/pagedir]\n");
 }
 
 static void info_registers() {
@@ -59,6 +60,31 @@ static void info_registers() {
 	PRINT(EFLAGS, reg, "eflags : %b\n");
 	PRINT(CR0, reg, "cr0 : %8b\n");
 	PRINT(CR3, reg, "cr3 : %8p\n");
+}
+
+static void info_pagetable(uint32_t pi, uint32_t addr) {
+	struct page_table_entry *ptab = *(struct page_table_entry **)&addr;
+	int s = 0;
+	for (size_t i = 0; i < PAGE_TABLE_LENGTH; i++) {
+		if (ptab[i].present) {
+			if (!s)
+				kprintf("    %8p -> %8p (w: %u  u: %u)\n", (pi << 22) | (i << 12), ptab[i].address << 12, ptab[i].writable, ptab[i].user);
+			s = 1;
+		} else if (s) {
+			s = 0;
+			kprintf("    %8p -> %8p (w: %u  u: %u)\n", (pi << 22) | ((i - 1) << 12), ptab[i - 1].address << 12, ptab[i - 1].writable, ptab[i - 1].user);
+		}
+	}
+}
+
+static void info_pagedir(uint32_t addr) {
+	struct page_directory_entry *pdir = *(struct page_directory_entry **)&addr;
+	for (size_t i = 0; i < PAGE_DIR_LENGTH; i++) {
+		if (pdir[i].present) {
+			kprintf("%8p -> %8p (w: %u  u: %u)\n", i << 22, pdir[i].address << 12, pdir[i].writable, pdir[i].user);
+			info_pagetable(i, pdir[i].address << 12);
+		}
+	}
 }
 
 static void info_idt() {
@@ -146,6 +172,14 @@ int info(int argc, char **argv) {
 		} else {
 			info_buddy(-1);
 		}
+	} else if (!strcmp(argv[1], "pagedir") && argc > 2) {
+		char *ptr;
+		uint32_t addr = strtoul(argv[2], &ptr, 0);
+		if (*ptr) {
+			kprintf(BLTNAME ": address not formatted correctly\n");
+			return -1;
+		}
+		info_pagedir(addr);
 	} else if (!strcmp(argv[1], "idt")) {
 		info_idt();
 	} else if (!strcmp(argv[1], "registers")) {

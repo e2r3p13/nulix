@@ -28,18 +28,21 @@ SECTIONS
 		sym_text = . - kernel_virt_offset;
 		*(.text)
 	}
+	sym_text_size = . - sym_virt_text;
 
 	.rodata ALIGN (4K) : AT (ADDR (.rodata) - 0xC0000000) {
 		sym_virt_rodata = .;
 		sym_rodata = . - kernel_virt_offset;
 		*(.rodata)
 	}
+	sym_rodata_size = . - sym_virt_rodata;
 
 	.data ALIGN (4K) : AT (ADDR (.data) - 0xC0000000) {
 		sym_virt_data = .;
 		sym_data = . - kernel_virt_offset;
 		*(.data)
 	}
+	sym_data_size = . - sym_virt_data;
 
 	.bss ALIGN (4K) : AT (ADDR (.bss) - 0xC0000000) {
 		sym_virt_bss = .;
@@ -47,6 +50,7 @@ SECTIONS
 		*(COMMON)
 		*(.bss)
 	}
+	sym_bss_size = . - sym_virt_bss;
 
 	tmp0 = .;
 	tmp_stack_virt = 0xffbfb000;
@@ -56,6 +60,7 @@ SECTIONS
 		sym_stack = . - (tmp_stack_virt - tmp0) - kernel_virt_offset;
 		*(.bootstrap_stack)
 	}
+	sym_stack_size = . - sym_virt_stack;
 	. -= tmp_stack_virt - tmp0;
 
 	.buddy ALIGN (4K) : AT (ADDR (.buddy) - 0xC0000000) {
@@ -70,6 +75,7 @@ SECTIONS
 		sym_heap = . - kernel_virt_offset;
 		*(.heap)
 	}
+	sym_heap_size = . - sym_virt_heap;
 
 	sym_kernel_virt_end = .;
 	. -= kernel_virt_offset;
