@@ -6,7 +6,7 @@
  * extern symbole of the kernel
  *
  * created: 2023/01/10 - xlmod <glafond-@student.42.fr>
- * updated: 2023/01/11 - xlmod <glafond-@student.42.fr>
+ * updated: 2023/01/13 - glafond- <glafond-@student.42.fr>
  */
 
 #ifndef SYMBOLE_H
@@ -26,21 +26,29 @@ extern uintptr_t sym_text;
 #define SYM_TEXT ((uintptr_t)&sym_text)
 extern uintptr_t sym_virt_text;
 #define SYM_VIRT_TEXT ((uintptr_t)&sym_virt_text)
+extern uintptr_t sym_text_size;
+#define SYM_TEXT_SIZE ((uintptr_t)&sym_text_size)
 
 extern uintptr_t sym_rodata;
 #define SYM_RODATA ((uintptr_t)&sym_rodata)
 extern uintptr_t sym_virt_rodata;
 #define SYM_VIRT_RODATA ((uintptr_t)&sym_virt_rodata)
+extern uintptr_t sym_rodata_size;
+#define SYM_RODATA_SIZE ((uintptr_t)&sym_rodata_size)
 
 extern uintptr_t sym_data;
 #define SYM_DATA ((uintptr_t)&sym_data)
 extern uintptr_t sym_virt_data;
 #define SYM_VIRT_DATA ((uintptr_t)&sym_virt_data)
+extern uintptr_t sym_data_size;
+#define SYM_DATA_SIZE ((uintptr_t)&sym_data_size)
 
 extern uintptr_t sym_bss;
 #define SYM_BSS ((uintptr_t)&sym_bss)
 extern uintptr_t sym_virt_bss;
 #define SYM_VIRT_BSS ((uintptr_t)&sym_virt_bss)
+extern uintptr_t sym_bss_size;
+#define SYM_BSS_SIZE ((uintptr_t)&sym_bss_size)
 
 extern uintptr_t sym_buddy;
 #define SYM_BUDDY ((uintptr_t)&sym_buddy)
@@ -53,11 +61,15 @@ extern uintptr_t sym_heap;
 #define SYM_HEAP ((uintptr_t)&sym_heap)
 extern uintptr_t sym_virt_heap;
 #define SYM_VIRT_HEAP ((uintptr_t)&sym_virt_heap)
+extern uintptr_t sym_heap_size;
+#define SYM_HEAP_SIZE ((uintptr_t)&sym_heap_size)
 
 extern uintptr_t sym_stack;
 #define SYM_STACK ((uintptr_t)&sym_stack)
 extern uintptr_t sym_virt_stack;
 #define SYM_VIRT_STACK ((uintptr_t)&sym_virt_stack)
+extern uintptr_t sym_stack_size;
+#define SYM_STACK_SIZE ((uintptr_t)&sym_stack_size)
 
 extern uintptr_t stack_top;
 #define STACK_TOP ((uintptr_t)&stack_top)

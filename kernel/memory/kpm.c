@@ -6,7 +6,7 @@
  * Kernel Physical Memory management
  *
  * created: 2022/11/23 - lfalkau <lfalkau@student.42.fr>
- * updated: 2023/01/12 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/13 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/kpm.h>
@@ -243,6 +243,14 @@ int kpm_alloc(struct kpm_chunk_head *head, size_t size) {
 		size -= c->size;
 	}
 	return 0;
+}
+
+void kpm_free_page(physaddr_t addr) {
+	if (!ISALIGNED(addr, PAGE_SIZE)) 
+		return;
+	size_t index = (size_t)addr / PAGE_SIZE;
+	bitmap_set_at(&buddy->orders.layers[0], index, 0);
+	bitmaptree_update(&buddy->orders, index, 1);
 }
 
 int kpm_free_chunk(kpm_chunk_t *chunk) {

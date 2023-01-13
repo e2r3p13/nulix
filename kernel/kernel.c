@@ -6,7 +6,7 @@
  * Entrypoint of the KFS kernel
  *
  * created: 2022/10/11 - lfalkau <lfalkau@student.42.fr>
- * updated: 2023/01/11 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/17 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/gdt.h>
@@ -20,6 +20,8 @@
 #include <kernel/print.h>
 #include <kernel/kmalloc.h>
 #include <kernel/symbole.h>
+#include <kernel/paging.h>
+#include <kernel/kernel.h>
 
 #define NBSCREENBUF 1
 
@@ -27,7 +29,7 @@ struct screenbuf sb[NBSCREENBUF];
 struct screenbuf *sb_current;
 int sb_nbscreen = NBSCREENBUF;
 
-static int kernel_init(unsigned long multiboot_info_addr) {
+int kernel_init(unsigned long multiboot_info_addr) {
 	for (int i = 0; i < NBSCREENBUF; i++) {
 		sb_init(sb + i);
 		sb_putstr(sb + i, "Welcome to nulix-2.0.1\n");
@@ -46,23 +48,21 @@ static int kernel_init(unsigned long multiboot_info_addr) {
 
 	multiboot_info_t *mbi = (multiboot_info_t *)multiboot_info_addr;
 	if (kpm_init((void *)mbi->mmap_addr,
-		mbi->mmap_length / sizeof(struct multiboot_mmap_entry),
-		mbi->mem_upper - mbi->mem_lower)) {
+			mbi->mmap_length / sizeof(struct multiboot_mmap_entry),
+			mbi->mem_upper - mbi->mem_lower) < 0)
 		return -1;
-	}
 
-	// Remove Identity Mapping
-	__asm__ volatile ("movl $0x1000, %eax\n"
-	"movl $0, (%eax)\n"
-	"movl %cr3, %eax\n"
-	"movl %eax, %cr3\n");
+	physaddr_t pagedir = page_directory_kernel_new();
+	if (!pagedir)
+		return -1;
 
+	__asm__ volatile ("movl %0, %%cr3" :: "r" (pagedir));
+	__asm__ volatile ("movl %0, %%esp" :: "r" (STACK_TOP));
+
+	kernel_main();
 	return 0;
 }
 
-void kernel_main(unsigned long multiboot_info_addr) {
-	if (kernel_init(multiboot_info_addr) < 0)
-		return;
-
+void kernel_main() {
 	nsh();
 }

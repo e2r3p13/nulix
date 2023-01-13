@@ -6,14 +6,14 @@
  * Virtual Memory Object functions
  *
  * created: 2023/01/13 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/13 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/17 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <kernel/vmm.h>
 #include <kernel/memory.h>
 #include <kernel/kmalloc.h>
 
-struct vmobject_list vmobject_list; 
+struct vmobject_list vmobject_list = TAILQ_HEAD_INITIALIZER(vmobject_list);
 
 /*
  * Represente a virtual object backed up by physical pages. Can be mapped
