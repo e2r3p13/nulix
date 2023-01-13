@@ -6,7 +6,7 @@
  * Header for pagination related things
  *
  * created: 2022/12/12 - xlmod <glafond-@student.42.fr>
- * updated: 2023/01/13 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/17 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #ifndef PAGING_H
@@ -19,7 +19,7 @@
 #define PAGE_TABLE_LENGTH		PAGE_DIR_LENGTH
 
 #define PAGE_DIR_MASK			0xffc00000 // 0b11111111110000000000000000000000
-#define PAGE_TAB_MASK			0x00bff000 // 0b00000000001111111111000000000000
+#define PAGE_TAB_MASK			0x003ff000 // 0b00000000001111111111000000000000
 #define PAGE_INDEX_MASK			0x00000fff // 0b00000000000000000000111111111111
 
 #define PAGE_DIR_GET_INDEX(v)	(((uint32_t)(v) & PAGE_DIR_MASK) >> 22)
@@ -90,5 +90,8 @@ void page_clear(struct page_entry *pe);
 physaddr_t get_cr3();
 void set_cr3(physaddr_t addr);
 void reload_cr3();
+
+physaddr_t page_directory_kernel_new();
+physaddr_t page_directory_user_new();
 
 #endif

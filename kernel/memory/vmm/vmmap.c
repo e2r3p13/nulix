@@ -6,7 +6,7 @@
  * Virtual Memory Mapping functions
  *
  * created: 2023/01/12 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/13 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/17 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <kernel/vmm.h>
@@ -14,7 +14,7 @@
 #include <kernel/kmalloc.h>
 #include <kernel/string.h>
 
-struct vmmap_list vmmap_list; 
+struct vmmap_list vmmap_list = TAILQ_HEAD_INITIALIZER(vmmap_list);
 
 /*
  * Return a pointer to an allocated vmmap.
@@ -25,7 +25,22 @@ struct vmmap *vmmap_new(physaddr_t pagedir) {
 		return NULL;
 	map->pagedir = pagedir;
 	TAILQ_INIT(&map->vmzone_list);
+	TAILQ_INSERT_TAIL(&vmmap_list, map, next);
 	return map;
+}
+
+/*
+ * Free all data of vmmap.
+ */
+void vmmap_delete(struct vmmap *map) {
+	struct vmzone *zone, *tmp;
+	TAILQ_FOREACH_SAFE(zone, &map->vmzone_list, next, tmp) {
+		vmmap_unmap_zone(map, zone);
+		vmzone_delete(zone);
+	}
+	kpm_free_page(map->pagedir);
+	TAILQ_REMOVE(&vmmap_list, map, next);
+	kfree(map);
 }
 
 /*
@@ -41,10 +56,13 @@ int vmmap_map_zone(struct vmmap *map, struct vmzone *zone) {
 		ptr = TAILQ_LAST(&map->vmzone_list, vmzone_list);
 	else
 		ptr = TAILQ_PREV(ptr, vmzone_list, next);
-	if (zone->start < ptr->end)
-		return -1;
-	TAILQ_INSERT_AFTER(&map->vmzone_list, ptr, zone, next);
-	
+	if (ptr) {
+		if (zone->start < ptr->end)
+			return -1;
+		TAILQ_INSERT_AFTER(&map->vmzone_list, ptr, zone, next);
+	} else {
+		TAILQ_INSERT_TAIL(&map->vmzone_list, zone, next);
+	}
 	size_t npages = (zone->end - zone->start) / PAGE_SIZE;
 	if (loaded) {
 		if (map_zone(zone->start, zone->obj->physical_pages + zone->offset,

@@ -14,4 +14,7 @@
 
 #define KERNEL_VIRT_OFFSET	0xC0000000
 
+int kernel_init(unsigned long multiboot_info_addr);
+void kernel_main();
+
 #endif

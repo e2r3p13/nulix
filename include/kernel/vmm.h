@@ -6,7 +6,7 @@
  * Virtual Memory Manager header
  *
  * created: 2023/01/12 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/13 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/17 - glafond- <glafond-@student.42.fr>
  */
 
 #ifndef VMM_H
@@ -51,6 +51,7 @@ struct vmzone {
 
 struct vmmap {
 	physaddr_t pagedir;
+	TAILQ_ENTRY(vmmap) next;
 	TAILQ_HEAD(vmzone_list,vmzone)	vmzone_list;
 };
 
@@ -67,15 +68,17 @@ int map_zone_to(physaddr_t pagedir, virtaddr_t vaddr, physaddr_t paddr, size_t n
 int unmap_zone_to(physaddr_t pagedir, virtaddr_t vaddr, size_t npages);
 
 virtaddr_t quickmap_page(physaddr_t addr);
+int quickunmap_page();
 
-struct vmobject *vmobject_new_amonymous(physaddr_t physical_pages, size_t npages);
+struct vmobject *vmobject_new_amonymous(physaddr_t physical_pages, size_t size);
 int vmobject_delete(struct vmobject *obj);
 
 struct vmzone *vmzone_new(virtaddr_t start, virtaddr_t end, char *name,
 		uint32_t flags, struct vmobject *obj, size_t offset);
-void vmzone_free(struct vmzone *vmzone);
+void vmzone_delete(struct vmzone *vmzone);
 
 struct vmmap *vmmap_new(physaddr_t pagedir);
+void vmmap_delete(struct vmmap *map);
 
 int vmmap_map_zone(struct vmmap *map, struct vmzone *vmzone);
 int vmmap_unmap_zone(struct vmmap *map, struct vmzone *vmzone);
