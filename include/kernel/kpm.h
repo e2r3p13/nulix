@@ -108,6 +108,7 @@ physaddr_t kpm_alloc_page();
 //void kpm_free(kpm_chunk_t *chunk);
 int kpm_free(struct kpm_chunk_head *head);
 void kpm_free_page(physaddr_t addr);
+void kpm_free_zone(physaddr_t addr, size_t size);
 
 /*
  * Prints the buddy allocator

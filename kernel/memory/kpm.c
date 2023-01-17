@@ -6,7 +6,7 @@
  * Kernel Physical Memory management
  *
  * created: 2022/11/23 - lfalkau <lfalkau@student.42.fr>
- * updated: 2023/01/13 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/17 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/kpm.h>
@@ -251,6 +251,13 @@ void kpm_free_page(physaddr_t addr) {
 	size_t index = (size_t)addr / PAGE_SIZE;
 	bitmap_set_at(&buddy->orders.layers[0], index, 0);
 	bitmaptree_update(&buddy->orders, index, 1);
+}
+
+void kpm_free_zone(physaddr_t addr, size_t size) {
+	if (!ISALIGNED(addr, PAGE_SIZE)) 
+		return;
+	size_t index = (size_t)addr / PAGE_SIZE;
+	bitmaptree_set_from(&buddy->orders, index, size / PAGE_SIZE, 0);
 }
 
 int kpm_free_chunk(kpm_chunk_t *chunk) {

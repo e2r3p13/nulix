@@ -6,7 +6,7 @@
  * Bitmap struct functions
  *
  * created: 2023/01/05 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/11 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/17 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/bitmap.h>
@@ -25,6 +25,10 @@ int bitmap_alloc(struct bitmap *bitmap, size_t len, int flag) {
 		return -1;
 	}
 	return 0;
+}
+
+void bitmap_free(struct bitmap *bm) {
+	kfree(bm->array);
 }
 
 int bitmap_init(struct bitmap *bitmap, size_t len, uint8_t *array, size_t size) {

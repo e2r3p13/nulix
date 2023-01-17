@@ -6,7 +6,7 @@
  * Bitmap tree function handler
  *
  * created: 2023/01/05 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/11 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/17 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/bitmaptree.h>
@@ -39,6 +39,12 @@ int bitmaptree_alloc(struct bitmaptree *bmt, size_t nleafs, size_t height, int f
 	bmt->size = size;
 
 	return 0;
+}
+
+void bitmaptree_free(struct bitmaptree *bmt) {
+	for (size_t i = 0; i < bmt->height; i++)
+		bitmap_free(&bmt->layers[i]);
+	kfree(bmt->layers);
 }
 
 int bitmaptree_init(struct bitmaptree *bmt, size_t nleafs, struct bitmap *layers,
