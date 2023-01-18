@@ -15,6 +15,7 @@ LDFLAGS+=
 subdir:= \
 	string \
 	std \
+	crypto \
 
 builddir?= build
 

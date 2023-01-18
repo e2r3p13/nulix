@@ -6,7 +6,7 @@
  * Entrypoint of the KFS kernel
  *
  * created: 2022/10/11 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/12/15 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2023/01/18 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/gdt.h>
