@@ -16,6 +16,7 @@ subdir:= \
 	string \
 	std \
 	crypto \
+	tools \
 
 builddir?= build
 
