@@ -7,11 +7,12 @@
  * and interrupts
  *
  * created: 2022/10/18 - xlmod <glafond-@student.42.fr>
- * updated: 2022/10/21 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2022/12/15 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/print.h>
 #include <kernel/pic_8259.h>
+#include <kernel/pit.h>
 
 #include "idt_internal.h"
 
@@ -86,6 +87,12 @@ __attribute__ ((interrupt)) void timer_handler(t_int_frame *int_frame)
 {
 	LOAD_INTERRUPT_STACK;
 	pic_8259_eoi(IRQ_TM);
+
+	pit_counter_mod++;
+	pit_counter_mod %= pit_freq;
+	if (!pit_counter_mod)
+		pit_counter_div++;
+
 	RESET_INTERRUPT_STACK;
 }
 

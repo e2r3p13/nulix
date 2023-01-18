@@ -18,6 +18,7 @@ LDFLAGS+=
 # BUILD VAR
 subdir:= \
 		 rtc \
+		 pit \
 
 builddir?= build
 
