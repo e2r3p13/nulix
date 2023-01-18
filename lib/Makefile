@@ -16,6 +16,7 @@ subdir:= \
 	string \
 	std \
 	bit \
+	tools \
 
 builddir?= build
 

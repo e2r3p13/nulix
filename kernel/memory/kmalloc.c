@@ -18,6 +18,8 @@
 #include <kernel/kpm.h>
 #include <kernel/symbole.h>
 #include <kernel/vmm.h>
+#include <kernel/random.h>
+#include <kernel/crc32.h>
 
 #include "kmalloc_internal.h"
 
@@ -76,6 +78,8 @@ void *km_allocation(struct km_block *block, size_t chunks, int index) {
 		virtaddr_t ptr = VIRTADDR(block->vaddr + (index * KM_MEMORY_CHUNK_SIZE));
 		struct km_header *header = (struct km_header *)ptr;
 		header->allocated_size = nset * KM_MEMORY_CHUNK_SIZE;
+		random_get(header->pad, 8);
+		header->crc = crc32_get((uint8_t *)header, sizeof(struct km_header) - 4);
 		block->nallocated += nset;
 		if (header->data)
 			return VIRTADDR(header->data);
@@ -117,7 +121,7 @@ struct km_block *km_new_block() {
 		kspin_drop(&km.lock);
 
 		TAILQ_FOREACH(map, &vmmap_list, next) {
-			vmzone = vmzone_new(tmpbrkptr, tmpbrkptr + (4 * MB), "kheap", *(uint32_t *)&flags, obj, 0);
+			vmzone = vmzone_new(tmpbrk, tmpbrk + (4 * MB), "kheap", *(uint32_t *)&flags, obj, 0);
 			if (!vmzone)
 				goto km_new_block2;
 			if (vmmap_map_zone(map, vmzone) < 0)
@@ -195,8 +199,13 @@ kmalloc_end_block_loop:
 void kfree(void *addr) {
 	if (!addr)
 		return;
-	kspin_lock(&km.lock);
+
 	struct km_header *kmh = (struct km_header *)(addr - sizeof(struct km_header));
+	uint32_t crc = crc32_get((uint8_t *)kmh, sizeof(struct km_header) - 4);
+	if (crc != kmh->crc)
+		return;
+
+	kspin_lock(&km.lock);
 	struct km_block *block;
 	TAILQ_FOREACH(block, &km.block_list, next) {
 		if ((virtaddr_t)kmh < block->vaddr)
