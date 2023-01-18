@@ -6,7 +6,7 @@
  * Entrypoint of the KFS kernel
  *
  * created: 2022/10/11 - lfalkau <lfalkau@student.42.fr>
- * updated: 2023/01/17 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/18 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/gdt.h>
@@ -44,6 +44,7 @@ int kernel_init(unsigned long multiboot_info_addr) {
 	gdt_init();
 	idt_init();
 
+	random_init();
 	KBD_initialize();
 
 	multiboot_info_t *mbi = (multiboot_info_t *)multiboot_info_addr;
