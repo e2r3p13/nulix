@@ -6,7 +6,7 @@
  * Entrypoint of the KFS kernel
  *
  * created: 2022/10/11 - lfalkau <lfalkau@student.42.fr>
- * updated: 2023/01/18 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/19 - xlmod <glafond-@student.42.fr>
  */
 
 #include <kernel/gdt.h>
@@ -22,6 +22,7 @@
 #include <kernel/symbole.h>
 #include <kernel/paging.h>
 #include <kernel/kernel.h>
+#include <kernel/random.h>
 
 #define NBSCREENBUF 1
 
@@ -37,6 +38,8 @@ int kernel_init(unsigned long multiboot_info_addr) {
 	sb_current = sb;
 	sb_load(sb_current);
 
+	random_init();
+
 	if (kmalloc_init() < 0)
 		return -1;
 
@@ -44,7 +47,6 @@ int kernel_init(unsigned long multiboot_info_addr) {
 	gdt_init();
 	idt_init();
 
-	random_init();
 	KBD_initialize();
 
 	multiboot_info_t *mbi = (multiboot_info_t *)multiboot_info_addr;
