@@ -22,7 +22,7 @@ libs= $(shell find ${builddir} -type f -name "*.a")
 LD:= ${cross-target}-ld
 LDFLAGS+= -T ${archdir}/linker.ld
 QEMU:= qemu-system-i386
-QEMUFLAGS+= -serial stdio --enable-kvm -d cpu_reset
+QEMUFLAGS+= -serial stdio -d cpu_reset
 GRUBMK:=grub2-mkrescue
 #GRUBMKFLAGS+=--compress=xz
 #GRUBMOD:=--install-modules="normal multiboot2 part_gpt part_acorn part_apple\

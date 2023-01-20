@@ -6,7 +6,7 @@
  * Paging related functions
  * 
  * created: 2022/12/16 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/17 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/20 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/paging.h>
@@ -33,8 +33,19 @@ void page_clear(struct page_entry *pe) {
 	*(uintptr_t *)pe = 0;
 }
 
+/*
+ * Return the physical address of a virtual address.
+ */
 physaddr_t get_physaddr(virtaddr_t vaddr) {
-	
+	vaddr = VIRTADDR(ALIGN(vaddr, PAGE_SIZE));
+	uint32_t pdir_index = PAGE_DIR_GET_INDEX(vaddr);
+	uint32_t ptab_index = PAGE_TAB_GET_INDEX(vaddr);
+	struct page_entry *pdir = (struct page_entry *)0xFFFFFF000;
+	if (!pdir[pdir_index].present)
+		return PHYSADDR(NULL);
+	struct page_entry *ptab = (struct page_entry *)(0xFFC00000 + (pdir_index  << 12));
+	struct page_entry *page = &ptab[ptab_index];
+	return PHYSADDR(page->address << 12);
 }
 
 /*
@@ -141,13 +152,13 @@ physaddr_t page_directory_kernel_new() {
 	}
 	vmmap_map_zone(map, zone);
 
-	physaddr_t stack = kpm_alloc_page();
+	physaddr_t stack = kpm_alloc_zone(SYM_STACK_SIZE);
 	if (!stack) {
 		vmmap_delete(map);
 		vmobject_delete(obj);
 		return PHYSADDR(NULL);
 	}
-	size = SYM_STACK_SIZE;
+	size =  SYM_STACK_SIZE;
 	struct vmobject *objstack = vmobject_new_amonymous(stack, size);
 	if (!obj) {
 		vmmap_delete(map);

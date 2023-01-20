@@ -91,6 +91,8 @@ physaddr_t get_cr3();
 void set_cr3(physaddr_t addr);
 void reload_cr3();
 
+physaddr_t get_physaddr(virtaddr_t vaddr);
+
 physaddr_t page_directory_kernel_new();
 physaddr_t page_directory_user_new();
 
