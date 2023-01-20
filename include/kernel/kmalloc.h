@@ -6,7 +6,7 @@
  * Kmalloc header
  *
  * created: 2023/01/09 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/11 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/20 - glafond- <glafond-@student.42.fr>
  */
 
 #ifndef KMALLOC_H
@@ -20,10 +20,12 @@
 int kmalloc_init();
 
 void *kmalloc(size_t size, int flag);
-void kfree(void *addr);
+int kfree(void *addr);
 
 void *krealloc(void *addr, size_t size, int flag);
 void *kzalloc(size_t size, int flag);
 
+size_t ksize(void *addr);
+void *kcontain(void *addr);
 
 #endif
