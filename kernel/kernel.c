@@ -6,7 +6,7 @@
  * Entrypoint of the KFS kernel
  *
  * created: 2022/10/11 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/12/19 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2023/01/20 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/gdt.h>
@@ -51,6 +51,6 @@ void kernel_main(unsigned long multiboot_info_addr) {
 	};
 	sb_current = sb;
 	sb_load(sb_current);
-	panic();
+	PANIC;
 //	nsh();
 }
