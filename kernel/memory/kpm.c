@@ -234,7 +234,6 @@ int kpm_alloc(struct kpm_chunk_head *head, size_t size) {
 				TAILQ_REMOVE(head, c, next);
 				kfree(c);
 			}
-			kprintf("2\n");
 			return -1;
 		}
 		TAILQ_INSERT_TAIL(head, c, next);

@@ -6,7 +6,7 @@
  * Kmalloc internal header
  *
  * created: 2023/01/10 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/10 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/20 - glafond- <glafond-@student.42.fr>
  */
 
 #ifndef KMALLOC_INTERNAL_H
@@ -23,9 +23,13 @@
 #define KM_BMT_NLAYERS	14
 #define KM_BMT_SIZE_ARRAY (((KM_INITIAL_SIZE / KM_BMT_NLAYERS) / 8) * 2)
 
+#define KM_MAGIC_NUMBER 0xbada110c
+
 struct km_header {
+	uint32_t magic;
 	size_t	allocated_size;
-	uint8_t	pad[12];
+	uint8_t	pad[4];
+	uint32_t crc;
 	uint8_t data[0];
 };
 
