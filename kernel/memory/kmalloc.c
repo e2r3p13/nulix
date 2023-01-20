@@ -6,7 +6,7 @@
  * Kmalloc functions
  *
  * created: 2023/01/09 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/18 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/20 - glafond- <glafond-@student.42.fr>
  */
 
 #include <stddef.h>
@@ -77,8 +77,9 @@ void *km_allocation(struct km_block *block, size_t chunks, int index) {
 			return VIRTADDR(NULL);
 		virtaddr_t ptr = VIRTADDR(block->vaddr + (index * KM_MEMORY_CHUNK_SIZE));
 		struct km_header *header = (struct km_header *)ptr;
+		header->magic = KM_MAGIC_NUMBER;
 		header->allocated_size = nset * KM_MEMORY_CHUNK_SIZE;
-		random_get(header->pad, 8);
+		random_get(header->pad, 4);
 		header->crc = crc32_get((uint8_t *)header, sizeof(struct km_header) - 4);
 		block->nallocated += nset;
 		if (header->data)
@@ -196,14 +197,14 @@ kmalloc_end_block_loop:
 /*
  * Free a virtual memory zone at @addr previously returned by kmalloc
  */
-void kfree(void *addr) {
+int kfree(void *addr) {
 	if (!addr)
-		return;
+		return -1;
 
 	struct km_header *kmh = (struct km_header *)(addr - sizeof(struct km_header));
 	uint32_t crc = crc32_get((uint8_t *)kmh, sizeof(struct km_header) - 4);
-	if (crc != kmh->crc)
-		return;
+	if (kmh->magic != KM_MAGIC_NUMBER || crc != kmh->crc)
+		return -1;
 
 	kspin_lock(&km.lock);
 	struct km_block *block;
@@ -219,26 +220,27 @@ void kfree(void *addr) {
 		if (nset > 0)
 			block->nallocated -= nset;
 		kspin_drop(&km.lock);
-		return;
+		return 0;
 	}
 	block = &km_initial_block;
 	if ((virtaddr_t)kmh < block->vaddr) {
 		kspin_drop(&km.lock);
-		return;
+		return -1;
 	}
 	if ((virtaddr_t)kmh > block->vaddr + block->size) {
 		kspin_drop(&km.lock);
-		return;
+		return -1;
 	}
 	if (VIRTADDR(kmh->data + kmh->allocated_size) > block->vaddr + block->size) {
 		kspin_drop(&km.lock);
-		return;
+		return -1;
 	}
 	size_t index = ((virtaddr_t)kmh - block->vaddr) / KM_MEMORY_CHUNK_SIZE;
 	int nset = bitmaptree_set_from(&block->bmt, index, kmh->allocated_size, 0);
 	if (nset > 0)
 		block->nallocated -= nset;
 	kspin_drop(&km.lock);
+	return 0;
 }
 
 /*
@@ -248,9 +250,14 @@ void kfree(void *addr) {
 void *krealloc(void *addr, size_t size, int flag) {
 	if (!addr)
 		return VIRTADDR(NULL);
-	kspin_lock(&km.lock);
 	size = ALIGNNEXT(size + sizeof(struct km_header), KM_MEMORY_CHUNK_SIZE);
+
 	struct km_header *kmh = (struct km_header *)(addr - sizeof(struct km_header));
+	uint32_t crc = crc32_get((uint8_t *)kmh, sizeof(struct km_header) - 4);
+	if (kmh->magic != KM_MAGIC_NUMBER || crc != kmh->crc)
+		return VIRTADDR(NULL);
+
+	kspin_lock(&km.lock);
 	struct km_block *block;
 	TAILQ_FOREACH(block, &km.block_list, next) {
 		if ((virtaddr_t)kmh < block->vaddr
@@ -296,10 +303,8 @@ void *krealloc(void *addr, size_t size, int flag) {
 		} else {
 			kspin_drop(&km.lock);
 			void *naddr = kmalloc(size - sizeof(struct km_header), flag);
-			if (!naddr) {
-				kprintf("3\n");
+			if (!naddr)
 				return VIRTADDR(NULL);
-			}
 			memcpy(naddr, addr, kmh->allocated_size);
 			kfree(addr);
 			return VIRTADDR(naddr);
@@ -318,4 +323,34 @@ void *kzalloc(size_t size, int flag) {
 		return VIRTADDR(NULL);
 	memset(ptr, 0, ALIGNNEXT(size, KM_MEMORY_CHUNK_SIZE));
 	return VIRTADDR(ptr);
+}
+
+/*
+ * Return the size of the allocated object.
+ */
+size_t ksize(void *addr) {
+	struct km_header *kmh = (struct km_header *)(addr - sizeof(struct km_header));
+	uint32_t crc = crc32_get((uint8_t *)kmh, sizeof(struct km_header) - 4);
+	if (kmh->magic != KM_MAGIC_NUMBER || crc != kmh->crc)
+		return 0;
+	return kmh->allocated_size - sizeof(struct km_header);
+}
+
+/*
+ * Return the pointer of the object containing @addr.
+ */
+void *kcontain(void *addr) {
+	struct km_header *kmh;
+	uint32_t crc;
+	void *ptr = addr;
+	for (;;) {
+		for (; *(uint32_t *)ptr != KM_MAGIC_NUMBER; ptr--);
+		kmh = (struct km_header *)ptr;
+		crc = crc32_get((uint8_t *)kmh, sizeof(struct km_header) - 4);
+		if (crc == kmh->crc) {
+			if (VIRTADDR(ptr + kmh->allocated_size) <= addr)
+				return VIRTADDR(NULL);
+			return VIRTADDR(kmh->data);
+		}
+	}
 }
