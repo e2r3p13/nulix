@@ -18,6 +18,8 @@
 #include <kernel/kpm.h>
 #include <kernel/symbole.h>
 #include <kernel/vmm.h>
+#include <kernel/crc32.h>
+#include <kernel/random.h>
 
 #include "kmalloc_internal.h"
 

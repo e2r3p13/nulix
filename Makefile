@@ -17,7 +17,12 @@ isodir:= ${builddir}/iso
 .INCLUDE_DIRS:= $(shell pwd)/include
 
 objs= $(shell find ${builddir} -type f -name "*.o")
-libs= $(shell find ${builddir} -type f -name "*.a")
+liblist= libstring.a \
+	  libtools.a \
+	  libstd.a \
+	  libcrypto.a \
+	  libbit.a
+libs= $(addprefix ${builddir}/, ${liblist})
 
 LD:= ${cross-target}-ld
 LDFLAGS+= -T ${archdir}/linker.ld
