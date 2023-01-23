@@ -7,7 +7,7 @@
  * and interrupts
  *
  * created: 2022/10/18 - xlmod <glafond-@student.42.fr>
- * updated: 2023/01/05 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/23 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/print.h>
@@ -130,7 +130,7 @@ __attribute__ ((interrupt)) void gp_fault_handler(t_int_frame *int_frame, uint32
  *
  * @arg(int_frame): interrupt frame structure.
  */
-__attribute__ ((interrupt)) void timer_handler(t_int_frame *int_frame)
+__attribute__ ((interrupt)) void timer_handler(__attribute__((unused)) t_int_frame *int_frame)
 {
 	LOAD_INTERRUPT_STACK;
 	pic_8259_eoi(IRQ_TM);
@@ -142,7 +142,7 @@ __attribute__ ((interrupt)) void timer_handler(t_int_frame *int_frame)
  *
  * @arg(int_frame): interrupt frame structure.
  */
-__attribute__ ((interrupt)) void keyboard_handler(t_int_frame *int_frame)
+__attribute__ ((interrupt)) void keyboard_handler(__attribute__((unused)) t_int_frame *int_frame)
 {
 	LOAD_INTERRUPT_STACK;
 	pic_8259_eoi(IRQ_KB);

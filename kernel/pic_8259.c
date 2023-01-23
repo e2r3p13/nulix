@@ -17,7 +17,7 @@
 /* Set the mask of an IRQ to ignore its request and continue normal operation.
  *
  * */
-static void irq_set_mask(uint8_t irq_id) {
+static __attribute__((unused)) void irq_set_mask(uint8_t irq_id) {
     uint16_t port;
     uint8_t value;
  
