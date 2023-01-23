@@ -6,7 +6,7 @@
  * Panic screen handler
  *
  * created: 2022/12/19 - mrxx0 <chcoutur@student.42.fr>
- * updated: 2023/01/20 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/23 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/print.h>
@@ -43,6 +43,22 @@ void panic_print_frame(t_panic_frame *panic_frame) {
 	kprintf("# DS= %4x                                                                #\n", panic_frame->ds);
 	kprintf("# FS= %4x                                                                #\n", panic_frame->fs);
 	kprintf("# GS= %4x                                                                #\n", panic_frame->gs);
+	kprintf("# CR0=%8x ", panic_frame->cr0);
+	kprintf("CR2=%8x ", panic_frame->cr2);
+	kprintf("CR3=%8x", panic_frame->cr3);
+	kprintf("                                  #\n");
+	kprintf("#                                                                         #\n");
+	kprintf("###########################################################################\n");
+}
+
+void panic_print_interrupt_frame(t_panic_frame *panic_frame, t_int_frame *int_frame) {
+	panic_print_flag();
+	kprintf("# EIP=%8x ", int_frame->eip);
+	kprintf("EFL=%8x", int_frame->flags);
+	kprintf("                                               #\n");
+	kprintf("# ESP=%8x                                                            #\n", int_frame->sp);
+	kprintf("# CS= %4x                                                                #\n", int_frame->cs);
+	kprintf("# SS= %4x                                                                #\n", int_frame->ss);
 	kprintf("# CR0=%8x ", panic_frame->cr0);
 	kprintf("CR2=%8x ", panic_frame->cr2);
 	kprintf("CR3=%8x", panic_frame->cr3);

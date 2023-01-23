@@ -6,7 +6,7 @@
  * Entrypoint of the KFS kernel
  *
  * created: 2022/10/11 - lfalkau <lfalkau@student.42.fr>
- * updated: 2023/01/17 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/23 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/gdt.h>
@@ -22,6 +22,7 @@
 #include <kernel/symbole.h>
 #include <kernel/paging.h>
 #include <kernel/kernel.h>
+#include <kernel/panic.h>
 
 #define NBSCREENBUF 1
 
@@ -38,7 +39,7 @@ int kernel_init(unsigned long multiboot_info_addr) {
 	sb_load(sb_current);
 
 	if (kmalloc_init() < 0)
-		return -1;
+		PANIC;
 
 	pic_8259_init(PIC1_OFFSET, PIC2_OFFSET);
 	gdt_init();
@@ -50,11 +51,11 @@ int kernel_init(unsigned long multiboot_info_addr) {
 	if (kpm_init((void *)mbi->mmap_addr,
 			mbi->mmap_length / sizeof(struct multiboot_mmap_entry),
 			mbi->mem_upper - mbi->mem_lower) < 0)
-		return -1;
+		PANIC;
 
 	physaddr_t pagedir = page_directory_kernel_new();
 	if (!pagedir)
-		return -1;
+		PANIC;
 
 	__asm__ volatile ("movl %0, %%cr3" :: "r" (pagedir));
 	__asm__ volatile ("movl %0, %%esp" :: "r" (STACK_TOP));

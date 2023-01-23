@@ -6,11 +6,13 @@
  * Insert file description here
  *
  * created: 2022/12/19 - mrxx0 <chcoutur@student.42.fr>
- * updated: 2023/01/23 - mrxx0 <chcoutur@student.42.fr>
+ * updated: 2023/01/23 - glafond- <glafond-@student.42.fr>
  */
 
 #ifndef PANIC_H
 #define PANIC_H
+
+#include "../../kernel/idt_internal.h"
 
 typedef struct {
 	uint32_t	eax, ecx, edx, ebx, esp, ebp, esi, edi;
@@ -21,6 +23,8 @@ typedef struct {
 }__attribute__ ((packed)) 	t_panic_frame;
 
 void panic_print_frame(t_panic_frame *panic_frame);
+void panic_print_interrupt_frame(t_panic_frame *panic_frame,
+		t_int_frame *int_frame);
 
 #define PANIC \
 do { \
@@ -46,6 +50,17 @@ do { \
 	asm("mov %%cr2, %0" : "=rm" ( __panic_frame.cr2 )); \
 	asm("mov %%cr3, %0" : "=rm" ( __panic_frame.cr3 )); \
 	panic_print_frame(&__panic_frame); \
+	asm("hlt"); \
+} while (1)
+
+#define PANIC_INTERRUPT(int_frame) \
+do { \
+	t_panic_frame __panic_frame = {0}; \
+	asm("cli"); \
+	asm("mov %%cr0, %0" : "=rm" ( __panic_frame.cr0 )); \
+	asm("mov %%cr2, %0" : "=rm" ( __panic_frame.cr2 )); \
+	asm("mov %%cr3, %0" : "=rm" ( __panic_frame.cr3 )); \
+	panic_print_interrupt_frame(&__panic_frame, int_frame); \
 	asm("hlt"); \
 } while (1)
 

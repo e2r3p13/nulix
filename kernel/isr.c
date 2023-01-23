@@ -12,6 +12,7 @@
 
 #include <kernel/print.h>
 #include <kernel/pic_8259.h>
+#include <kernel/panic.h>
 
 #include "idt_internal.h"
 
@@ -71,9 +72,7 @@ __attribute__ ((interrupt)) void double_fault_handler(t_int_frame *int_frame, ui
 	LOAD_INTERRUPT_STACK;
 
 	kprintf("DOUBLE FAULT\n");
-	print_int_frame(int_frame, &error_code);
-	while (1);
-	asm volatile ("hlt");
+	PANIC_INTERRUPT(int_frame);
 
 	RESET_INTERRUPT_STACK;
 }
@@ -97,12 +96,7 @@ __attribute__ ((interrupt)) void page_fault_handler(t_int_frame *int_frame, uint
 	LOAD_INTERRUPT_STACK;
 
 	kprintf("PAGE FAULT\n");
-	print_int_frame(int_frame, &error_code);
-	uint32_t reg;
-	PRINT(CR3, reg, "cr3 : %8p\n");
-	PRINT(CR2, reg, "cr2 : %8p\n");
-	while (1);
-	asm volatile ("hlt");
+	PANIC_INTERRUPT(int_frame);
 
 	RESET_INTERRUPT_STACK;
 }
@@ -119,9 +113,7 @@ __attribute__ ((interrupt)) void gp_fault_handler(t_int_frame *int_frame, uint32
 	LOAD_INTERRUPT_STACK;
 
 	kprintf("GP FAULT\n");
-	print_int_frame(int_frame, &error_code);
-	while (1);
-	asm volatile ("hlt");
+	PANIC_INTERRUPT(int_frame);
 
 	RESET_INTERRUPT_STACK;
 }
