@@ -6,7 +6,7 @@
  * Declaration of idt internal structures and functions.
  *
  * created: 2022/10/18 - xlmod <glafond-@student.42.fr>
- * updated: 2023/01/05 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/24 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #ifndef IDT_INTERNAL_H
@@ -29,7 +29,7 @@
 #define ISR_DE 0
 #define ISR_OF 4
 #define ISR_DF 8
-#define ISR_GF 14
+#define ISR_GF 13
 #define ISR_PF 14
 #define ISR_TM 32
 #define ISR_KB 33

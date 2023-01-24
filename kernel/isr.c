@@ -7,7 +7,7 @@
  * and interrupts
  *
  * created: 2022/10/18 - xlmod <glafond-@student.42.fr>
- * updated: 2023/01/23 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/24 - mrxx0 <chcoutur@student.42.fr>
  */
 
 #include <kernel/print.h>
@@ -72,6 +72,7 @@ __attribute__ ((interrupt)) void double_fault_handler(t_int_frame *int_frame, ui
 	LOAD_INTERRUPT_STACK;
 
 	kprintf("DOUBLE FAULT\n");
+	kprintf("error code : %d\n", error_code);
 	PANIC_INTERRUPT(int_frame);
 
 	RESET_INTERRUPT_STACK;
@@ -96,6 +97,7 @@ __attribute__ ((interrupt)) void page_fault_handler(t_int_frame *int_frame, uint
 	LOAD_INTERRUPT_STACK;
 
 	kprintf("PAGE FAULT\n");
+	kprintf("error code : %d\n", error_code);
 	PANIC_INTERRUPT(int_frame);
 
 	RESET_INTERRUPT_STACK;
@@ -113,6 +115,7 @@ __attribute__ ((interrupt)) void gp_fault_handler(t_int_frame *int_frame, uint32
 	LOAD_INTERRUPT_STACK;
 
 	kprintf("GP FAULT\n");
+	kprintf("error code : %d\n", error_code);
 	PANIC_INTERRUPT(int_frame);
 
 	RESET_INTERRUPT_STACK;
