@@ -6,13 +6,14 @@
  * Declaration of idt internal structures and functions.
  *
  * created: 2022/10/18 - xlmod <glafond-@student.42.fr>
- * updated: 2023/01/05 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/24 - glafond- <glafond-@student.42.fr>
  */
 
 #ifndef IDT_INTERNAL_H
 #define IDT_INTERNAL_H
 
 #include <stdint.h>
+#include <kernel/isr.h>
 
 // source Intel Software Developer Manual, Volume 3-A
 //P = 1bit, DPL = 2bits, S = 1bit, Type = 4bits
@@ -29,7 +30,7 @@
 #define ISR_DE 0
 #define ISR_OF 4
 #define ISR_DF 8
-#define ISR_GF 14
+#define ISR_GF 13
 #define ISR_PF 14
 #define ISR_TM 32
 #define ISR_KB 33
@@ -88,18 +89,12 @@ typedef struct {
 
 /* Store registers when interrupt happen
  */
-typedef struct {
-	uint32_t	eip;
-	uint32_t	cs;
-	uint32_t	flags;
-	uint32_t	sp, ss;
-
-}__attribute__ ((packed)) 	t_int_frame;
-
 /* ISR
  * Interrupt/Exception handler.
  */
-__attribute__ ((interrupt)) void divide_error_handler(t_int_frame *int_frame);
+extern void *divide_error_isr;
+
+void divide_error_handler(t_int_frame *int_frame);
 __attribute__ ((interrupt)) void overflow_handler(t_int_frame *int_frame);
 __attribute__ ((interrupt)) void double_fault_handler(t_int_frame *int_frame, uint32_t error_code);
 __attribute__ ((interrupt)) void gp_fault_handler(t_int_frame *int_frame, uint32_t error_code);

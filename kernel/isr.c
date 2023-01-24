@@ -7,12 +7,13 @@
  * and interrupts
  *
  * created: 2022/10/18 - xlmod <glafond-@student.42.fr>
- * updated: 2023/01/23 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/24 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/print.h>
 #include <kernel/pic_8259.h>
 #include <kernel/panic.h>
+#include <kernel/registers.h>
 
 #include "idt_internal.h"
 
@@ -31,12 +32,46 @@ static void print_int_frame(t_int_frame *int_frame, uint32_t *errcode) {
 	kprintf("     err: %x\n", *errcode);
 }
 
+static void print_regs(struct registers *regs) {
+	kprintf("regs addr: %p\n", regs);
+	kprintf(" ss: %x", regs->ss);
+	kprintf(" cs: %x", regs->cs);
+	kprintf(" ds: %x", regs->ds);
+	kprintf(" es: %x", regs->es);
+	kprintf(" fs: %x", regs->fs);
+	kprintf(" gs: %x\n", regs->gs);
+	kprintf(" flg: %x\n", regs->flg);
+	kprintf(" esp: %8x", regs->esp);
+	kprintf(" ebp: %8x\n", regs->ebp);
+	kprintf(" eip: %8x\n", regs->eip);
+	kprintf(" esi: %8x", regs->esi);
+	kprintf(" edi: %8x\n", regs->edi);
+	kprintf(" eax: %8x", regs->eax);
+	kprintf(" ebx: %8x", regs->ebx);
+	kprintf(" ecx: %8x", regs->ecx);
+	kprintf(" edx: %8x\n", regs->edx);
+}
+
+void isr_handler(int isrnum, uint32_t ring, uint32_t error, struct registers *regs) {
+	switch (isrnum) {
+		case 0:
+			kprintf("Divide error\n");
+			break;
+		default:
+			kprintf("isr_handler %d\n", isrnum);
+			kprintf("ring: %d\n", ring);
+			kprintf("error: %d\n", error);
+			print_regs(regs);
+	}
+}
+
+
 /* DIVIDE ERROR (0)
  * Occure when division by 0 happen
  *
  * @arg(int_frame): interrupt frame structure.
  */
-__attribute__ ((interrupt)) void divide_error_handler(t_int_frame *int_frame)
+void divide_error_handler(t_int_frame *int_frame)
 {
 	LOAD_INTERRUPT_STACK;
 

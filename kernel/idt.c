@@ -7,11 +7,12 @@
  * and interrupts
  *
  * created: 2022/10/18 - xlmod <glafond-@student.42.fr>
- * updated: 2023/01/10 - xlmod <glafond-@student.42.fr>
+ * updated: 2023/01/24 - glafond- <glafond-@student.42.fr>
  */
 
 #include <stdint.h>
 #include <kernel/kmalloc.h>
+#include <kernel/isr.h>
 
 #include "idt_internal.h"
 
@@ -35,8 +36,14 @@ void idt_init() {
 	idtp.limit = idtbytes;
 	idtp.base = (uint32_t)idt;
 
-	idt_set_descriptor(ISR_DE, divide_error_handler, TRAP_GATE_FLAGS);
-	idt_set_descriptor(ISR_OF, overflow_handler, TRAP_GATE_FLAGS);
+	idt_set_descriptor(0, &isr_0, TRAP_GATE_FLAGS);
+	idt_set_descriptor(1, &isr_1, TRAP_GATE_FLAGS);
+	idt_set_descriptor(2, &isr_2, TRAP_GATE_FLAGS);
+	idt_set_descriptor(3, &isr_3, TRAP_GATE_FLAGS);
+	idt_set_descriptor(4, &isr_4, TRAP_GATE_FLAGS);
+	idt_set_descriptor(5, &isr_5, TRAP_GATE_FLAGS);
+	idt_set_descriptor(6, &isr_6, TRAP_GATE_FLAGS);
+	idt_set_descriptor(7, &isr_7, TRAP_GATE_FLAGS);
 	idt_set_descriptor(ISR_DF, double_fault_handler, TRAP_GATE_FLAGS);
 	idt_set_descriptor(ISR_GF, gp_fault_handler, TRAP_GATE_FLAGS);
 	idt_set_descriptor(ISR_PF, page_fault_handler, TRAP_GATE_FLAGS);

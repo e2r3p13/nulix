@@ -37,10 +37,12 @@ src-y:= \
 	pic_8259.c \
 	screenbuf.c \
 	panic.c \
+	irs_asm.s
 
 objs:= $(addprefix ${builddir}/, ${src-y})
 objs:= ${objs:.c=.o}
 objs:= ${objs:.s=.o}
+objs:= ${objs:.S=.o}
 
 deps:= ${objs:.o=.d}
 -include ${deps}
@@ -61,6 +63,13 @@ ${builddir}/%.o: %.s
 	@mkdir -p ${builddir}
 	@${AS} ${ASFLAGS} -o $@ -c $<
 	@printf "[ \e[32mAS\e[0m ]  %s\n" $<
+
+${builddir}/%.o: %.S
+	@mkdir -p ${builddir}
+	@${CC} -E $< > /tmp/tmp.s
+	@${AS} ${ASFLAGS} -o $@ -c /tmp/tmp.s
+	@printf "[ \e[32mAS\e[0m ]  %s\n" $<
+
 
 .PHONY: clean
 clean: clean-subdir
