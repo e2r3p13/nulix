@@ -6,7 +6,7 @@
  * Kmalloc functions
  *
  * created: 2023/01/09 - glafond- <glafond-@student.42.fr>
- * updated: 2023/01/23 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/25 - glafond- <glafond-@student.42.fr>
  */
 
 #include <stddef.h>
@@ -57,23 +57,13 @@ int kmalloc_init() {
 }
 
 /*
- * Return the index where @chunks can fit in @block.
- */
-static int km_check_if_fit_block(struct km_block *block, size_t chunks) {
-	int index = -1;
-	if (chunks <= block->nchunk - block->nallocated)
-		index = bitmaptree_get_fit(&block->bmt, chunks);
-	return index;
-}
-
-/*
  * Try to return a pointer of @chunks at @index in the @block bitmap.
  * Otherwise return NULL.
  */
 void *km_allocation(struct km_block *block, size_t chunks, int index) {
 	if (index >= 0) {
 		int nset = bitmaptree_set_from(&block->bmt, index, chunks, 1);
-		if (nset <= 0 || nset != chunks)
+		if (nset <= 0 || (size_t)nset != chunks)
 			return VIRTADDR(NULL);
 		virtaddr_t ptr = VIRTADDR(block->vaddr + (index * KM_MEMORY_CHUNK_SIZE));
 		struct km_header *header = (struct km_header *)ptr;
@@ -82,8 +72,7 @@ void *km_allocation(struct km_block *block, size_t chunks, int index) {
 		random_get(header->pad, 4);
 		header->crc = crc32_get((uint8_t *)header, sizeof(struct km_header) - 4);
 		block->nallocated += nset;
-		if (header->data)
-			return VIRTADDR(header->data);
+		return VIRTADDR(header->data);
 	}
 	return VIRTADDR(NULL);
 }
@@ -281,7 +270,7 @@ void *krealloc(void *addr, size_t size, int flag) {
 		size_t ssize = (kmh->allocated_size - size) / KM_MEMORY_CHUNK_SIZE;
 		size_t sindex = index + (size / KM_MEMORY_CHUNK_SIZE);
 		int nset = bitmaptree_set_from(&block->bmt, sindex, ssize, 0);
-		if (nset < 0 || nset != ssize) {
+		if (nset < 0 || (size_t)nset != ssize) {
 			kspin_drop(&km.lock);
 			return VIRTADDR(NULL);
 		}
@@ -294,7 +283,7 @@ void *krealloc(void *addr, size_t size, int flag) {
 		int i = bitmap_get_next_one(&block->bmt.layers[0], end_index);
 		if (i < 0 || i - end_index  >= add_size) {
 			int nset = bitmaptree_set_from(&block->bmt, end_index, add_size, 1);
-			if (nset <= 0 || nset != add_size) {
+			if (nset <= 0 || (size_t)nset != add_size) {
 				kspin_drop(&km.lock);
 				return VIRTADDR(NULL);
 			}

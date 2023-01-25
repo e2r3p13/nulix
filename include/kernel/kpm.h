@@ -77,7 +77,7 @@ TAILQ_HEAD(kpm_chunk_head, kpm_chunk);
  *
  * Internally stores the address of the buddy structure
  */
-int kpm_init(struct multiboot_mmap_entry *mmap_entries, size_t n, size_t memsize);
+int kpm_init(struct multiboot_mmap_entry *mmap_entries, size_t memsize);
 
 /*
  * Enables or disable memory regison to make them available or not

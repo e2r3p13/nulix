@@ -52,14 +52,10 @@ static const char *intname[] = {
 	"Unknown",
 };
 
-static void intprint(int isrnum, uint32_t ring, uint32_t error, struct registers *regs) {
+static void intprint(uint32_t ring, uint32_t error, struct registers *regs) {
 	kprintf("ring: %d\n", ring);
 	kprintf("error: %d\n", error);
 	registers_print(regs);
-}
-
-static void page_fault_handler(uint32_t ring, uint32_t error, struct registers *regs) {
-	PANIC_INTERRUPT(regs);
 }
 
 void isr_handler(int isrnum, uint32_t ring, uint32_t error, struct registers *regs) {
@@ -70,11 +66,11 @@ void isr_handler(int isrnum, uint32_t ring, uint32_t error, struct registers *re
 			PANIC_INTERRUPT(regs);
 			break;
 		case 14:
-			page_fault_handler(ring, error, regs);
+			PANIC_INTERRUPT(regs);
 			break;
 		default:
 			if (isrnum < 32)
-				intprint(isrnum, ring, error, regs);
+				intprint(ring, error, regs);
 			break;
 	}
 }

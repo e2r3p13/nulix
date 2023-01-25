@@ -6,7 +6,7 @@
  * Kernel Physical Memory management
  *
  * created: 2022/11/23 - lfalkau <lfalkau@student.42.fr>
- * updated: 2023/01/17 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/25 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/kpm.h>
@@ -37,10 +37,9 @@ __attribute__ ((section(".buddy"))) static uint8_t kpm_buddy_reserved_memory[KPM
  *
  * @entries: Address of the multiboot structure array containing information on
  * memory maps from the BIOS
- * @count: Number of memory map entries
  * @memkb: Total amount of physical memory, in KiB
  */
-int kpm_init(struct multiboot_mmap_entry *entries, size_t count, size_t memkb) {
+int kpm_init(struct multiboot_mmap_entry *entries, size_t memkb) {
 
 	buddy = (buddy_t *)kpm_buddy_reserved_memory;
 	buddy->nframes = ALIGN(memkb * 1024 / PAGE_SIZE, 1024);
@@ -103,7 +102,7 @@ int kpm_enable(physaddr_t base, size_t limit) {
 
 	size_t len = limit / PAGE_SIZE;
 	bitmap_set_from(&buddy->enabled_frames, base_index, len, 1);
-	size_t nset = bitmaptree_set_from(&buddy->orders, base_index, len, 0);
+	int nset = bitmaptree_set_from(&buddy->orders, base_index, len, 0);
 	if (nset < 0)
 		return -1;
 	buddy->nfree += nset;
@@ -131,7 +130,7 @@ int kpm_disable(physaddr_t base, size_t limit) {
 
 	size_t len = limit / PAGE_SIZE;
 	bitmap_set_from(&buddy->enabled_frames, base_index, len, 0);
-	size_t nset = bitmaptree_set_from(&buddy->orders, base_index, len, 1);
+	int nset = bitmaptree_set_from(&buddy->orders, base_index, len, 1);
 	if (nset < 0)
 		return -1;
 	buddy->nfree -= nset;
@@ -172,10 +171,10 @@ physaddr_t kpm_alloc_zone(size_t size) {
 	int index = bitmaptree_get_fit(&buddy->orders, len);
 	if (index <= 0)
 		return PHYSADDR(NULL);
-	size_t nset = bitmaptree_set_from(&buddy->orders, (size_t)index, len, 1);
+	int nset = bitmaptree_set_from(&buddy->orders, (size_t)index, len, 1);
 	if (nset < 0)
 		return PHYSADDR(NULL);
-	buddy->nfree -= nset;
+	buddy->nfree -= (size_t)nset;
 	return PHYSADDR(index * PAGE_SIZE);
 }
 
@@ -200,10 +199,10 @@ int kpm_alloc_chunk(kpm_chunk_t *chunk, size_t size) {
 		int index = bitmaptree_get_fit(&buddy->orders, len);
 		if (index < 0)
 			continue;
-		size_t nset = bitmaptree_set_from(&buddy->orders, (size_t)index, len, 1);
+		int nset = bitmaptree_set_from(&buddy->orders, (size_t)index, len, 1);
 		if (nset < 0)
 			return -1;
-		buddy->nfree -= nset;
+		buddy->nfree -= (size_t)nset;
 		chunk->addr = (void *)(index * PAGE_SIZE);
 		chunk->size = len * PAGE_SIZE;
 		return 0;
@@ -282,4 +281,5 @@ int kpm_free(struct kpm_chunk_head *head) {
 		TAILQ_REMOVE(head, c, next);
 		kfree(c);
 	}
+	return 0;
 }

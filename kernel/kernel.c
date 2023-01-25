@@ -49,9 +49,7 @@ int kernel_init(unsigned long multiboot_info_addr) {
 	KBD_initialize();
 
 	multiboot_info_t *mbi = (multiboot_info_t *)multiboot_info_addr;
-	if (kpm_init((void *)mbi->mmap_addr,
-			mbi->mmap_length / sizeof(struct multiboot_mmap_entry),
-			mbi->mem_upper - mbi->mem_lower) < 0)
+	if (kpm_init((void *)mbi->mmap_addr, mbi->mem_upper - mbi->mem_lower) < 0)
 		PANIC;
 
 	physaddr_t pagedir = page_directory_kernel_new();

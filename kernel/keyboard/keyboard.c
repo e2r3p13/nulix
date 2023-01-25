@@ -6,7 +6,7 @@
  * Keyboard driver
  *
  * created: 2022/10/15 - lfalkau <lfalkau@student.42.fr>
- * updated: 2022/12/14 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/25 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/keyboard.h>
@@ -25,7 +25,7 @@ struct kbd_state kbd_st = {0};
  *
  * @on: 1 to turn on the LED, 0 to turn off
  */
-static void set_capslock_led(int on) {
+static void set_capslock_led(__attribute__((unused)) int on) {
 	//TODO
 }
 
@@ -34,7 +34,7 @@ static void set_capslock_led(int on) {
  *
  * @on: 1 to turn on the LED, 0 to turn off
  */
-static void set_numlock_led(int on) {
+static void set_numlock_led(__attribute__((unused)) int on) {
 	//TODO
 }
 
@@ -100,6 +100,7 @@ static void set_modifiers(struct kbd_event *evt) {
 		case KEY_RIGHT_ALT:
 			kbd_st.modifiers.ralt = (evt->type == KEY_PRESSED);
 			break;
+		default:
 	}
 }
 
@@ -172,7 +173,6 @@ void KBD_geteventbytype(struct kbd_event *evt, enum kbd_eventtype type) {
 int KBD_getchar(struct kbd_event *evt) {
 	struct kbd_keymap_entry ent;
 	struct kbd_modifiers *mod = &kbd_st.modifiers;
-	int c;
 
 	if (!kbd_st.getkeymapentry)
 		return 0;
