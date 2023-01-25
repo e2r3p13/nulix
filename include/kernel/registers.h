@@ -59,6 +59,20 @@ do { \
 	asm("movl %%cr3, %0" : "=rm" ( (regs)->cr3 )); \
 } while (0)
 
+#define REG_CLEAR \
+do { \
+	asm("xor %eax, %eax"); \
+	asm("xor %ebx, %ebx"); \
+	asm("xor %ecx, %ecx"); \
+	asm("xor %edx, %edx"); \
+	asm("xor %esi, %esi"); \
+	asm("xor %edi, %edi"); \
+	asm("xor %esp, %esp"); \
+	asm("xor %ebp, %ebp"); \
+	asm("mov %ax, %fs"); \
+	asm("mov %ax, %gs"); \
+} while (0)
+
 void registers_print(struct registers *regs);
 
 #endif

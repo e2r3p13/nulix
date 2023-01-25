@@ -20,6 +20,7 @@ do { \
 	REG_SAVE(&__regs); \
 	panic_print(); \
 	registers_print(&__regs); \
+	REG_CLEAR; \
 	asm("hlt"); \
 } while (0)
 
@@ -27,6 +28,7 @@ do { \
 do { \
 	panic_print(); \
 	registers_print((regs)); \
+	REG_CLEAR; \
 	asm("hlt"); \
 } while (0)
 

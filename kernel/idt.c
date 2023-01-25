@@ -45,17 +45,17 @@ void idt_init() {
 	idt_set_descriptor(6,	&isr_6,		INT_GATE_FLAGS);
 	idt_set_descriptor(7,	&isr_7,		INT_GATE_FLAGS);
 	idt_set_descriptor(8,	&isr_8,		INT_GATE_FLAGS);
-	idt_set_descriptor(9,	&isr_8,		INT_GATE_FLAGS);
-	idt_set_descriptor(10,	&isr_14,	INT_GATE_FLAGS);
-	idt_set_descriptor(11,	&isr_14,	INT_GATE_FLAGS);
-	idt_set_descriptor(12,	&isr_14,	INT_GATE_FLAGS);
-	idt_set_descriptor(13,	&isr_14,	INT_GATE_FLAGS);
+	idt_set_descriptor(9,	&isr_9,		INT_GATE_FLAGS);
+	idt_set_descriptor(10,	&isr_10,	INT_GATE_FLAGS);
+	idt_set_descriptor(11,	&isr_11,	INT_GATE_FLAGS);
+	idt_set_descriptor(12,	&isr_12,	INT_GATE_FLAGS);
+	idt_set_descriptor(13,	&isr_13,	INT_GATE_FLAGS);
 	idt_set_descriptor(14,	&isr_14,	INT_GATE_FLAGS);
-	idt_set_descriptor(16,	&isr_14,	INT_GATE_FLAGS);
-	idt_set_descriptor(17,	&isr_14,	INT_GATE_FLAGS);
-	idt_set_descriptor(18,	&isr_14,	INT_GATE_FLAGS);
-	idt_set_descriptor(19,	&isr_14,	INT_GATE_FLAGS);
-	idt_set_descriptor(20,	&isr_14,	INT_GATE_FLAGS);
+	idt_set_descriptor(16,	&isr_16,	INT_GATE_FLAGS);
+	idt_set_descriptor(17,	&isr_17,	INT_GATE_FLAGS);
+	idt_set_descriptor(18,	&isr_18,	INT_GATE_FLAGS);
+	idt_set_descriptor(19,	&isr_19,	INT_GATE_FLAGS);
+	idt_set_descriptor(20,	&isr_20,	INT_GATE_FLAGS);
 
 	idt_set_descriptor(32 + 0, &irq_0,	INT_GATE_FLAGS);
 	idt_set_descriptor(32 + 1, &irq_1,	INT_GATE_FLAGS);
