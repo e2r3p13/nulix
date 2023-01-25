@@ -1,5 +1,5 @@
 
-cross-target:= i686-elf
+cross-target:= i686-elf-
 target:= i386
 
 kernel-name:= kfs
@@ -24,9 +24,9 @@ liblist= libstring.a \
 	  libbit.a
 libs= $(addprefix ${builddir}/, ${liblist})
 
-LD:= ${cross-target}-ld
+LD:= ${cross-target}ld
 LDFLAGS+= -T ${archdir}/linker.ld
-QEMU:= qemu-system-i386
+QEMU:= qemu-system-x86_64
 QEMUFLAGS+= -serial stdio -d cpu_reset
 GRUBMK:=grub2-mkrescue
 #GRUBMKFLAGS+=--compress=xz

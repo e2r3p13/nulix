@@ -1,14 +1,14 @@
 
-cross-target:= i686-elf
+cross-target:= i686-elf-
 
 # COMPILE VAR
-AS:= ${cross-target}-as
+AS:= ${cross-target}as
 ASFLAGS+=
-AR:= ${cross-target}-ar
+AR:= ${cross-target}ar
 ARFLAGS:= rc
-CC:= ${cross-target}-gcc
-CFLAGS+= -Wall -Wextra -ffreestanding -nostdlib -MMD $(addprefix -I, ${.INCLUDE_DIRS})
-LD:= ${cross-target}-ld
+CC:= ${cross-target}gcc
+CFLAGS+= -Wall -Wextra -ffreestanding -nostdlib -nodefaultlibs -fno-builtin -mgeneral-regs-only -MMD $(addprefix -I, ${.INCLUDE_DIRS})
+LD:= ${cross-target}ld
 LDFLAGS+=
 
 # BUILD VAR
