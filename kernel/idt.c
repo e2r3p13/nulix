@@ -7,7 +7,7 @@
  * and interrupts
  *
  * created: 2022/10/18 - xlmod <glafond-@student.42.fr>
- * updated: 2023/01/24 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/25 - glafond- <glafond-@student.42.fr>
  */
 
 #include <stdint.h>
@@ -36,19 +36,29 @@ void idt_init() {
 	idtp.limit = idtbytes;
 	idtp.base = (uint32_t)idt;
 
-	idt_set_descriptor(0, &isr_0, TRAP_GATE_FLAGS);
-	idt_set_descriptor(1, &isr_1, TRAP_GATE_FLAGS);
-	idt_set_descriptor(2, &isr_2, TRAP_GATE_FLAGS);
-	idt_set_descriptor(3, &isr_3, TRAP_GATE_FLAGS);
-	idt_set_descriptor(4, &isr_4, TRAP_GATE_FLAGS);
-	idt_set_descriptor(5, &isr_5, TRAP_GATE_FLAGS);
-	idt_set_descriptor(6, &isr_6, TRAP_GATE_FLAGS);
-	idt_set_descriptor(7, &isr_7, TRAP_GATE_FLAGS);
-	idt_set_descriptor(ISR_DF, double_fault_handler, TRAP_GATE_FLAGS);
-	idt_set_descriptor(ISR_GF, gp_fault_handler, TRAP_GATE_FLAGS);
-	idt_set_descriptor(ISR_PF, page_fault_handler, TRAP_GATE_FLAGS);
-	idt_set_descriptor(ISR_TM, timer_handler, INT_GATE_FLAGS);
-	idt_set_descriptor(ISR_KB, keyboard_handler, INT_GATE_FLAGS);
+	idt_set_descriptor(0,	&isr_0,		INT_GATE_FLAGS);
+	idt_set_descriptor(1,	&isr_1,		INT_GATE_FLAGS);
+	idt_set_descriptor(2,	&isr_2,		INT_GATE_FLAGS);
+	idt_set_descriptor(3,	&isr_3,		INT_GATE_FLAGS);
+	idt_set_descriptor(4,	&isr_4,		INT_GATE_FLAGS);
+	idt_set_descriptor(5,	&isr_5,		INT_GATE_FLAGS);
+	idt_set_descriptor(6,	&isr_6,		INT_GATE_FLAGS);
+	idt_set_descriptor(7,	&isr_7,		INT_GATE_FLAGS);
+	idt_set_descriptor(8,	&isr_8,		INT_GATE_FLAGS);
+	idt_set_descriptor(9,	&isr_8,		INT_GATE_FLAGS);
+	idt_set_descriptor(10,	&isr_14,	INT_GATE_FLAGS);
+	idt_set_descriptor(11,	&isr_14,	INT_GATE_FLAGS);
+	idt_set_descriptor(12,	&isr_14,	INT_GATE_FLAGS);
+	idt_set_descriptor(13,	&isr_14,	INT_GATE_FLAGS);
+	idt_set_descriptor(14,	&isr_14,	INT_GATE_FLAGS);
+	idt_set_descriptor(16,	&isr_14,	INT_GATE_FLAGS);
+	idt_set_descriptor(17,	&isr_14,	INT_GATE_FLAGS);
+	idt_set_descriptor(18,	&isr_14,	INT_GATE_FLAGS);
+	idt_set_descriptor(19,	&isr_14,	INT_GATE_FLAGS);
+	idt_set_descriptor(20,	&isr_14,	INT_GATE_FLAGS);
+
+	idt_set_descriptor(32 + 0, &irq_0,	INT_GATE_FLAGS);
+	idt_set_descriptor(32 + 1, &irq_1,	INT_GATE_FLAGS);
 
 	__asm__ volatile ("lidt %0" :: "m"(idtp));
 	__asm__ volatile ("sti");

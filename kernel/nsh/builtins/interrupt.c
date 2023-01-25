@@ -6,7 +6,7 @@
  * Interrupt builtin file
  *
  * created: 2022/12/08 - xlmod <glafond-@student.42.fr>
- * updated: 2023/01/24 - glafond- <glafond-@student.42.fr>
+ * updated: 2023/01/25 - glafond- <glafond-@student.42.fr>
  */
 
 #include <kernel/stdlib.h>
@@ -54,12 +54,33 @@ int interrupt(int argc, char **argv) {
 		case 7:
 			__asm__ volatile ("int $7");
 			break;
+		case 9:
+			__asm__ volatile ("int $9");
+			break;
+		case 16:
+			__asm__ volatile ("int $16");
+			break;
+		case 18:
+			__asm__ volatile ("int $18");
+			break;
+		case 19:
+			__asm__ volatile ("int $19");
+			break;
+		case 20:
+			__asm__ volatile ("int $20");
+			break;
 		case 8:
+		case 10:
+		case 11:
+		case 12:
+		case 13:
+		case 14:
+		case 17:
 			kprintf(BLTNAME ": interrupt number '%d' can't be raised.\n", interrupt);
 			break;
 		default:
 			kprintf(BLTNAME ": interrupt number '%d' not implemented.\n", interrupt);
-			__asm__ volatile ("int $9");
+			break;
 	}
 	return 0;
 }

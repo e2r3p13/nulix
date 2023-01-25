@@ -12,8 +12,6 @@
 #include <kernel/pic_8259.h>
 #include <kernel/port.h>
 
-#include "idt_internal.h"
-
 /* Set the mask of an IRQ to ignore its request and continue normal operation.
  *
  * */

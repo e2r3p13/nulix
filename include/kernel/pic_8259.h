@@ -41,6 +41,9 @@
 #define ICW1 0x11
 #define ICW4 0x01
 
+#define IRQ_TM 0
+#define IRQ_KB 1
+
 void	pic_8259_init(int pic1, int pic2);
 void 	pic_8259_eoi(uint8_t irq_id);
 

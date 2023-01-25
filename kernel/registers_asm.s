@@ -1,5 +1,5 @@
 
-.set REGS_SIZE, 128
+.set REGS_SIZE, 140
 
 .macro REG_SAVE
 	// reserved on stack
@@ -8,39 +8,45 @@
 	// copy register
 	// segments registers
 	movl $0,  0x00(%esp)
-	mov %ss, 0x00(%esp)
+	movw %ss, 0x00(%esp)
 	movl $0,  0x04(%esp)
-	mov %cs, 0x04(%esp)
+	movw %cs, 0x04(%esp)
 	movl $0,  0x08(%esp)
-	mov %ds, 0x08(%esp)
+	movw %ds, 0x08(%esp)
 	movl $0,  0x0c(%esp)
-	mov %es, 0x0c(%esp)
+	movw %es, 0x0c(%esp)
 	movl $0,  0x10(%esp)
-	mov %fs, 0x10(%esp)
+	movw %fs, 0x10(%esp)
 	movl $0,  0x14(%esp)
-	mov %gs, 0x14(%esp)
+	movw %gs, 0x14(%esp)
 
 	// general registers
-	mov %esi, 0x28(%esp)
-	mov %edi, 0x2c(%esp)
-	mov %eax, 0x30(%esp)
-	mov %ebx, 0x34(%esp)
-	mov %ecx, 0x38(%esp)
-	mov %edx, 0x3c(%esp)
+	movl %esi, 0x28(%esp)
+	movl %edi, 0x2c(%esp)
+	movl %eax, 0x30(%esp)
+	movl %ebx, 0x34(%esp)
+	movl %ecx, 0x38(%esp)
+	movl %edx, 0x3c(%esp)
 
-	mov %ebp, %eax
+	mov %cr0, %eax
+	mov %eax, 0x40(%esp)
+	mov %cr2, %eax
+	mov %eax, 0x44(%esp)
+	mov %cr3, %eax
+	mov %eax, 0x48(%esp)
+
+	movl %ebp, %eax
 	add $16, %eax
-	mov %eax, 0x1c(%esp)
-	mov (%ebp), %eax
-	mov %eax, 0x20(%esp)
+	movl %eax, 0x1c(%esp)
+	movl (%ebp), %eax
+	movl %eax, 0x20(%esp)
 
 	// eflags
-	pushf
-	pop %eax
-	mov %eax, 0x18(%esp)
+	movl 12(%ebp), %eax
+	movl %eax, 0x18(%esp)
 
 	// eip
-	mov 4(%ebp), %eax
+	movl 4(%ebp), %eax
 	movl %eax, 0x24(%esp)
 
 .endm
@@ -48,16 +54,16 @@
 .macro REG_RESTORE
 
 	// segments registers
-	mov 0x10(%esp), %fs 
-	mov 0x14(%esp), %gs 
+	movw 0x10(%esp), %fs 
+	movw 0x14(%esp), %gs 
 
 	// general registers
-	mov 0x28(%esp), %esi
-	mov 0x2c(%esp), %edi
-	mov 0x30(%esp), %eax
-	mov 0x34(%esp), %ebx
-	mov 0x38(%esp), %ecx
-	mov 0x3c(%esp), %edx
+	movl 0x28(%esp), %esi
+	movl 0x2c(%esp), %edi
+	movl 0x30(%esp), %eax
+	movl 0x34(%esp), %ebx
+	movl 0x38(%esp), %ecx
+	movl 0x3c(%esp), %edx
 	
 	add $REGS_SIZE, %esp
 

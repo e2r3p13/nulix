@@ -37,7 +37,8 @@ src-y:= \
 	pic_8259.c \
 	screenbuf.c \
 	panic.c \
-	irs_asm.s
+	irs_asm.s \
+	registers.c
 
 objs:= $(addprefix ${builddir}/, ${src-y})
 objs:= ${objs:.c=.o}
