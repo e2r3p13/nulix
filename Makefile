@@ -7,42 +7,51 @@ kernel-version:= 0.0.1
 kernel:= ${kernel-name}-${kernel-version}
 
 #BUILD 
-subdir+= kernel lib drivers
-
 archdir:= arch/${target}
-
-builddir?= $(shell pwd)/build
+incdir:= include
+builddir:= build
 isodir:= ${builddir}/iso
+src-dir:= kernel drivers lib
 
-.INCLUDE_DIRS:= $(shell pwd)/include
+src-c:= $(shell find $(src-dir) -type f -regex ".*\.c")
+src-s:= $(shell find $(src-dir) -type f -regex ".*\.s")
 
-objs= $(shell find ${builddir} -type f -name "*.o")
-liblist= libstring.a \
-	  libtools.a \
-	  libstd.a \
-	  libcrypto.a \
-	  libbit.a
-libs= $(addprefix ${builddir}/, ${liblist})
+objs:= $(addprefix $(builddir)/, $(patsubst %.c, %.o, $(src-c)))
+objs+= $(addprefix $(builddir)/, $(patsubst %.s, %.o, $(src-s)))
 
+# COMPILE VAR
+AS:= ${cross-target}as
+ASFLAGS+=
+CC:= ${cross-target}gcc
+CFLAGS+= -Wall -Wextra
+CFLAGS+= -ffreestanding -nostdlib -nodefaultlibs -fno-builtin
+CFLAGS+= -mgeneral-regs-only -MMD
+CFLAGS+= $(addprefix -I, ${.INCLUDE_DIRS})
 LD:= ${cross-target}ld
 LDFLAGS+= -T ${archdir}/linker.ld
-QEMU:= qemu-system-x86_64
-QEMUFLAGS+= -serial stdio -d cpu_reset
+
 GRUBMK:=grub2-mkrescue
-#GRUBMKFLAGS+=--compress=xz
-#GRUBMOD:=--install-modules="normal multiboot2 part_gpt part_acorn part_apple\
-#		part_bsd part_amiga part_dfly part_dvh part_plan part_sun part_sunpc"
+GRUBMKFLAGS+=--compress=xz
+
+QEMU:= qemu-system-x86_64
+QEMU_MEM:= -m 128M
+QEMU_DEBUG:=
+QEMUFLAGS+= -serial mon:stdio ${QEMU_DEBUG} ${QEMU_MEM}
 
 .PHONY: all
 all: build link
 
 .PHONY: build
-build: build-subdir
+build: ${objs}
 
 .PHONY: link
 link: build
-	@${LD} ${LDFLAGS} -o ${builddir}/${kernel} ${objs} ${libs}
+	@${LD} ${LDFLAGS} -o ${builddir}/${kernel} ${objs}
 	@printf "[ \e[32mLD\e[0m ]  %s\n" ${kernel}
+	
+.PHONY: run
+run: link
+	@${QEMU} ${QEMUFLAGS} -kernel ${builddir}/${kernel}
 
 .PHONY: iso
 iso: link
@@ -58,15 +67,9 @@ boot:
 	@${QEMU} ${QEMUFLAGS} -cdrom ${builddir}/${kernel}.iso
 
 .PHONY: clean
-clean: clean-subdir
+clean:
 	@if [ -d ${builddir} ]; then \
 		for obj in $$(find . -type f -name '*.o' | tr '\n' ' '); do \
-			if [ -f $$obj ]; then \
-				${RM} $$obj; \
-				printf "[ \e[31mRM\e[0m ]  %s\n" "$${obj#./build/}"; \
-			fi; \
-		done; \
-		for obj in $$(find . -type f -name '*.a' | tr '\n' ' '); do \
 			if [ -f $$obj ]; then \
 				${RM} $$obj; \
 				printf "[ \e[31mRM\e[0m ]  %s\n" "$${obj#./build/}"; \
@@ -88,15 +91,13 @@ fclean: clean
 .PHONY: re
 re: clean all
 
-# SUBDIR
-.PHONY: build-subdir
-build-subdir:
-	@set -e;for subd in ${subdir}; do \
-		${MAKE} -C $$subd builddir=${builddir} .INCLUDE_DIRS=${.INCLUDE_DIRS} all; \
-	done
+${builddir}/%.o: %.c
+	@mkdir -p $(builddir)/$(dir $<)
+	@${CC} ${CFLAGS} -o $@ -c $<
+	@printf "[ \e[32mCC\e[0m ]  %s\n" $<
 
-.PHONY: clean-subdir
-clean-subdir:
-	@for subd in ${subdir}; do \
-		${MAKE} -C $$subd builddir=${builddir} .INCLUDE_DIRS=${.INCLUDE_DIRS} clean; \
-	done
+${builddir}/%.o: %.s
+	@mkdir -p $(builddir)/$(dir $<)
+	@${AS} ${ASFLAGS} -o $@ -c $<
+	@printf "[ \e[32mAS\e[0m ]  %s\n" $<
+

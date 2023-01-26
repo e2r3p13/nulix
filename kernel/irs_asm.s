@@ -1,5 +1,5 @@
 
-.include "./registers_asm.s"
+.include "kernel/registers_asm.s"
 
 .macro ISR_NOCODE n
 .global isr_\n
